@@ -14,6 +14,22 @@ namespace DoAn.ViewModel
     public class HoSoKBViewModel : BaseViewModel
     {
         public ObservableCollection<HoSoKBModel> DanhSachHoSo { get; set; }
+        public ObservableCollection<KhamNghiemTheoBacSiModel> DanhSachKhamNghiemTheoBacSi { get; set; }
+        public ObservableCollection<KhamNghiemTheoTuThiModel> DanhSachKhamNghiemTheoTuThi { get; set; }
+
+        private string _maBSTraCuu;
+        public string MaBSTraCuu
+        {
+            get => _maBSTraCuu;
+            set { _maBSTraCuu = value; OnPropertyChanged(); }
+        }
+
+        private string _maTHTraCuu;
+        public string MaTHTraCuu
+        {
+            get => _maTHTraCuu;
+            set { _maTHTraCuu = value; OnPropertyChanged(); }
+        }
 
         private HoSoKBModel _newHoSo;
         public HoSoKBModel NewHoSo
@@ -55,10 +71,15 @@ namespace DoAn.ViewModel
         public ICommand XuatExcelCommand { get; set; }
         public ICommand NhapTuFileCommand { get; set; }
         public ICommand XemChiTietCommand { get; set; }
+        public ICommand TraCuuTheoBacSiCommand { get; set; }
+        public ICommand TraCuuTheoTuThiCommand { get; set; }
+        public ICommand LamMoiTraCuuCommand { get; set; }
 
         public HoSoKBViewModel()
         {
             DanhSachHoSo = new ObservableCollection<HoSoKBModel>();
+            DanhSachKhamNghiemTheoBacSi = new ObservableCollection<KhamNghiemTheoBacSiModel>();
+            DanhSachKhamNghiemTheoTuThi = new ObservableCollection<KhamNghiemTheoTuThiModel>();
 
             LoadCommand = new RelayCommand(p => LoadData());
             ThemCommand = new RelayCommand(p => ThemHoSo());
@@ -67,6 +88,9 @@ namespace DoAn.ViewModel
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             XemChiTietCommand = new RelayCommand(p => XemChiTiet());
+            TraCuuTheoBacSiCommand = new RelayCommand(p => TraCuuTheoBacSi());
+            TraCuuTheoTuThiCommand = new RelayCommand(p => TraCuuTheoTuThi());
+            LamMoiTraCuuCommand = new RelayCommand(p => LamMoiTraCuu());
 
             LoadData();
             ResetForm();
@@ -270,6 +294,109 @@ namespace DoAn.ViewModel
                     MessageBox.Show("Lỗi xuất file (Vui lòng đóng file Excel nếu đang mở): " + ex.Message);
                 }
             }
+        }
+
+        private void TraCuuTheoBacSi()
+        {
+            if (string.IsNullOrWhiteSpace(MaBSTraCuu))
+            {
+                MessageBox.Show("Vui lòng nhập Mã Bác Sĩ để tra cứu.");
+                return;
+            }
+
+            DanhSachKhamNghiemTheoBacSi.Clear();
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT * FROM dbo.fn_DanhSachKhamNghiemTheoBacSi(@mabs)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@mabs", MaBSTraCuu);
+                        using (var da = new SqlDataAdapter(cmd))
+                        {
+                            var dt = new DataTable();
+                            da.Fill(dt);
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                DanhSachKhamNghiemTheoBacSi.Add(new KhamNghiemTheoBacSiModel
+                                {
+                                    MaTH = row["MATH"].ToString(),
+                                    HoTenTH = row["HOTEN_TH"].ToString(),
+                                    GioiTinh = row["GIOITINH"].ToString(),
+                                    TgKham = row["THOIGIANKHAM"] != DBNull.Value ? (DateTime?)row["THOIGIANKHAM"] : null,
+                                    KetLuan = row["KETLUAN"].ToString()
+                                });
+                            }
+
+                            if (dt.Rows.Count == 0)
+                            {
+                                MessageBox.Show("Không có hồ sơ khám nghiệm cho bác sĩ này.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tra cứu: " + ex.Message);
+            }
+        }
+
+        private void TraCuuTheoTuThi()
+        {
+            if (string.IsNullOrWhiteSpace(MaTHTraCuu))
+            {
+                MessageBox.Show("Vui lòng nhập Mã Thi Hài để tra cứu.");
+                return;
+            }
+
+            DanhSachKhamNghiemTheoTuThi.Clear();
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT * FROM dbo.fn_DanhSachKhamNghiemTheoTuThi(@math)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@math", MaTHTraCuu);
+                        using (var da = new SqlDataAdapter(cmd))
+                        {
+                            var dt = new DataTable();
+                            da.Fill(dt);
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                DanhSachKhamNghiemTheoTuThi.Add(new KhamNghiemTheoTuThiModel
+                                {
+                                    MaHS = row["MAHS"].ToString(),
+                                    MaTH = row["MATH"].ToString(),
+                                    MaBS = row["MABS"].ToString(),
+                                    HoTenBS = row["HOTEN_BS"].ToString(),
+                                    TgKham = row["THOIGIANKHAM"] != DBNull.Value ? (DateTime?)row["THOIGIANKHAM"] : null,
+                                    KetLuan = row["KETLUAN"].ToString()
+                                });
+                            }
+
+                            if (dt.Rows.Count == 0)
+                            {
+                                MessageBox.Show("Không có hồ sơ khám nghiệm cho thi hài này.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tra cứu: " + ex.Message);
+            }
+        }
+
+        private void LamMoiTraCuu()
+        {
+            MaBSTraCuu = string.Empty;
+            MaTHTraCuu = string.Empty;
+            DanhSachKhamNghiemTheoBacSi.Clear();
+            DanhSachKhamNghiemTheoTuThi.Clear();
         }
 
         // --- HÀM NHẬP EXCEL

@@ -13,6 +13,7 @@ namespace DoAn.ViewModel
     public class SuDungViewModel : BaseViewModel
     {
         public ObservableCollection<SuDungModel> DanhSachSuDung { get; set; }
+        public ObservableCollection<SuDungModel> LichSuDichVuTheoThiHai { get; set; }
 
         private SuDungModel _newSuDung;
         public SuDungModel NewSuDung
@@ -58,10 +59,12 @@ namespace DoAn.ViewModel
         public ICommand XuatExcelCommand { get; set; }
         public ICommand NhapTuFileCommand { get; set; }
         public ICommand TinhTongTienCommand { get; set; }
+        public ICommand TraCuuLichSuDichVuCommand { get; set; }
 
         public SuDungViewModel()
         {
             DanhSachSuDung = new ObservableCollection<SuDungModel>();
+            LichSuDichVuTheoThiHai = new ObservableCollection<SuDungModel>();
 
             LoadCommand = new RelayCommand(p => LoadData());
             ThemCommand = new RelayCommand(p => ThemSuDung(), p => NewSuDung != null && !string.IsNullOrWhiteSpace(NewSuDung.MaTH) && !string.IsNullOrWhiteSpace(NewSuDung.MaDV));
@@ -69,6 +72,7 @@ namespace DoAn.ViewModel
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             TinhTongTienCommand = new RelayCommand(p => TinhTongTien(), p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
+            TraCuuLichSuDichVuCommand = new RelayCommand(p => TraCuuLichSuDichVu(), p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
 
             LoadData();
             ResetForm();
@@ -166,28 +170,65 @@ namespace DoAn.ViewModel
                 using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_TinhTongTienDichVu", conn))
+                    using (SqlCommand cmd = new SqlCommand("SELECT dbo.FN_TinhTongTienDichVu(@MaTH)", conn))
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@MaTH", maTH);
-
-                        SqlParameter outParam = new SqlParameter("@TongTien", SqlDbType.Money);
-                        outParam.Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add(outParam);
-
-                        cmd.ExecuteNonQuery();
-
-                        decimal tongTien = 0;
-                        if (cmd.Parameters["@TongTien"].Value != DBNull.Value)
-                        {
-                            tongTien = (decimal)cmd.Parameters["@TongTien"].Value;
-                        }
+                        object result = cmd.ExecuteScalar();
+                        decimal tongTien = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
                         TongTien = $"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ";
                         MessageBox.Show($"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ", "Thông báo chi phí");
                     }
                 }
             }
             catch (Exception ex) { MessageBox.Show("Lỗi tính toán: " + ex.Message); }
+        }
+
+        private void TraCuuLichSuDichVu()
+        {
+            if (!DBConnect.RequireStaffOrAdmin("Tra cứu lịch sử dịch vụ")) return;
+            if (string.IsNullOrWhiteSpace(NewSuDung?.MaTH))
+            {
+                MessageBox.Show("Vui lòng nhập Mã Thi Hài để tra cứu lịch sử dịch vụ.");
+                return;
+            }
+
+            LichSuDichVuTheoThiHai.Clear();
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT * FROM dbo.fn_LichSuDichVuCuaTuThi(@math)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@math", NewSuDung.MaTH);
+                        using (var da = new SqlDataAdapter(cmd))
+                        {
+                            var dt = new DataTable();
+                            da.Fill(dt);
+
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                LichSuDichVuTheoThiHai.Add(new SuDungModel
+                                {
+                                    TenDV = row["TENDV"].ToString(),
+                                    GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
+                                    NgaySD = row["NGAYSUDUNG"] != DBNull.Value ? (DateTime?)row["NGAYSUDUNG"] : null,
+                                    GhiChu = row["GHICHU"].ToString()
+                                });
+                            }
+
+                            if (dt.Rows.Count == 0)
+                            {
+                                MessageBox.Show("Không có lịch sử dịch vụ cho thi hài này.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tra cứu: " + ex.Message);
+            }
         }
         private void XuatExcel()
         {

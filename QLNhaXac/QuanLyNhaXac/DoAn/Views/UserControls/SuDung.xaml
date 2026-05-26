@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="QUẢN LÝ DỊCH VỤ ĐÃ MUA" FontSize="26" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
@@ -106,7 +107,41 @@
             </DataGrid>
         </Border>
 
-        <Grid Grid.Row="3" Margin="0,15,0,0">
+        <Border Grid.Row="3" Background="White" CornerRadius="10" Padding="10" Margin="0,15,0,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="LỊCH SỬ DỊCH VỤ THEO THI HÀI" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
+                <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                          ItemsSource="{Binding LichSuDichVuTheoThiHai}">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#F1F5F9"/>
+                            <Setter Property="Foreground" Value="#475569"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="10,10"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                        </Style>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Padding" Value="10,8"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                        </Style>
+                    </DataGrid.Resources>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tên Dịch Vụ" Binding="{Binding TenDV}" Width="*"/>
+                        <DataGridTextColumn Header="Giá Tiền" Binding="{Binding GiaTien, StringFormat={}{0:N0} VNĐ}" Width="120" Foreground="#059669" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="Ngày Sử Dụng" Binding="{Binding NgaySD, StringFormat=dd/MM/yyyy}" Width="110"/>
+                        <DataGridTextColumn Header="Ghi Chú" Binding="{Binding GhiChu}" Width="160"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="4" Margin="0,15,0,0">
             <TextBlock Text="{Binding TongTien}" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="#EF4444"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -131,6 +166,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <Button Content="TÍNH TỔNG TIỀN (THEO MÃ XÁC CHỌN)" Command="{Binding TinhTongTienCommand}" Background="#F59E0B"/>
+                <Button Content="TRA CỨU LỊCH SỬ" Command="{Binding TraCuuLichSuDichVuCommand}" Background="#0EA5E9"/>
                 <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
                 <Button Content="BÁO CÁO EXCEL" Command="{Binding XuatExcelCommand}" Background="#3B82F6"/>
             </StackPanel>

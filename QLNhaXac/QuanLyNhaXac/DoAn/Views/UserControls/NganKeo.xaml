@@ -25,6 +25,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -70,6 +71,32 @@
                     <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"/>
                     <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"/>
                     <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"/>
+                </StackPanel>
+
+                <TextBlock Text="Trạng Thái:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,12,10,0"/>
+                <TextBox Text="{Binding TrangThaiNganKeo}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,12,0,0" IsReadOnly="True" Background="#E2E8F0" Foreground="#475569"/>
+                <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="140"/>
+                            <Setter Property="Height" Value="32"/>
+                            <Setter Property="Margin" Value="10,0,0,0"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="XEM TRẠNG THÁI" Command="{Binding CapNhatTrangThaiCommand}" Background="#0EA5E9"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -128,6 +155,8 @@
                     </Setter>
                 </Style>
             </StackPanel.Resources>
+            <Button Content="NGĂN TRỐNG" Command="{Binding LocNganKeoTrongCommand}" Background="#F97316"/>
+            <Button Content="TẤT CẢ" Command="{Binding LoadCommand}" Background="#64748B"/>
             <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
             <Button Content="XUẤT EXCEL" Command="{Binding XuatExcelCommand}" Background="#3B82F6"/>
         </StackPanel>

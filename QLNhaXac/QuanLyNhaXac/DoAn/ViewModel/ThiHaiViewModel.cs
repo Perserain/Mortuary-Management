@@ -52,6 +52,13 @@ namespace DoAn.ViewModel
         private string countThiHai = "Số lượng thi hài: 0";
         public string CountThiHai { get => countThiHai; set { countThiHai = value; OnPropertyChanged(); } }
 
+        private DateTime? _ngayTimKiem;
+        public DateTime? NgayTimKiem
+        {
+            get => _ngayTimKiem;
+            set { _ngayTimKiem = value; OnPropertyChanged(); }
+        }
+
         public ICommand LoadCommand { get; set; }
         public ICommand ThemCommand { get; set; }
         public ICommand SuaCommand { get; set; }
@@ -61,6 +68,8 @@ namespace DoAn.ViewModel
         public ICommand XemChiTietCommand { get; set; }
         public ICommand NhapTuFileCommand { get; set; }
         public ICommand ThanhLyCommand { get; set; }
+        public ICommand TimTheoNgayCommand { get; set; }
+        public ICommand TaiLaiDanhSachCommand { get; set; }
 
         public ThiHaiViewModel()
         {
@@ -75,24 +84,26 @@ namespace DoAn.ViewModel
             TimSotCommand = new RelayCommand(p => TimSot());
             XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewThiHai != null && !string.IsNullOrEmpty(NewThiHai.MaTH));
             ThanhLyCommand = new RelayCommand(p => ThanhLyThiHaiHangLoat());
+            TimTheoNgayCommand = new RelayCommand(p => TimTheoNgay());
+            TaiLaiDanhSachCommand = new RelayCommand(p => TaiLaiDanhSach());
 
             LoadData();
             ResetForm();
         }
         private string TaoMaTH()
         {
-            if (DanhSachThiHai == null || DanhSachThiHai.Count == 0) return "DV001";
+            if (DanhSachThiHai == null || DanhSachThiHai.Count == 0) return "TH001";
 
             var maxId = DanhSachThiHai
                 .Select(d => {
-                    if (d.MaTH != null && d.MaTH.StartsWith("DV") && int.TryParse(d.MaTH.Substring(2), out int num))
+                    if (d.MaTH != null && d.MaTH.StartsWith("TH") && int.TryParse(d.MaTH.Substring(2), out int num))
                         return num;
                     return 0;
                 })
                 .DefaultIfEmpty(0)
                 .Max();
 
-            return $"DV{(maxId + 1):D3}";
+            return $"TH{(maxId + 1):D3}";
         }
 
         private void ResetForm()
@@ -238,6 +249,79 @@ namespace DoAn.ViewModel
                 MessageBox.Show("Tuyệt vời! Tất cả thi hài đều đã có chỗ nằm.");
                 LoadData();
             }
+        }
+
+        private void TimTheoNgay()
+        {
+            if (NgayTimKiem == null)
+            {
+                MessageBox.Show("Vui lòng chọn ngày cần tìm.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+            DanhSachThiHai.Clear();
+
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT * FROM dbo.fn_TimKiemThiHaiTheoNgay(@ngay)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ngay", NgayTimKiem.Value.Date);
+                        using (var da = new SqlDataAdapter(cmd))
+                        {
+                            var dt = new DataTable();
+                            da.Fill(dt);
+
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                DateTime? ngaySinh = row["NGAYSINH"] != DBNull.Value ? (DateTime?)row["NGAYSINH"] : null;
+                                DateTime? ngayMat = row["NGAYMAT"] != DBNull.Value ? (DateTime?)row["NGAYMAT"] : null;
+
+                                DanhSachThiHai.Add(new ThiHaiModel
+                                {
+                                    MaTH = row["MATH"].ToString(),
+                                    HoTenTH = row["HOTEN_TH"].ToString(),
+                                    GioiTinh = row["GIOITINH"].ToString(),
+                                    NgaySinh = ngaySinh,
+                                    NgayMat = ngayMat,
+                                    NhomTuoi = TinhNhomTuoi(ngaySinh, ngayMat)
+                                });
+                            }
+
+                            CountThiHai = "Kết quả lọc: " + DanhSachThiHai.Count;
+                            if (dt.Rows.Count == 0)
+                            {
+                                MessageBox.Show("Không tìm thấy thi hài theo ngày đã chọn.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tìm kiếm: " + ex.Message);
+            }
+        }
+
+        private void TaiLaiDanhSach()
+        {
+            NgayTimKiem = null;
+            LoadData();
+        }
+
+        private string TinhNhomTuoi(DateTime? ngaySinh, DateTime? ngayMat)
+        {
+            if (!ngaySinh.HasValue || !ngayMat.HasValue) return "Chưa rõ";
+
+            int age = ngayMat.Value.Year - ngaySinh.Value.Year;
+            if (ngayMat.Value < ngaySinh.Value.AddYears(age)) age--;
+
+            if (age < 18) return "Vị thành niên";
+            if (age <= 59) return "Trưởng thành";
+            return "Cao tuổi";
         }
 
 

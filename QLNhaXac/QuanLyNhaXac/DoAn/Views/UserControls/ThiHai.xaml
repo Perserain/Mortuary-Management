@@ -118,29 +118,39 @@
         </Border>
 
         <Grid Grid.Row="3" Margin="0,15,0,0">
-            <TextBlock Text="{Binding CountThiHai}" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" Foreground="#64748B"/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Height" Value="35"/>
+                    <Setter Property="Padding" Value="15,0"/>
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <StackPanel.Resources>
-                    <Style TargetType="Button">
-                        <Setter Property="Height" Value="35"/>
-                        <Setter Property="Padding" Value="15,0"/>
-                        <Setter Property="Margin" Value="10,0,0,0"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </StackPanel.Resources>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding CountThiHai}" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" Foreground="#64748B" Margin="0,0,10,0"/>
+                <DatePicker SelectedDate="{Binding NgayTimKiem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,10,0"/>
+                <Button Content="TÌM THEO NGÀY" Command="{Binding TimTheoNgayCommand}" Background="#0EA5E9"/>
+                <Button Content="TẢI LẠI" Command="{Binding TaiLaiDanhSachCommand}" Background="#64748B"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="TÌM THI HÀI SÓT" Command="{Binding TimSotCommand}" Background="#F97316"/>
                 <Button Content="THANH LÝ QUÁ HẠN" Command="{Binding ThanhLyCommand}" Background="#64748B"/>
                 <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>

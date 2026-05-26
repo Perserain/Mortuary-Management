@@ -16,6 +16,13 @@ namespace DoAn.ViewModel
     {
         public ObservableCollection<NganKeoModel> DanhSachNganKeo { get; set; }
 
+        private string _trangThaiNganKeo = "Chưa chọn ngăn";
+        public string TrangThaiNganKeo
+        {
+            get => _trangThaiNganKeo;
+            set { _trangThaiNganKeo = value; OnPropertyChanged(); }
+        }
+
         private NganKeoModel _newNganKeo;
         public NganKeoModel NewNganKeo
         {
@@ -41,6 +48,7 @@ namespace DoAn.ViewModel
                         NhietDo = _selectedNganKeo.NhietDo,
                         MaTH = _selectedNganKeo.MaTH
                     };
+                    CapNhatTrangThai();
                 }
                 else
                 {
@@ -56,6 +64,8 @@ namespace DoAn.ViewModel
         public ICommand XuatExcelCommand { get; set; }
         public ICommand NhapTuFileCommand { get; set; }
         public ICommand XemChiTietCommand { get; set; }
+        public ICommand CapNhatTrangThaiCommand { get; set; }
+        public ICommand LocNganKeoTrongCommand { get; set; }
 
         public NganKeoViewModel()
         {
@@ -68,6 +78,8 @@ namespace DoAn.ViewModel
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
+            CapNhatTrangThaiCommand = new RelayCommand(p => CapNhatTrangThai(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
+            LocNganKeoTrongCommand = new RelayCommand(p => LocNganKeoTrong());
 
             LoadData();
             ResetForm();
@@ -117,6 +129,7 @@ namespace DoAn.ViewModel
         {
             NewNganKeo = new NganKeoModel();
             NewNganKeo.MaNgan = TaoMaNgan();
+            TrangThaiNganKeo = "Chưa chọn ngăn";
         }
 
         private void ThemNgan()
@@ -231,6 +244,63 @@ namespace DoAn.ViewModel
                     MessageBox.Show("Xuất file thành công!");
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+            }
+        }
+
+        private void CapNhatTrangThai()
+        {
+            if (string.IsNullOrWhiteSpace(NewNganKeo?.MaNgan))
+            {
+                TrangThaiNganKeo = "Chưa chọn ngăn";
+                return;
+            }
+
+            if (string.IsNullOrEmpty(DBConnect.ConnectionString))
+            {
+                TrangThaiNganKeo = "Chưa kết nối";
+                return;
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    using (var cmd = new SqlCommand("SELECT dbo.FN_CapNhatTrangThaiNganKeo(@mangan)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@mangan", NewNganKeo.MaNgan);
+                        object result = cmd.ExecuteScalar();
+                        TrangThaiNganKeo = result?.ToString() ?? "Chưa rõ";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TrangThaiNganKeo = "Lỗi";
+                MessageBox.Show("Lỗi cập nhật trạng thái: " + ex.Message);
+            }
+        }
+
+        private void LocNganKeoTrong()
+        {
+            if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+            DanhSachNganKeo.Clear();
+
+            DataTable dt = DBConnect.GetData("SELECT * FROM dbo.fn_DanhSachNganKeoTrong()");
+            foreach (DataRow row in dt.Rows)
+            {
+                DanhSachNganKeo.Add(new NganKeoModel
+                {
+                    MaNgan = row["MANGAN"].ToString(),
+                    ViTri = row["VITRI"].ToString(),
+                    NhietDo = row["NHIETDO"] != DBNull.Value ? Convert.ToDouble(row["NHIETDO"]) : 0,
+                    MaTH = null
+                });
+            }
+
+            if (dt.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có ngăn kéo trống.");
             }
         }
         private DataTable ReadFileNganKeo(string path)
