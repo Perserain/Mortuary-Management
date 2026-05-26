@@ -1,9 +1,8 @@
-﻿using DoAn.QuanLy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,7 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using DoAn.Model;
-using DoAn.QuanLy;
+using DoAn.Views.Shared;
+using DoAn.Core;
 namespace DoAn.ViewModel
 {
     public class NganKeoViewModel: BaseViewModel
@@ -77,6 +77,8 @@ namespace DoAn.ViewModel
 
         private void ThemNgan()
         {
+            if (!DBConnect.RequireAdmin("Thêm ngăn kéo")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -107,6 +109,8 @@ namespace DoAn.ViewModel
 
         private void SuaNgan()
         {
+            if (!DBConnect.RequireAdmin("Sửa ngăn kéo")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -137,6 +141,8 @@ namespace DoAn.ViewModel
 
         private void XoaNgan()
         {
+            if (!DBConnect.RequireAdmin("Xóa ngăn kéo")) return;
+
             if (MessageBox.Show("Xóa ngăn kéo này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -159,6 +165,8 @@ namespace DoAn.ViewModel
 
         private void XuatExcel()
         {
+            if (!DBConnect.RequireAdmin("Xuất dữ liệu ngăn kéo")) return;
+
             if (DanhSachNganKeo == null || DanhSachNganKeo.Count == 0) return;
 
             Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
@@ -214,6 +222,8 @@ namespace DoAn.ViewModel
 
         private void NhapTuFile()
         {
+            if (!DBConnect.RequireAdmin("Nhập dữ liệu ngăn kéo")) return;
+
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Text files (*.txt)|*.txt|CSV files (*.csv)|*.csv|All files (*.*)|*.*";
             dlg.Title = "Chọn file dữ liệu Ngăn Kéo";

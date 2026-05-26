@@ -1,13 +1,14 @@
 ﻿using DoAn.Model;
-using DoAn.QuanLy;
+using DoAn.Views.Shared;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Input; 
 using ClosedXML.Excel;
+using DoAn.Core;
 namespace DoAn.ViewModel
 {
     public class BacSiViewModel : BaseViewModel
@@ -84,6 +85,8 @@ namespace DoAn.ViewModel
 
         private void ThemBacSi()
         {
+            if (!DBConnect.RequireAdmin("Thêm bác sĩ")) return;
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
@@ -115,6 +118,8 @@ namespace DoAn.ViewModel
 
         private void XoaBacSi()
         {
+            if (!DBConnect.RequireAdmin("Xóa bác sĩ")) return;
+
             if (MessageBox.Show("Bạn có chắc muốn xóa?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -140,6 +145,8 @@ namespace DoAn.ViewModel
         }
         private void SuaBacSi()
         {
+            if (!DBConnect.RequireAdmin("Sửa bác sĩ")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -199,6 +206,8 @@ namespace DoAn.ViewModel
         // --- HÀM XUẤT EXCEL ---
         private void XuatExcel()
         {
+            if (!DBConnect.RequireAdmin("Xuất Excel bác sĩ")) return;
+
             if (DanhSachBacSi == null || DanhSachBacSi.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo");
@@ -261,6 +270,8 @@ namespace DoAn.ViewModel
         //Nhập từ FILE
         private void NhapTuFile()
         {
+            if (!DBConnect.RequireAdmin("Nhập Excel bác sĩ")) return;
+
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
             dlg.Title = "Chọn file Excel Bác Sĩ";

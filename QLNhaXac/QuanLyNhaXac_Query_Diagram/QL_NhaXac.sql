@@ -1087,12 +1087,21 @@ GO
 -- =============================================
 -- PHÂN QUYỀN
 -- =============================================
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'app_admin')
+    CREATE ROLE [app_admin];
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'app_staff')
+    CREATE ROLE [app_staff];
+
+GO
+
 CREATE PROC SP_KiemTraQuyenHan
 AS
 BEGIN
     -- Kiểm tra quyền và trả về chuỗi tương ứng
-    IF (IS_ROLEMEMBER('db_owner') = 1 OR IS_ROLEMEMBER('db_datawriter') = 1)
-        SELECT 'WriteAccess' AS QuyenHan;
+    IF (IS_ROLEMEMBER('app_admin') = 1 OR IS_ROLEMEMBER('db_owner') = 1)
+        SELECT 'Admin' AS QuyenHan;
+    ELSE IF (IS_ROLEMEMBER('app_staff') = 1 OR IS_ROLEMEMBER('db_datareader') = 1)
+        SELECT 'Staff' AS QuyenHan;
     ELSE
         SELECT 'ReadOnly' AS QuyenHan;
 END;
@@ -1112,6 +1121,14 @@ GRANT EXECUTE ON SP_DemThiHai TO public;
 GO
 
 GRANT EXECUTE ON SP_DSDichVu TO public;
+
+GO
+
+GRANT EXECUTE ON SP_DSThiHai TO app_staff;
+GRANT EXECUTE ON SP_DSDichVu TO app_staff;
+GRANT EXECUTE ON SP_DSDichVuSuDung TO app_staff;
+GRANT EXECUTE ON SP_ThemDichVuSudung TO app_staff;
+GRANT EXECUTE ON sp_TinhTongTienDichVu TO app_staff;
 
 GO
 -- =============================================
@@ -1146,9 +1163,33 @@ GO
 
 -- 3. Cấp quyền "Tối thượng" (db_owner) để App thoải mái Thêm/Sửa/Xóa
 ALTER ROLE [db_owner] ADD MEMBER [NhaXacAdmin]
+ALTER ROLE [app_admin] ADD MEMBER [NhaXacAdmin]
 GO
 
 USE QuanLyNhaXac
 GO
 
-
+/*
+-- DEBUG LocalDB (Windows Auth) - đổi thành Windows login thật rồi bỏ dấu comment ở đầu/cuối
+-- Ví dụ: MAYCUA_BAN\TenUser
+USE master
+GO
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'MAYCUA_BAN\TenUser')
+    DROP LOGIN [MAYCUA_BAN\TenUser]
+GO
+CREATE LOGIN [MAYCUA_BAN\TenUser] FROM WINDOWS
+GO
+USE QuanLyNhaXac
+GO
+IF EXISTS (SELECT * FROM sys.database_principals WHERE name = 'MAYCUA_BAN\TenUser')
+    DROP USER [MAYCUA_BAN\TenUser]
+GO
+CREATE USER [MAYCUA_BAN\TenUser] FOR LOGIN [MAYCUA_BAN\TenUser]
+GO
+-- Admin debug
+ALTER ROLE [db_owner] ADD MEMBER [MAYCUA_BAN\TenUser]
+ALTER ROLE [app_admin] ADD MEMBER [MAYCUA_BAN\TenUser]
+-- Staff debug (chỉ đọc + cung cấp dịch vụ)
+ALTER ROLE [app_staff] ADD MEMBER [MAYCUA_BAN\TenUser]
+GO
+*/

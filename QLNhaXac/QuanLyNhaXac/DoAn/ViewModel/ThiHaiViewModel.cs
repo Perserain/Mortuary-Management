@@ -1,11 +1,12 @@
 ﻿using ClosedXML.Excel;
+using DoAn.Core;
 using DoAn.Model;
-using DoAn.QuanLy;
+using DoAn.Views.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -43,13 +44,13 @@ namespace DoAn.ViewModel
             DanhSachThiHai = new ObservableCollection<ThiHaiModel>();
             SelectedThiHai = new ThiHaiModel();
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemThiHai(), null);
-            SuaCommand = new RelayCommand(p => SuaThiHai(), null);
-            XoaCommand = new RelayCommand(p => XoaThiHai(), null);
+            ThemCommand = new RelayCommand(p => ThemThiHai());
+            SuaCommand = new RelayCommand(p => SuaThiHai());
+            XoaCommand = new RelayCommand(p => XoaThiHai());
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             TimSotCommand = new RelayCommand(p => TimSot());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), null);
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => SelectedThiHai != null && !string.IsNullOrEmpty(SelectedThiHai.MaTH));
             ThanhLyCommand = new RelayCommand(p => ThanhLyThiHaiHangLoat());
 
             LoadData();
@@ -85,6 +86,8 @@ namespace DoAn.ViewModel
 
         private void ThemThiHai()
         {
+            if (!DBConnect.RequireAdmin("Thêm thi hài")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -111,6 +114,8 @@ namespace DoAn.ViewModel
 
         private void SuaThiHai()
         {
+            if (!DBConnect.RequireAdmin("Sửa thi hài")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -138,6 +143,8 @@ namespace DoAn.ViewModel
 
         private void XoaThiHai()
         {
+            if (!DBConnect.RequireAdmin("Xóa thi hài")) return;
+
             if (MessageBox.Show("Bạn chắc chắn muốn xóa thi hài này?", "Cảnh báo", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
@@ -196,6 +203,8 @@ namespace DoAn.ViewModel
         // --- HÀM XUẤT EXCEL CHUẨN XỊN ---
         private void XuatExcel()
         {
+            if (!DBConnect.RequireAdmin("Xuất Excel thi hài")) return;
+
             if (DanhSachThiHai == null || DanhSachThiHai.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo");
@@ -262,6 +271,8 @@ namespace DoAn.ViewModel
         // --- HÀM NHẬP EXCEL
         private void NhapTuFile()
         {
+            if (!DBConnect.RequireAdmin("Nhập Excel thi hài")) return;
+
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
             dlg.Title = "Chọn file Excel Thi Hài";
@@ -375,6 +386,8 @@ namespace DoAn.ViewModel
         // --- HÀM THANH LÝ THI HÀI QUÁ HẠN
         private void ThanhLyThiHaiHangLoat()
         {
+            if (!DBConnect.RequireAdmin("Thanh lý thi hài")) return;
+
             try
             {
                 // Khởi tạo Connection với using

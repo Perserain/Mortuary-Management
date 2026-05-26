@@ -1,11 +1,11 @@
 ﻿using ClosedXML.Excel;
+using DoAn.Core;
 using DoAn.Model;
-using DoAn.QuanLy;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -73,6 +73,8 @@ namespace DoAn.ViewModel
 
         private void ThemSuDung()
         {
+            if (!DBConnect.RequireStaffOrAdmin("Đăng ký dịch vụ")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -103,6 +105,8 @@ namespace DoAn.ViewModel
 
         private void XoaSuDung()
         {
+            if (!DBConnect.RequireAdmin("Hủy dịch vụ")) return;
+
             if (MessageBox.Show($"Bạn có chắc muốn hủy dịch vụ {SelectedSuDung.MaDV} của thi hài {SelectedSuDung.MaTH}?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
@@ -130,6 +134,8 @@ namespace DoAn.ViewModel
 
         private void XuatExcel()
         {
+            if (!DBConnect.RequireAdmin("Xuất Excel dịch vụ đã mua")) return;
+
             if (DanhSachSuDung == null || DanhSachSuDung.Count == 0) return;
 
             Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog() { Filter = "Excel Files|*.xlsx", FileName = "ThongKe_SuDungDichVu.xlsx" };
@@ -183,6 +189,8 @@ namespace DoAn.ViewModel
         // HÀM NHẬP TỪ FILE
         private void NhapTuFile()
         {
+            if (!DBConnect.RequireAdmin("Nhập Excel dịch vụ đã mua")) return;
+
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
             dlg.Title = "Chọn file Excel Dịch Vụ Đã Mua";
@@ -269,6 +277,8 @@ namespace DoAn.ViewModel
 
         private void TinhTongTien()
         {
+            if (!DBConnect.RequireStaffOrAdmin("Tính tổng tiền dịch vụ")) return;
+
             string maTH = SelectedSuDung.MaTH;
             try
             {

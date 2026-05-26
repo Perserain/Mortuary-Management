@@ -1,0 +1,111 @@
+<Window x:Class="DoAn.Views.Staff.StaffWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:DoAn.ViewModel"
+        xmlns:vmStaff="clr-namespace:DoAn.ViewModel.Staff"
+        xmlns:views="clr-namespace:DoAn.Views.UserControls"
+        x:Name="wndStaff"
+        Title="Nhan Vien - Quan Ly Dich Vu" Height="650" Width="1100" WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vmStaff:StaffMainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:BacSiViewModel}">
+            <views:BacSi/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HoSoKBViewModel}">
+            <views:HoSoKB/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ThiHaiViewModel}">
+            <views:ThiHai/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DichVuViewModel}">
+            <views:DichVu/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NganKeoViewModel}">
+            <views:NganKeo/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SuDungViewModel}">
+            <views:SuDung/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="#1E3A8A">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,40,0,30">
+                    <TextBlock Text="NHAN VIEN" Foreground="#FACC15" FontSize="24" FontWeight="Black" HorizontalAlignment="Center"/>
+                    <TextBlock Text="CUNG CAP DICH VU" Foreground="#BFDBFE" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Margin="15,0">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Height" Value="45"/>
+                            <Setter Property="Margin" Value="0,5"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="#F8FAFC"/>
+                            <Setter Property="FontSize" Value="15"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="Padding" Value="15,0,0,0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#1D4ED8"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Button Content="Danh sach bac si" Command="{Binding ShowBacSiCommand}"/>
+                    <Button Content="Ho so kham" Command="{Binding ShowHoSoCommand}"/>
+                    <Button Content="Tra cuu thi hai" Command="{Binding ShowThiHaiCommand}"/>
+                    <Button Content="Bang gia dich vu" Command="{Binding ShowDichVuCommand}"/>
+                    <Button Content="Danh sach ngan keo" Command="{Binding ShowNganKeoCommand}"/>
+                    <Button Content="Dich vu da mua" Command="{Binding ShowSuDungCommand}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Margin="15,0,15,30">
+                    <Button Content="Dang Xuat"
+                            Command="{Binding LogOutCommand}"
+                            CommandParameter="{Binding ElementName=wndStaff}"
+                            Height="45" Background="#EF4444" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,5" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Background="#F8FAFC">
+            <ContentControl Content="{Binding CurrentView}"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,11 +1,12 @@
 ﻿using ClosedXML.Excel;
+using DoAn.Core;
 using DoAn.Model;
-using DoAn.QuanLy;
+using DoAn.Views.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,12 +41,12 @@ namespace DoAn.ViewModel
             SelectedHoSo = new HoSoKBModel();
 
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemHoSo(), null);
-            SuaCommand = new RelayCommand(p => SuaHoSo(), null);
-            XoaCommand = new RelayCommand(p => XoaHoSo(), null);
+            ThemCommand = new RelayCommand(p => ThemHoSo());
+            SuaCommand = new RelayCommand(p => SuaHoSo());
+            XoaCommand = new RelayCommand(p => XoaHoSo());
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), null);
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet());
 
             LoadData();
         }
@@ -79,6 +80,8 @@ namespace DoAn.ViewModel
 
         private void ThemHoSo()
         {
+            if (!DBConnect.RequireAdmin("Thêm hồ sơ khám")) return;
+
             if (string.IsNullOrWhiteSpace(SelectedHoSo.MaTH) || string.IsNullOrWhiteSpace(SelectedHoSo.MaBS))
             {
                 MessageBox.Show("Nhập thiếu Mã HS, Mã Thi Hài hoặc Mã Bác Sĩ!");
@@ -114,6 +117,8 @@ namespace DoAn.ViewModel
 
         private void SuaHoSo()
         {
+            if (!DBConnect.RequireAdmin("Sửa hồ sơ khám")) return;
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -145,6 +150,8 @@ namespace DoAn.ViewModel
 
         private void XoaHoSo()
         {
+            if (!DBConnect.RequireAdmin("Xóa hồ sơ khám")) return;
+
             if (MessageBox.Show("Xóa hồ sơ này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -167,6 +174,8 @@ namespace DoAn.ViewModel
         // --- HÀM XUẤT EXCEL CHUẨN XỊN ---
         private void XuatExcel()
         {
+            if (!DBConnect.RequireAdmin("Xuất Excel hồ sơ khám")) return;
+
             if (DanhSachHoSo == null || DanhSachHoSo.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo");
@@ -232,6 +241,8 @@ namespace DoAn.ViewModel
         // --- HÀM NHẬP EXCEL
         private void NhapTuFile()
         {
+            if (!DBConnect.RequireAdmin("Nhập Excel hồ sơ khám")) return;
+
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
             dlg.Title = "Chọn file Excel Hồ Sơ Khám";

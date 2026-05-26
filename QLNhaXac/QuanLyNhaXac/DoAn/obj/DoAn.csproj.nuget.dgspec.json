@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj": {}
+    "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj": {}
   },
   "projects": {
-    "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj": {
+    "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj",
+        "projectUniqueName": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj",
         "projectName": "DoAn",
-        "projectPath": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj",
-        "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-        "outputPath": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\obj\\",
+        "projectPath": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\DoAn.csproj",
+        "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -54,9 +54,9 @@
               "target": "Package",
               "version": "[0.105.0, )"
             },
-            "System.Data.SqlClient": {
+            "Microsoft.Data.SqlClient": {
               "target": "Package",
-              "version": "[4.9.0, )"
+              "version": "[5.2.1, )"
             }
           },
           "imports": [
@@ -78,7 +78,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

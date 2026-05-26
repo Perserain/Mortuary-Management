@@ -2,22 +2,19 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="KhachHangWindow.xaml.cs">
+    <Compile Update="Views\Layouts\MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="MainWindow.xaml.cs">
+    <Compile Update="Views\UserControls\BacSi.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\BacSi.xaml.cs">
+    <Compile Update="Views\Shared\DetailWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\DetailWindow.xaml.cs">
+    <Compile Update="Views\Auth\Register.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Register.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\SuDung.xaml.cs">
+    <Compile Update="Views\UserControls\SuDung.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

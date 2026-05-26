@@ -1,130 +1,166 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\",
+  "WorkspaceRootPath": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\model\\bacsimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\bacsimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\shared\\detailwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\shared\\detailwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\ngankeo.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\ngankeo.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\auth\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\auth\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\sudung.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\sudung.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\loginviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\loginviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\ngankeoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\ngankeoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\bacsi.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\bacsi.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\thihai.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\thihai.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\thihaiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\thihaiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\dbconnect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\dbconnect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\dichvuviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\dichvuviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\sudungviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\sudungviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\model\\dichvumodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\dichvumodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\model\\sudungmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\sudungmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\thihai.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\thihai.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\hosokbviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\hosokbviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\bacsiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\bacsiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\baseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\baseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\baseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\sudung.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\sudung.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\core\\dbconnect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:core\\dbconnect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\hosokb.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\hosokb.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\bacsiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\bacsiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\shared\\detailwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\shared\\detailwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\model\\thihaimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\layouts\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\layouts\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\sudung.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\sudung.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\sudung.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\sudung.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\ngankeo.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\ngankeo.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\ngankeo.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\ngankeo.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\hosokb.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\hosokb.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\hosokb.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\hosokb.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\thihai.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\thihai.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\thihai.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\thihai.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\dichvu.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\dichvu.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\dichvu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\dichvu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\bacsi.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\bacsi.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\usercontrols\\bacsi.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\usercontrols\\bacsi.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\registerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\registerviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\auth\\register.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\auth\\register.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\auth\\register.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\auth\\register.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\auth\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\auth\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\dichvuviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\dichvuviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\views\\layouts\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\layouts\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\sudungviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\sudungviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\model\\bacsimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\bacsimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\ngankeoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\ngankeoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\thihaiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\thihaiviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\model\\dichvumodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\dichvumodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\model\\sudungmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\sudungmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\viewmodel\\hosokbviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:viewmodel\\hosokbviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\users\\lenovo\\desktop\\hqt_csdl\\ql_nhaxac\\mortuary-management\\qlnhaxac\\quanlynhaxac\\doan\\model\\thihaimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:model\\thihaimodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\dichvu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\dichvu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\KhachHangViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ViewModel\\KhachHangViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\KhachHangWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Layouts\\KhachHangWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\register.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:register.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\register.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:register.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\bacsi.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\bacsi.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\views\\dichvu.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:views\\dichvu.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\khachhangwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:khachhangwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|c:\\qlnhaxac\\quanlynhaxac\\doan\\khachhangwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D0CAF91-B7B2-45A8-A23E-CDD48C8E3864}|DoAn.csproj|solutionrelative:khachhangwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\KhachHangWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Layouts\\KhachHangWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -134,106 +170,171 @@
       "DocumentGroups": [
         {
           "DockedHeight": 200,
-          "SelectedChildIndex": 10,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{75504045-d02f-44e5-bf60-5f60df380e8b}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "NganKeo.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\NganKeo.xaml",
-              "RelativeDocumentMoniker": "Views\\NganKeo.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\NganKeo.xaml",
-              "RelativeToolTip": "Views\\NganKeo.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-17T07:25:36.392Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ThiHaiViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\ThiHaiViewModel.cs",
-              "RelativeDocumentMoniker": "ViewModel\\ThiHaiViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\ThiHaiViewModel.cs",
-              "RelativeToolTip": "ViewModel\\ThiHaiViewModel.cs",
-              "ViewState": "AgIAAF4BAAAAAAAAAAAiwGcBAAApAAAAAAAAAA==",
+              "DocumentIndex": 37,
+              "Title": "KhachHangViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\KhachHangViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\KhachHangViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\KhachHangViewModel.cs",
+              "RelativeToolTip": "ViewModel\\KhachHangViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-24T04:54:03.495Z"
+              "WhenOpened": "2026-05-26T03:00:45.528Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "DichVuViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\DichVuViewModel.cs",
-              "RelativeDocumentMoniker": "ViewModel\\DichVuViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\DichVuViewModel.cs",
-              "RelativeToolTip": "ViewModel\\DichVuViewModel.cs",
-              "ViewState": "AgIAADQBAAAAAAAAAAASwJkAAAAtAAAAAAAAAA==",
+              "DocumentIndex": 11,
+              "Title": "NganKeo.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\NganKeo.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\UserControls\\NganKeo.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\NganKeo.xaml.cs",
+              "RelativeToolTip": "Views\\UserControls\\NganKeo.xaml.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-19T17:10:45.722Z"
+              "WhenOpened": "2026-05-26T02:58:28.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "HoSoKB.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\HoSoKB.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\UserControls\\HoSoKB.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\HoSoKB.xaml.cs",
+              "RelativeToolTip": "Views\\UserControls\\HoSoKB.xaml.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T02:57:43.877Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "RegisterViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\RegisterViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\RegisterViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\RegisterViewModel.cs",
+              "RelativeToolTip": "ViewModel\\RegisterViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T02:46:02.443Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "LoginViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\LoginViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\LoginViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\LoginViewModel.cs",
+              "RelativeToolTip": "ViewModel\\LoginViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T02:44:26.547Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\MainViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\MainViewModel.cs",
+              "RelativeToolTip": "ViewModel\\MainViewModel.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAcwDEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T02:39:34.969Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DetailWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Shared\\DetailWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\Shared\\DetailWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Shared\\DetailWindow.xaml.cs",
+              "RelativeToolTip": "Views\\Shared\\DetailWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T02:33:51.159Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "DetailWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Shared\\DetailWindow.xaml",
+              "RelativeDocumentMoniker": "Views\\Shared\\DetailWindow.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Shared\\DetailWindow.xaml",
+              "RelativeToolTip": "Views\\Shared\\DetailWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-05-26T02:33:21.386Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "App.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\App.xaml",
+              "RelativeDocumentMoniker": "App.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\App.xaml",
+              "RelativeToolTip": "App.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-05-26T01:20:41.56Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "NganKeo.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\NganKeo.xaml",
+              "RelativeDocumentMoniker": "Views\\UserControls\\NganKeo.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\NganKeo.xaml",
+              "RelativeToolTip": "Views\\UserControls\\NganKeo.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-03-17T07:25:36.392Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "SuDung.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\SuDung.xaml",
-              "RelativeDocumentMoniker": "Views\\SuDung.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\SuDung.xaml",
-              "RelativeToolTip": "Views\\SuDung.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\SuDung.xaml",
+              "RelativeDocumentMoniker": "Views\\UserControls\\SuDung.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\SuDung.xaml",
+              "RelativeToolTip": "Views\\UserControls\\SuDung.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-17T07:24:50.371Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 16,
               "Title": "ThiHai.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\ThiHai.xaml",
-              "RelativeDocumentMoniker": "Views\\ThiHai.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\ThiHai.xaml",
-              "RelativeToolTip": "Views\\ThiHai.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\ThiHai.xaml",
+              "RelativeDocumentMoniker": "Views\\UserControls\\ThiHai.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\ThiHai.xaml",
+              "RelativeToolTip": "Views\\UserControls\\ThiHai.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-19T17:10:18.17Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 30,
               "Title": "BacSiModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\BacSiModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\BacSiModel.cs",
               "RelativeDocumentMoniker": "Model\\BacSiModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\BacSiModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\BacSiModel.cs",
               "RelativeToolTip": "Model\\BacSiModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-24T05:31:00.551Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-24T05:31:00.551Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 31,
               "Title": "NganKeoViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\NganKeoViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\NganKeoViewModel.cs",
               "RelativeDocumentMoniker": "ViewModel\\NganKeoViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\NganKeoViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\NganKeoViewModel.cs",
               "RelativeToolTip": "ViewModel\\NganKeoViewModel.cs",
               "ViewState": "AgIAADMAAAAAAAAAAAApwEgAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -241,46 +342,82 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "BacSi.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\BacSi.xaml",
-              "RelativeDocumentMoniker": "Views\\BacSi.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\BacSi.xaml",
-              "RelativeToolTip": "Views\\BacSi.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-17T07:25:32.078Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "DBConnect.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\DBConnect.cs",
-              "RelativeDocumentMoniker": "ViewModel\\DBConnect.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\DBConnect.cs",
-              "RelativeToolTip": "ViewModel\\DBConnect.cs",
-              "ViewState": "AgIAAEkAAAAAAAAAAAAiwFQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-19T17:16:09.147Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 29,
               "Title": "SuDungViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\SuDungViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\SuDungViewModel.cs",
               "RelativeDocumentMoniker": "ViewModel\\SuDungViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\SuDungViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\SuDungViewModel.cs",
               "RelativeToolTip": "ViewModel\\SuDungViewModel.cs",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAawBUAAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAIAAAAAAAAAAAAAnwCIBAABOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-17T07:23:27.613Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 9,
+              "Title": "SuDung.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\SuDung.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\UserControls\\SuDung.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\SuDung.xaml.cs",
+              "RelativeToolTip": "Views\\UserControls\\SuDung.xaml.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-17T07:25:38.923Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "DichVuViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\DichVuViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\DichVuViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\DichVuViewModel.cs",
+              "RelativeToolTip": "ViewModel\\DichVuViewModel.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAADwv0wAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-19T17:10:45.722Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "ThiHaiViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\ThiHaiViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\ThiHaiViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\ThiHaiViewModel.cs",
+              "RelativeToolTip": "ViewModel\\ThiHaiViewModel.cs",
+              "ViewState": "AgIAAF4BAAAAAAAAAAAiwGcBAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-24T04:54:03.495Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "BacSi.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\BacSi.xaml",
+              "RelativeDocumentMoniker": "Views\\UserControls\\BacSi.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\BacSi.xaml",
+              "RelativeToolTip": "Views\\UserControls\\BacSi.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-03-17T07:25:32.078Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DBConnect.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Core\\DBConnect.cs",
+              "RelativeDocumentMoniker": "Core\\DBConnect.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Core\\DBConnect.cs",
+              "RelativeToolTip": "Core\\DBConnect.cs",
+              "ViewState": "AgIAAFkAAAAAAAAAAAAIwAoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-19T17:16:09.147Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
               "Title": "DichVuModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\DichVuModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\DichVuModel.cs",
               "RelativeDocumentMoniker": "Model\\DichVuModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\DichVuModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\DichVuModel.cs",
               "RelativeToolTip": "Model\\DichVuModel.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -288,11 +425,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 34,
               "Title": "SuDungModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\SuDungModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\SuDungModel.cs",
               "RelativeDocumentMoniker": "Model\\SuDungModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\SuDungModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\SuDungModel.cs",
               "RelativeToolTip": "Model\\SuDungModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -300,35 +437,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 3,
               "Title": "RelayCommand.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\RelayCommand.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\RelayCommand.cs",
               "RelativeDocumentMoniker": "ViewModel\\RelayCommand.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\RelayCommand.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\RelayCommand.cs",
               "RelativeToolTip": "ViewModel\\RelayCommand.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-31T03:44:04.89Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "ThiHai.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\ThiHai.xaml.cs",
-              "RelativeDocumentMoniker": "Views\\ThiHai.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\ThiHai.xaml.cs",
-              "RelativeToolTip": "Views\\ThiHai.xaml.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABgAAAAyAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\ThiHai.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\UserControls\\ThiHai.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\ThiHai.xaml.cs",
+              "RelativeToolTip": "Views\\UserControls\\ThiHai.xaml.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-24T04:37:33.199Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 35,
               "Title": "HoSoKBViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\HoSoKBViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\HoSoKBViewModel.cs",
               "RelativeDocumentMoniker": "ViewModel\\HoSoKBViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\HoSoKBViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\HoSoKBViewModel.cs",
               "RelativeToolTip": "ViewModel\\HoSoKBViewModel.cs",
               "ViewState": "AgIAADMBAAAAAAAAAAAQwDkAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -336,35 +473,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 6,
               "Title": "BacSiViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BacSiViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BacSiViewModel.cs",
               "RelativeDocumentMoniker": "ViewModel\\BacSiViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BacSiViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BacSiViewModel.cs",
               "RelativeToolTip": "ViewModel\\BacSiViewModel.cs",
-              "ViewState": "AgIAAOgAAAAAAAAAAAArwIMBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIMBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-24T04:49:47.453Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 4,
               "Title": "BaseViewModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BaseViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BaseViewModel.cs",
               "RelativeDocumentMoniker": "ViewModel\\BaseViewModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BaseViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\ViewModel\\BaseViewModel.cs",
               "RelativeToolTip": "ViewModel\\BaseViewModel.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAQwBQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-17T09:20:17.144Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 36,
               "Title": "ThiHaiModel.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\ThiHaiModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\ThiHaiModel.cs",
               "RelativeDocumentMoniker": "Model\\ThiHaiModel.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\ThiHaiModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Model\\ThiHaiModel.cs",
               "RelativeToolTip": "Model\\ThiHaiModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -372,151 +509,139 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 19,
               "Title": "BacSi.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\BacSi.xaml.cs",
-              "RelativeDocumentMoniker": "Views\\BacSi.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\BacSi.xaml.cs",
-              "RelativeToolTip": "Views\\BacSi.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\BacSi.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\UserControls\\BacSi.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\BacSi.xaml.cs",
+              "RelativeToolTip": "Views\\UserControls\\BacSi.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-24T05:31:17.599Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 14,
               "Title": "HoSoKB.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\HoSoKB.xaml",
-              "RelativeDocumentMoniker": "Views\\HoSoKB.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\HoSoKB.xaml",
-              "RelativeToolTip": "Views\\HoSoKB.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\HoSoKB.xaml",
+              "RelativeDocumentMoniker": "Views\\UserControls\\HoSoKB.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\HoSoKB.xaml",
+              "RelativeToolTip": "Views\\UserControls\\HoSoKB.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-31T04:35:34.799Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 27,
               "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "MainWindow.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\MainWindow.xaml.cs",
-              "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAAEcAAAAAAAAAAAAgwEkAAAAAAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\Layouts\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\MainWindow.xaml.cs",
+              "RelativeToolTip": "Views\\Layouts\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-24T05:02:35.665Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 17,
               "Title": "DichVu.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\DichVu.xaml.cs",
-              "RelativeDocumentMoniker": "Views\\DichVu.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\DichVu.xaml.cs",
-              "RelativeToolTip": "Views\\DichVu.xaml.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAiwBEAAAA9AAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\DichVu.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\UserControls\\DichVu.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\DichVu.xaml.cs",
+              "RelativeToolTip": "Views\\UserControls\\DichVu.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-24T04:59:02.303Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 1,
               "Title": "LoginWindow.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\LoginWindow.xaml",
-              "RelativeDocumentMoniker": "LoginWindow.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\LoginWindow.xaml",
-              "RelativeToolTip": "LoginWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\LoginWindow.xaml",
+              "RelativeDocumentMoniker": "Views\\Auth\\LoginWindow.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\LoginWindow.xaml",
+              "RelativeToolTip": "Views\\Auth\\LoginWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-24T04:39:09.286Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "Register.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Register.xaml",
-              "RelativeDocumentMoniker": "Register.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Register.xaml",
-              "RelativeToolTip": "Register.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\Register.xaml",
+              "RelativeDocumentMoniker": "Views\\Auth\\Register.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\Register.xaml",
+              "RelativeToolTip": "Views\\Auth\\Register.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-24T04:33:38.529Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 38,
               "Title": "KhachHangWindow.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\KhachHangWindow.xaml.cs",
-              "RelativeDocumentMoniker": "KhachHangWindow.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\KhachHangWindow.xaml.cs",
-              "RelativeToolTip": "KhachHangWindow.xaml.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABgAAAAiAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\KhachHangWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\Layouts\\KhachHangWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\KhachHangWindow.xaml.cs",
+              "RelativeToolTip": "Views\\Layouts\\KhachHangWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-19T17:18:29.838Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 23,
               "Title": "Register.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Register.xaml.cs",
-              "RelativeDocumentMoniker": "Register.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Register.xaml.cs",
-              "RelativeToolTip": "Register.xaml.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAowC0AAAAgAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\Register.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\Auth\\Register.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\Register.xaml.cs",
+              "RelativeToolTip": "Views\\Auth\\Register.xaml.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAiwB0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-19T17:16:20.82Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 25,
               "Title": "LoginWindow.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\LoginWindow.xaml.cs",
-              "RelativeDocumentMoniker": "LoginWindow.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\LoginWindow.xaml.cs",
-              "RelativeToolTip": "LoginWindow.xaml.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAArwDYAAAApAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\LoginWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\Auth\\LoginWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Auth\\LoginWindow.xaml.cs",
+              "RelativeToolTip": "Views\\Auth\\LoginWindow.xaml.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAiwBkAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-19T17:16:14.72Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 39,
               "Title": "KhachHangWindow.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\KhachHangWindow.xaml",
-              "RelativeDocumentMoniker": "KhachHangWindow.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\KhachHangWindow.xaml",
-              "RelativeToolTip": "KhachHangWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\KhachHangWindow.xaml",
+              "RelativeDocumentMoniker": "Views\\Layouts\\KhachHangWindow.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\KhachHangWindow.xaml",
+              "RelativeToolTip": "Views\\Layouts\\KhachHangWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-17T09:21:43.763Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 8,
               "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "MainWindow.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\MainWindow.xaml",
-              "RelativeToolTip": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "Views\\Layouts\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\Layouts\\MainWindow.xaml",
+              "RelativeToolTip": "Views\\Layouts\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-17T09:21:13.258Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "SuDung.xaml.cs",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\SuDung.xaml.cs",
-              "RelativeDocumentMoniker": "Views\\SuDung.xaml.cs",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\SuDung.xaml.cs",
-              "RelativeToolTip": "Views\\SuDung.xaml.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAABkAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T07:25:38.923Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 18,
               "Title": "DichVu.xaml",
-              "DocumentMoniker": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\DichVu.xaml",
-              "RelativeDocumentMoniker": "Views\\DichVu.xaml",
-              "ToolTip": "C:\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\DichVu.xaml",
-              "RelativeToolTip": "Views\\DichVu.xaml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\DichVu.xaml",
+              "RelativeDocumentMoniker": "Views\\UserControls\\DichVu.xaml",
+              "ToolTip": "C:\\Users\\LENOVO\\Desktop\\HQT_CSDL\\QL_NhaXac\\Mortuary-Management\\QLNhaXac\\QuanLyNhaXac\\DoAn\\Views\\UserControls\\DichVu.xaml",
+              "RelativeToolTip": "Views\\UserControls\\DichVu.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-03-17T07:27:36.749Z"
             }
