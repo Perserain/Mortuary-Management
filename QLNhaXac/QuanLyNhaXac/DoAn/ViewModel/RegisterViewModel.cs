@@ -43,7 +43,7 @@ namespace DoAn.ViewModel
 
             try
             {
-                string connStr = "Data Source=26.79.168.121,1433;Initial Catalog=QuanLyNhaXac;User ID=NhaXacAdmin;Password=123456;TrustServerCertificate=True";
+                string connStr = "Data Source=26.79.168.121,1433;Initial Catalog=QuanLyNhaXac;User ID=sa;Password=123;TrustServerCertificate=True";
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();

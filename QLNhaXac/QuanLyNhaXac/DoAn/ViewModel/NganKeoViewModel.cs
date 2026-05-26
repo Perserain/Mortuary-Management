@@ -1,28 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using DoAn.Model;
 using DoAn.Views.Shared;
 using DoAn.Core;
+
 namespace DoAn.ViewModel
 {
-    public class NganKeoViewModel: BaseViewModel
+    public class NganKeoViewModel : BaseViewModel
     {
         public ObservableCollection<NganKeoModel> DanhSachNganKeo { get; set; }
+
+        private NganKeoModel _newNganKeo;
+        public NganKeoModel NewNganKeo
+        {
+            get => _newNganKeo;
+            set { _newNganKeo = value; OnPropertyChanged(); }
+        }
 
         private NganKeoModel _selectedNganKeo;
         public NganKeoModel SelectedNganKeo
         {
             get => _selectedNganKeo;
-            set { _selectedNganKeo = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedNganKeo = value;
+                OnPropertyChanged();
+
+                if (_selectedNganKeo != null)
+                {
+                    NewNganKeo = new NganKeoModel
+                    {
+                        MaNgan = _selectedNganKeo.MaNgan,
+                        ViTri = _selectedNganKeo.ViTri,
+                        NhietDo = _selectedNganKeo.NhietDo,
+                        MaTH = _selectedNganKeo.MaTH
+                    };
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
         }
 
         public ICommand LoadCommand { get; set; }
@@ -36,23 +60,22 @@ namespace DoAn.ViewModel
         public NganKeoViewModel()
         {
             DanhSachNganKeo = new ObservableCollection<NganKeoModel>();
-            SelectedNganKeo = new NganKeoModel();
 
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemNgan(), p => SelectedNganKeo != null && !string.IsNullOrWhiteSpace(SelectedNganKeo.MaNgan));
-            SuaCommand = new RelayCommand(p => SuaNgan(), p => SelectedNganKeo != null && !string.IsNullOrWhiteSpace(SelectedNganKeo.MaNgan));
-            XoaCommand = new RelayCommand(p => XoaNgan(), p => SelectedNganKeo != null && !string.IsNullOrWhiteSpace(SelectedNganKeo.MaNgan));
+            ThemCommand = new RelayCommand(p => ThemNgan(), p => NewNganKeo != null && !string.IsNullOrWhiteSpace(NewNganKeo.MaNgan));
+            SuaCommand = new RelayCommand(p => SuaNgan(), p => NewNganKeo != null && !string.IsNullOrWhiteSpace(NewNganKeo.MaNgan));
+            XoaCommand = new RelayCommand(p => XoaNgan(), p => NewNganKeo != null && !string.IsNullOrWhiteSpace(NewNganKeo.MaNgan));
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => SelectedNganKeo != null && !string.IsNullOrEmpty(SelectedNganKeo.MaNgan));
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
 
             LoadData();
+            ResetForm();
         }
 
         private void LoadData()
         {
             if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
-
             DanhSachNganKeo.Clear();
             string sql = @"EXEC SP_DSNganKeo";
             DataTable dt = DBConnect.GetData(sql);
@@ -71,14 +94,34 @@ namespace DoAn.ViewModel
 
         private void XemChiTiet()
         {
-            DetailWindow f = new DetailWindow(SelectedNganKeo, "CHI TIẾT NGĂN KÉO");
+            DetailWindow f = new DetailWindow(NewNganKeo, "CHI TIẾT NGĂN KÉO");
             f.ShowDialog();
+        }
+
+        private string TaoMaNgan()
+        {
+            if (DanhSachNganKeo == null || DanhSachNganKeo.Count == 0) return "NK001";
+
+            var maxId = DanhSachNganKeo
+                .Select(n => {
+                    if (n.MaNgan != null && n.MaNgan.StartsWith("NK") && int.TryParse(n.MaNgan.Substring(2), out int num))
+                        return num;
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"NK{(maxId + 1):D3}";
+        }
+        private void ResetForm()
+        {
+            NewNganKeo = new NganKeoModel();
+            NewNganKeo.MaNgan = TaoMaNgan();
         }
 
         private void ThemNgan()
         {
             if (!DBConnect.RequireAdmin("Thêm ngăn kéo")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -87,15 +130,15 @@ namespace DoAn.ViewModel
                     string sql = "EXEC SP_ThemNganKeo @ma, @vt, @nd, @math";
                     var cmd = new SqlCommand(sql, conn);
 
-                    cmd.Parameters.AddWithValue("@ma", SelectedNganKeo.MaNgan);
-                    cmd.Parameters.AddWithValue("@vt", SelectedNganKeo.ViTri ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@nd", SelectedNganKeo.NhietDo);
-                    cmd.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(SelectedNganKeo.MaTH) ? DBNull.Value : (object)SelectedNganKeo.MaTH);
+                    cmd.Parameters.AddWithValue("@ma", NewNganKeo.MaNgan);
+                    cmd.Parameters.AddWithValue("@vt", NewNganKeo.ViTri ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@nd", NewNganKeo.NhietDo);
+                    cmd.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewNganKeo.MaTH) ? DBNull.Value : (object)NewNganKeo.MaTH);
 
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Thêm ngăn kéo thành công!");
                     LoadData();
-                    SelectedNganKeo = new NganKeoModel();
+                    ResetForm();
                 }
             }
             catch (SqlException ex)
@@ -110,7 +153,6 @@ namespace DoAn.ViewModel
         private void SuaNgan()
         {
             if (!DBConnect.RequireAdmin("Sửa ngăn kéo")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -119,16 +161,16 @@ namespace DoAn.ViewModel
                     string sqlUpdate = "EXEC SP_SuaNganKeo @ma, @vt, @nd, @math";
                     var cmdUpdate = new SqlCommand(sqlUpdate, conn);
 
-                    cmdUpdate.Parameters.AddWithValue("@ma", SelectedNganKeo.MaNgan);
-                    cmdUpdate.Parameters.AddWithValue("@vt", string.IsNullOrWhiteSpace(SelectedNganKeo.ViTri) ? DBNull.Value : (object)SelectedNganKeo.ViTri);
-                    cmdUpdate.Parameters.AddWithValue("@nd", SelectedNganKeo.NhietDo);
-                    cmdUpdate.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(SelectedNganKeo.MaTH) ? DBNull.Value : (object)SelectedNganKeo.MaTH);
+                    cmdUpdate.Parameters.AddWithValue("@ma", NewNganKeo.MaNgan);
+                    cmdUpdate.Parameters.AddWithValue("@vt", string.IsNullOrWhiteSpace(NewNganKeo.ViTri) ? DBNull.Value : (object)NewNganKeo.ViTri);
+                    cmdUpdate.Parameters.AddWithValue("@nd", NewNganKeo.NhietDo);
+                    cmdUpdate.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewNganKeo.MaTH) ? DBNull.Value : (object)NewNganKeo.MaTH);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
                         MessageBox.Show("Cập nhật ngăn kéo thành công!");
                         LoadData();
-                        SelectedNganKeo = new NganKeoModel();
+                        ResetForm();
                     }
                 }
             }
@@ -142,7 +184,6 @@ namespace DoAn.ViewModel
         private void XoaNgan()
         {
             if (!DBConnect.RequireAdmin("Xóa ngăn kéo")) return;
-
             if (MessageBox.Show("Xóa ngăn kéo này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -151,12 +192,12 @@ namespace DoAn.ViewModel
                     {
                         conn.Open();
                         var cmd = new SqlCommand("EXEC SP_XoaNganKeo @ma", conn);
-                        cmd.Parameters.AddWithValue("@ma", SelectedNganKeo.MaNgan);
+                        cmd.Parameters.AddWithValue("@ma", NewNganKeo.MaNgan);
                         cmd.ExecuteNonQuery();
 
                         MessageBox.Show("Đã xóa ngăn kéo!");
                         LoadData();
-                        SelectedNganKeo = new NganKeoModel();
+                        ResetForm();
                     }
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }

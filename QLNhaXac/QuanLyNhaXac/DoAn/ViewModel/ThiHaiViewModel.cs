@@ -3,31 +3,55 @@ using DoAn.Core;
 using DoAn.Model;
 using DoAn.Views.Shared;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+
 namespace DoAn.ViewModel
 {
     class ThiHaiViewModel : BaseViewModel
     {
         public ObservableCollection<ThiHaiModel> DanhSachThiHai { get; set; }
 
+        private ThiHaiModel _newThiHai;
+        public ThiHaiModel NewThiHai
+        {
+            get => _newThiHai;
+            set { _newThiHai = value; OnPropertyChanged(); }
+        }
+
         private ThiHaiModel _selectedThiHai;
         public ThiHaiModel SelectedThiHai
         {
             get => _selectedThiHai;
-            set { _selectedThiHai = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedThiHai = value;
+                OnPropertyChanged();
+
+                if (_selectedThiHai != null)
+                {
+                    NewThiHai = new ThiHaiModel
+                    {
+                        MaTH = _selectedThiHai.MaTH,
+                        HoTenTH = _selectedThiHai.HoTenTH,
+                        GioiTinh = _selectedThiHai.GioiTinh,
+                        NgaySinh = _selectedThiHai.NgaySinh,
+                        NgayMat = _selectedThiHai.NgayMat
+                    };
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
         }
+
         private string countThiHai = "Số lượng thi hài: 0";
         public string CountThiHai { get => countThiHai; set { countThiHai = value; OnPropertyChanged(); } }
+
         public ICommand LoadCommand { get; set; }
         public ICommand ThemCommand { get; set; }
         public ICommand SuaCommand { get; set; }
@@ -36,24 +60,45 @@ namespace DoAn.ViewModel
         public ICommand TimSotCommand { get; set; }
         public ICommand XemChiTietCommand { get; set; }
         public ICommand NhapTuFileCommand { get; set; }
-
         public ICommand ThanhLyCommand { get; set; }
 
         public ThiHaiViewModel()
         {
             DanhSachThiHai = new ObservableCollection<ThiHaiModel>();
-            SelectedThiHai = new ThiHaiModel();
+
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemThiHai());
-            SuaCommand = new RelayCommand(p => SuaThiHai());
-            XoaCommand = new RelayCommand(p => XoaThiHai());
+            ThemCommand = new RelayCommand(p => ThemThiHai(), p => NewThiHai != null && !string.IsNullOrWhiteSpace(NewThiHai.MaTH));
+            SuaCommand = new RelayCommand(p => SuaThiHai(), p => NewThiHai != null && !string.IsNullOrWhiteSpace(NewThiHai.MaTH));
+            XoaCommand = new RelayCommand(p => XoaThiHai(), p => NewThiHai != null && !string.IsNullOrWhiteSpace(NewThiHai.MaTH));
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             TimSotCommand = new RelayCommand(p => TimSot());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => SelectedThiHai != null && !string.IsNullOrEmpty(SelectedThiHai.MaTH));
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewThiHai != null && !string.IsNullOrEmpty(NewThiHai.MaTH));
             ThanhLyCommand = new RelayCommand(p => ThanhLyThiHaiHangLoat());
 
             LoadData();
+            ResetForm();
+        }
+        private string TaoMaTH()
+        {
+            if (DanhSachThiHai == null || DanhSachThiHai.Count == 0) return "DV001";
+
+            var maxId = DanhSachThiHai
+                .Select(d => {
+                    if (d.MaTH != null && d.MaTH.StartsWith("DV") && int.TryParse(d.MaTH.Substring(2), out int num))
+                        return num;
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"DV{(maxId + 1):D3}";
+        }
+
+        private void ResetForm()
+        {
+            NewThiHai = new ThiHaiModel();
+            NewThiHai.MaTH = TaoMaTH();
         }
 
         private void LoadData()
@@ -80,14 +125,13 @@ namespace DoAn.ViewModel
 
         private void XemChiTiet()
         {
-            DetailWindow f = new DetailWindow(SelectedThiHai, "CHI TIẾT THI HÀI");
+            DetailWindow f = new DetailWindow(NewThiHai, "CHI TIẾT THI HÀI");
             f.ShowDialog();
         }
 
         private void ThemThiHai()
         {
             if (!DBConnect.RequireAdmin("Thêm thi hài")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -96,17 +140,16 @@ namespace DoAn.ViewModel
                     string sql = "EXEC SP_ThemThiHai @ma, @ten, @ns, @nm, @gt";
                     var cmd = new SqlCommand(sql, conn);
 
-                    cmd.Parameters.AddWithValue("@ma", SelectedThiHai.MaTH);
-                    cmd.Parameters.AddWithValue("@ten", SelectedThiHai.HoTenTH ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@gt", SelectedThiHai.GioiTinh ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@ns", SelectedThiHai.NgaySinh ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@nm", SelectedThiHai.NgayMat ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
+                    cmd.Parameters.AddWithValue("@ten", NewThiHai.HoTenTH ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@gt", NewThiHai.GioiTinh ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ns", NewThiHai.NgaySinh ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@nm", NewThiHai.NgayMat ?? (object)DBNull.Value);
 
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Thêm thành công!");
                     LoadData();
-                    DemSoLuongThiHai();
-                    SelectedThiHai = new ThiHaiModel();
+                    ResetForm();
                 }
             }
             catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
@@ -115,7 +158,6 @@ namespace DoAn.ViewModel
         private void SuaThiHai()
         {
             if (!DBConnect.RequireAdmin("Sửa thi hài")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -124,17 +166,17 @@ namespace DoAn.ViewModel
                     string sqlUpdate = "EXEC SP_SuaThiHai @ma, @ten, @ns, @nm, @gt";
                     var cmdUpdate = new SqlCommand(sqlUpdate, conn);
 
-                    cmdUpdate.Parameters.AddWithValue("@ma", SelectedThiHai.MaTH);
-                    cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(SelectedThiHai.HoTenTH) ? DBNull.Value : (object)SelectedThiHai.HoTenTH);
-                    cmdUpdate.Parameters.AddWithValue("@gt", string.IsNullOrWhiteSpace(SelectedThiHai.GioiTinh) ? DBNull.Value : (object)SelectedThiHai.GioiTinh);
-                    cmdUpdate.Parameters.AddWithValue("@ns", SelectedThiHai.NgaySinh ?? (object)DBNull.Value);
-                    cmdUpdate.Parameters.AddWithValue("@nm", SelectedThiHai.NgayMat ?? (object)DBNull.Value);
+                    cmdUpdate.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
+                    cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(NewThiHai.HoTenTH) ? DBNull.Value : (object)NewThiHai.HoTenTH);
+                    cmdUpdate.Parameters.AddWithValue("@gt", string.IsNullOrWhiteSpace(NewThiHai.GioiTinh) ? DBNull.Value : (object)NewThiHai.GioiTinh);
+                    cmdUpdate.Parameters.AddWithValue("@ns", NewThiHai.NgaySinh ?? (object)DBNull.Value);
+                    cmdUpdate.Parameters.AddWithValue("@nm", NewThiHai.NgayMat ?? (object)DBNull.Value);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
                         MessageBox.Show("Cập nhật thành công!");
                         LoadData();
-                        SelectedThiHai = new ThiHaiModel();
+                        ResetForm();
                     }
                 }
             }
@@ -144,7 +186,6 @@ namespace DoAn.ViewModel
         private void XoaThiHai()
         {
             if (!DBConnect.RequireAdmin("Xóa thi hài")) return;
-
             if (MessageBox.Show("Bạn chắc chắn muốn xóa thi hài này?", "Cảnh báo", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
@@ -153,13 +194,12 @@ namespace DoAn.ViewModel
                     {
                         conn.Open();
                         var cmd = new SqlCommand("EXEC SP_XoaThiHai @ma", conn);
-                        cmd.Parameters.AddWithValue("@ma", SelectedThiHai.MaTH);
+                        cmd.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
                         cmd.ExecuteNonQuery();
 
                         MessageBox.Show("Đã xóa!");
                         LoadData();
-                        DemSoLuongThiHai();
-                        SelectedThiHai = new ThiHaiModel();
+                        ResetForm();
                     }
                 }
                 catch (SqlException ex)
@@ -200,7 +240,7 @@ namespace DoAn.ViewModel
             }
         }
 
-        // --- HÀM XUẤT EXCEL CHUẨN XỊN ---
+
         private void XuatExcel()
         {
             if (!DBConnect.RequireAdmin("Xuất Excel thi hài")) return;

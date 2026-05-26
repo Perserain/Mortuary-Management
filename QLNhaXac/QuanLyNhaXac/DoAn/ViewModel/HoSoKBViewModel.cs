@@ -3,14 +3,9 @@ using DoAn.Core;
 using DoAn.Model;
 using DoAn.Views.Shared;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,11 +15,37 @@ namespace DoAn.ViewModel
     {
         public ObservableCollection<HoSoKBModel> DanhSachHoSo { get; set; }
 
+        private HoSoKBModel _newHoSo;
+        public HoSoKBModel NewHoSo
+        {
+            get => _newHoSo;
+            set { _newHoSo = value; OnPropertyChanged(); }
+        }
+
         private HoSoKBModel _selectedHoSo;
         public HoSoKBModel SelectedHoSo
         {
             get => _selectedHoSo;
-            set { _selectedHoSo = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedHoSo = value;
+                OnPropertyChanged();
+                if (_selectedHoSo != null)
+                {
+                    NewHoSo = new HoSoKBModel
+                    {
+                        MaHS = _selectedHoSo.MaHS,
+                        MaTH = _selectedHoSo.MaTH,
+                        MaBS = _selectedHoSo.MaBS,
+                        KetLuan = _selectedHoSo.KetLuan,
+                        TgKham = _selectedHoSo.TgKham
+                    };
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
         }
 
         public ICommand LoadCommand { get; set; }
@@ -38,7 +59,6 @@ namespace DoAn.ViewModel
         public HoSoKBViewModel()
         {
             DanhSachHoSo = new ObservableCollection<HoSoKBModel>();
-            SelectedHoSo = new HoSoKBModel();
 
             LoadCommand = new RelayCommand(p => LoadData());
             ThemCommand = new RelayCommand(p => ThemHoSo());
@@ -49,12 +69,12 @@ namespace DoAn.ViewModel
             XemChiTietCommand = new RelayCommand(p => XemChiTiet());
 
             LoadData();
+            ResetForm();
         }
 
         private void LoadData()
         {
             if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
-
             DanhSachHoSo.Clear();
             string sql = "EXEC SP_DSHoSoKhamNghiem";
             DataTable dt = DBConnect.GetData(sql);
@@ -74,15 +94,35 @@ namespace DoAn.ViewModel
 
         private void XemChiTiet()
         {
-            DetailWindow f = new DetailWindow(SelectedHoSo, "CHI TIẾT HỒ SƠ KHÁM");
+            DetailWindow f = new DetailWindow(NewHoSo, "CHI TIẾT HỒ SƠ KHÁM");
             f.ShowDialog();
+        }
+
+        private string TaoMaHS()
+        {
+            if (DanhSachHoSo == null || DanhSachHoSo.Count == 0) return "HS001";
+
+            var maxId = DanhSachHoSo
+                .Select(h => {
+                    if (h.MaHS != null && h.MaHS.StartsWith("HS") && int.TryParse(h.MaHS.Substring(2), out int num))
+                        return num;
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"HS{(maxId + 1):D3}";
+        }
+        private void ResetForm()
+        {
+            NewHoSo = new HoSoKBModel { TgKham = DateTime.Now }; 
+            NewHoSo.MaHS = TaoMaHS();
         }
 
         private void ThemHoSo()
         {
             if (!DBConnect.RequireAdmin("Thêm hồ sơ khám")) return;
-
-            if (string.IsNullOrWhiteSpace(SelectedHoSo.MaTH) || string.IsNullOrWhiteSpace(SelectedHoSo.MaBS))
+            if (string.IsNullOrWhiteSpace(NewHoSo.MaTH) || string.IsNullOrWhiteSpace(NewHoSo.MaBS))
             {
                 MessageBox.Show("Nhập thiếu Mã HS, Mã Thi Hài hoặc Mã Bác Sĩ!");
                 return;
@@ -93,19 +133,17 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "EXEC SP_ThemHoSoKhamBenh @ma, @ngay, @kl, @math, @mabs";
-                    var cmd = new SqlCommand(sql, conn);
-
-                    cmd.Parameters.AddWithValue("@ma", SelectedHoSo.MaHS);
-                    cmd.Parameters.AddWithValue("@kl", SelectedHoSo.KetLuan ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@math", SelectedHoSo.MaTH);
-                    cmd.Parameters.AddWithValue("@mabs", SelectedHoSo.MaBS);
-                    cmd.Parameters.AddWithValue("@ngay", SelectedHoSo.TgKham ?? (object)DBNull.Value);
+                    var cmd = new SqlCommand("EXEC SP_ThemHoSoKhamBenh @ma, @ngay, @kl, @math, @mabs", conn);
+                    cmd.Parameters.AddWithValue("@ma", NewHoSo.MaHS);
+                    cmd.Parameters.AddWithValue("@kl", NewHoSo.KetLuan ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@math", NewHoSo.MaTH);
+                    cmd.Parameters.AddWithValue("@mabs", NewHoSo.MaBS);
+                    cmd.Parameters.AddWithValue("@ngay", NewHoSo.TgKham ?? (object)DBNull.Value);
 
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Lập hồ sơ thành công!");
                     LoadData();
-                    SelectedHoSo = new HoSoKBModel();
+                    ResetForm();
                 }
             }
             catch (SqlException ex)
@@ -118,26 +156,23 @@ namespace DoAn.ViewModel
         private void SuaHoSo()
         {
             if (!DBConnect.RequireAdmin("Sửa hồ sơ khám")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sqlUpdate = "EXEC SP_SuaHoSoKhamBenh @ma, @tg, @kl, @math, @mabs";
-                    var cmdUpdate = new SqlCommand(sqlUpdate, conn);
-
-                    cmdUpdate.Parameters.AddWithValue("@ma", SelectedHoSo.MaHS);
-                    cmdUpdate.Parameters.AddWithValue("@kl", string.IsNullOrWhiteSpace(SelectedHoSo.KetLuan) ? DBNull.Value : (object)SelectedHoSo.KetLuan);
-                    cmdUpdate.Parameters.AddWithValue("@mth", string.IsNullOrWhiteSpace(SelectedHoSo.MaTH) ? DBNull.Value : (object)SelectedHoSo.MaTH);
-                    cmdUpdate.Parameters.AddWithValue("@mbs", string.IsNullOrWhiteSpace(SelectedHoSo.MaBS) ? DBNull.Value : (object)SelectedHoSo.MaBS);
-                    cmdUpdate.Parameters.AddWithValue("@ngay", SelectedHoSo.TgKham ?? (object)DBNull.Value);
+                    var cmdUpdate = new SqlCommand("EXEC SP_SuaHoSoKhamBenh @ma, @tg, @kl, @math, @mabs", conn);
+                    cmdUpdate.Parameters.AddWithValue("@ma", NewHoSo.MaHS);
+                    cmdUpdate.Parameters.AddWithValue("@kl", string.IsNullOrWhiteSpace(NewHoSo.KetLuan) ? DBNull.Value : (object)NewHoSo.KetLuan);
+                    cmdUpdate.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewHoSo.MaTH) ? DBNull.Value : (object)NewHoSo.MaTH);
+                    cmdUpdate.Parameters.AddWithValue("@mabs", string.IsNullOrWhiteSpace(NewHoSo.MaBS) ? DBNull.Value : (object)NewHoSo.MaBS);
+                    cmdUpdate.Parameters.AddWithValue("@tg", NewHoSo.TgKham ?? (object)DBNull.Value);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
                         MessageBox.Show("Cập nhật hồ sơ thành công!");
                         LoadData();
-                        SelectedHoSo = new HoSoKBModel();
+                        ResetForm();
                     }
                 }
             }
@@ -151,7 +186,6 @@ namespace DoAn.ViewModel
         private void XoaHoSo()
         {
             if (!DBConnect.RequireAdmin("Xóa hồ sơ khám")) return;
-
             if (MessageBox.Show("Xóa hồ sơ này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -160,18 +194,18 @@ namespace DoAn.ViewModel
                     {
                         conn.Open();
                         var cmd = new SqlCommand("EXEC SP_XoaHoSoKhamBenh @ma", conn);
-                        cmd.Parameters.AddWithValue("@ma", SelectedHoSo.MaHS);
+                        cmd.Parameters.AddWithValue("@ma", NewHoSo.MaHS);
                         cmd.ExecuteNonQuery();
+
                         MessageBox.Show("Đã xóa hồ sơ!");
                         LoadData();
-                        SelectedHoSo = new HoSoKBModel();
+                        ResetForm();
                     }
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
             }
         }
 
-        // --- HÀM XUẤT EXCEL CHUẨN XỊN ---
         private void XuatExcel()
         {
             if (!DBConnect.RequireAdmin("Xuất Excel hồ sơ khám")) return;

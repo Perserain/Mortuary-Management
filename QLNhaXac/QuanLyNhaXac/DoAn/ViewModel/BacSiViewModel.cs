@@ -1,27 +1,52 @@
-﻿using DoAn.Model;
+﻿using ClosedXML.Excel;
+using DoAn.Core;
+using DoAn.Model;
 using DoAn.Views.Shared;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Data.SqlClient;
 using System.Collections.ObjectModel;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Input; 
-using ClosedXML.Excel;
-using DoAn.Core;
 namespace DoAn.ViewModel
 {
     public class BacSiViewModel : BaseViewModel
     {
         // Danh sách hiển thị lên DataGrid
         public ObservableCollection<BacSiModel> DanhSachBacSi { get; set; }
+        public ObservableCollection<string> DanhSachChuyenKhoa { get; set; }
 
-        // Bác sĩ đang được chọn trên DataGrid hoặc đang nhập liệu
+        private BacSiModel _newBacSi;
+        public BacSiModel NewBacSi
+        {
+            get => _newBacSi;
+            set { _newBacSi = value; OnPropertyChanged(); }
+        }
         private BacSiModel _selectedBacSi;
         public BacSiModel SelectedBacSi
         {
             get => _selectedBacSi;
-            set { _selectedBacSi = value; OnPropertyChanged(); }
+            set { _selectedBacSi = value; 
+                OnPropertyChanged();
+                if (_selectedBacSi != null)
+                {
+                    NewBacSi = new BacSiModel
+                    {
+                        MaBS = _selectedBacSi.MaBS,
+                        HoTenBS = _selectedBacSi.HoTenBS,
+                        ChuyenKhoa = _selectedBacSi.ChuyenKhoa,
+                        NamKinhNghiem = _selectedBacSi.NamKinhNghiem,
+                        MaTruongKhoa = _selectedBacSi.MaTruongKhoa,
+                        CapBac = _selectedBacSi.CapBac
+                    };
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
         }
 
         // Commands cho các nút bấm
@@ -37,17 +62,29 @@ namespace DoAn.ViewModel
         public BacSiViewModel()
         {
             DanhSachBacSi = new ObservableCollection<BacSiModel>();
-            SelectedBacSi = new BacSiModel(); // Khởi tạo form
+            NewBacSi = new BacSiModel();
+            SelectedBacSi = new BacSiModel();
+            //Combobox Chuyên khoa
+            DanhSachChuyenKhoa = new ObservableCollection<string>
+            {
+                "Đa khoa",
+                "Pháp y Tâm thần",
+                "Pháp y Y pháp",
+                "Giải phẫu bệnh",
+                "Pháp y Sinh học",
+                "Pháp y"
+            };
             // Commands
             LoadCommand = new RelayCommand(p => LoadData());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => SelectedBacSi != null && !string.IsNullOrEmpty(SelectedBacSi.MaBS));
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewBacSi != null && !string.IsNullOrEmpty(NewBacSi.MaBS));
             ThemCommand = new RelayCommand(p => ThemBacSi(), p => CanThemBacSi());
-            XoaCommand = new RelayCommand(p => XoaBacSi(), p => SelectedBacSi != null && !string.IsNullOrEmpty(SelectedBacSi.MaBS));
-            SuaCommand = new RelayCommand(p => SuaBacSi(), p => SelectedBacSi != null && !string.IsNullOrEmpty(SelectedBacSi.MaBS));
+            XoaCommand = new RelayCommand(p => XoaBacSi(), p => NewBacSi != null && !string.IsNullOrEmpty(NewBacSi.MaBS));
+            SuaCommand = new RelayCommand(p => SuaBacSi(), p => NewBacSi != null && !string.IsNullOrEmpty(NewBacSi.MaBS));
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             XuatLaoLangCommand = new RelayCommand(p => BSLaoLang());
             LoadData();
+            ResetForm();
         }
 
         private void LoadData()
@@ -72,15 +109,37 @@ namespace DoAn.ViewModel
         private void XemChiTiet()
         {
 
-            DetailWindow f = new DetailWindow(SelectedBacSi, "CHI TIẾT BÁC SĨ");
+            DetailWindow f = new DetailWindow(NewBacSi, "CHI TIẾT BÁC SĨ");
             f.ShowDialog();
+        }
+
+        private string TaoMaBS()
+        {
+            if (DanhSachBacSi == null || DanhSachBacSi.Count == 0) return "BS001";
+
+            // Tìm số lớn nhất đằng sau chữ "BS"
+            var maxId = DanhSachBacSi
+                .Select(b => {
+                    if (b.MaBS != null && b.MaBS.StartsWith("BS") && int.TryParse(b.MaBS.Substring(2), out int num))
+                        return num;
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"BS{(maxId + 1):D3}"; // Trả về định dạng tự động điền số không: BS004, BS005...
+        }
+        private void ResetForm()
+        {
+            NewBacSi = new BacSiModel();
+            NewBacSi.MaBS = TaoMaBS();
         }
         private bool CanThemBacSi()
         {
             // Điều kiện để nút Thêm sáng lên: Mã và Tên không được rỗng
-            return SelectedBacSi != null &&
-                   !string.IsNullOrWhiteSpace(SelectedBacSi.MaBS) &&
-                   !string.IsNullOrWhiteSpace(SelectedBacSi.HoTenBS);
+            return NewBacSi != null &&
+                               !string.IsNullOrWhiteSpace(NewBacSi.MaBS) &&
+                               !string.IsNullOrWhiteSpace(NewBacSi.HoTenBS);
         }
 
         private void ThemBacSi()
@@ -94,20 +153,19 @@ namespace DoAn.ViewModel
                     conn.Open();
                     string sql = "EXEC SP_THEMBACSI @ma, @ten, @ck, @kn, @sep";
                     SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@ma", SelectedBacSi.MaBS);
-                    cmd.Parameters.AddWithValue("@ten", SelectedBacSi.HoTenBS);
-                    cmd.Parameters.AddWithValue("@ck", SelectedBacSi.ChuyenKhoa);
-                    cmd.Parameters.AddWithValue("@kn", SelectedBacSi.NamKinhNghiem);
-
-                    if (string.IsNullOrEmpty(SelectedBacSi.MaTruongKhoa))
+                    cmd.Parameters.AddWithValue("@ma", NewBacSi.MaBS);
+                    cmd.Parameters.AddWithValue("@ten", NewBacSi.HoTenBS);
+                    cmd.Parameters.AddWithValue("@ck", NewBacSi.ChuyenKhoa);
+                    cmd.Parameters.AddWithValue("@kn", NewBacSi.NamKinhNghiem);
+                    if (string.IsNullOrEmpty(NewBacSi.MaTruongKhoa))
                         cmd.Parameters.AddWithValue("@sep", DBNull.Value);
                     else
-                        cmd.Parameters.AddWithValue("@sep", SelectedBacSi.MaTruongKhoa);
+                        cmd.Parameters.AddWithValue("@sep", NewBacSi.MaTruongKhoa);
 
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Thêm bác sĩ thành công!");
                     LoadData(); // Tải lại danh sách
-                    SelectedBacSi = new BacSiModel(); // Xóa trắng form
+                    NewBacSi = new BacSiModel(); // Xóa trắng form
                 }
             }
             catch (Exception ex)
@@ -129,12 +187,12 @@ namespace DoAn.ViewModel
                         conn.Open();
                         string sql = "EXEC SP_XoaBacSi @ma";
                         var cmd = new SqlCommand(sql, conn);
-                        cmd.Parameters.AddWithValue("@ma", SelectedBacSi.MaBS);
+                        cmd.Parameters.AddWithValue("@ma", NewBacSi.MaBS);
                         cmd.ExecuteNonQuery();
 
                         MessageBox.Show("Đã xóa!");
                         LoadData();
-                        SelectedBacSi = new BacSiModel();
+                        NewBacSi = new BacSiModel();
                     }
                 }
                 catch (Exception ex)
@@ -153,30 +211,29 @@ namespace DoAn.ViewModel
                 {
                     conn.Open();
 
-                    // Câu lệnh Update đơn giản, sử dụng luôn dữ liệu từ SelectedBacSi
+                    // Câu lệnh Update đơn giản, sử dụng luôn dữ liệu từ NewBacSi
                     string sqlUpdate = @"EXEC SP_SuaBacSi @ma, @ten, @ck, @kn, @sep";
 
                     var cmdUpdate = new SqlCommand(sqlUpdate, conn);
 
-                    cmdUpdate.Parameters.AddWithValue("@ma", SelectedBacSi.MaBS);
+                    cmdUpdate.Parameters.AddWithValue("@ma", NewBacSi.MaBS);
 
                     // Xử lý các trường có thể null hoặc rỗng
-                    cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(SelectedBacSi.HoTenBS) ? (object)DBNull.Value : SelectedBacSi.HoTenBS);
-                    cmdUpdate.Parameters.AddWithValue("@ck", string.IsNullOrWhiteSpace(SelectedBacSi.ChuyenKhoa) ? (object)DBNull.Value : SelectedBacSi.ChuyenKhoa);
-                    cmdUpdate.Parameters.AddWithValue("@kn", SelectedBacSi.NamKinhNghiem);
-
-                    if (string.IsNullOrWhiteSpace(SelectedBacSi.MaTruongKhoa))
+                    cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(NewBacSi.HoTenBS) ? (object)DBNull.Value : NewBacSi.HoTenBS);
+                    cmdUpdate.Parameters.AddWithValue("@ck", string.IsNullOrWhiteSpace(NewBacSi.ChuyenKhoa) ? (object)DBNull.Value : NewBacSi.ChuyenKhoa);
+                    cmdUpdate.Parameters.AddWithValue("@kn", NewBacSi.NamKinhNghiem);
+                    if (string.IsNullOrWhiteSpace(NewBacSi.MaTruongKhoa))
                         cmdUpdate.Parameters.AddWithValue("@sep", DBNull.Value);
                     else
-                        cmdUpdate.Parameters.AddWithValue("@sep", SelectedBacSi.MaTruongKhoa);
+                        cmdUpdate.Parameters.AddWithValue("@sep", NewBacSi.MaTruongKhoa);
 
                     int rowsAffected = cmdUpdate.ExecuteNonQuery();
 
                     if (rowsAffected > 0)
                     {
-                        MessageBox.Show($"Đã cập nhật thông tin cho bác sĩ {SelectedBacSi.MaBS}!");
+                        MessageBox.Show($"Đã cập nhật thông tin cho bác sĩ {NewBacSi.MaBS}!");
                         LoadData(); // Load lại để làm mới lưới dữ liệu
-                        SelectedBacSi = new BacSiModel(); // Reset form nhập liệu
+                        NewBacSi = new BacSiModel(); // Reset form nhập liệu
                     }
                     else
                     {

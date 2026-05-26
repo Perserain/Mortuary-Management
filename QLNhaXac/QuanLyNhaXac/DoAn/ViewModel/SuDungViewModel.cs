@@ -2,13 +2,9 @@
 using DoAn.Core;
 using DoAn.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -18,11 +14,39 @@ namespace DoAn.ViewModel
     {
         public ObservableCollection<SuDungModel> DanhSachSuDung { get; set; }
 
+        private SuDungModel _newSuDung;
+        public SuDungModel NewSuDung
+        {
+            get => _newSuDung;
+            set { _newSuDung = value; OnPropertyChanged(); }
+        }
+
         private SuDungModel _selectedSuDung;
         public SuDungModel SelectedSuDung
         {
             get => _selectedSuDung;
-            set { _selectedSuDung = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedSuDung = value;
+                OnPropertyChanged();
+                if (_selectedSuDung != null)
+                {
+                    NewSuDung = new SuDungModel
+                    {
+                        MaTH = _selectedSuDung.MaTH,
+                        TenTH = _selectedSuDung.TenTH,
+                        MaDV = _selectedSuDung.MaDV,
+                        TenDV = _selectedSuDung.TenDV,
+                        GiaTien = _selectedSuDung.GiaTien,
+                        NgaySD = _selectedSuDung.NgaySD,
+                        GhiChu = _selectedSuDung.GhiChu
+                    };
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
         }
 
         private string tongTien = "Tổng tiền: 0VNĐ";
@@ -34,17 +58,25 @@ namespace DoAn.ViewModel
         public ICommand XuatExcelCommand { get; set; }
         public ICommand NhapTuFileCommand { get; set; }
         public ICommand TinhTongTienCommand { get; set; }
+
         public SuDungViewModel()
         {
             DanhSachSuDung = new ObservableCollection<SuDungModel>();
-            SelectedSuDung = new SuDungModel() { NgaySD = DateTime.Now };
+
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemSuDung(), p => SelectedSuDung != null && !string.IsNullOrWhiteSpace(SelectedSuDung.MaTH) && !string.IsNullOrWhiteSpace(SelectedSuDung.MaDV));
-            XoaCommand = new RelayCommand(p => XoaSuDung(), p => SelectedSuDung != null && !string.IsNullOrWhiteSpace(SelectedSuDung.MaTH) && !string.IsNullOrWhiteSpace(SelectedSuDung.MaDV) && SelectedSuDung.NgaySD != null);
+            ThemCommand = new RelayCommand(p => ThemSuDung(), p => NewSuDung != null && !string.IsNullOrWhiteSpace(NewSuDung.MaTH) && !string.IsNullOrWhiteSpace(NewSuDung.MaDV));
+            XoaCommand = new RelayCommand(p => XoaSuDung(), p => NewSuDung != null && !string.IsNullOrWhiteSpace(NewSuDung.MaTH) && !string.IsNullOrWhiteSpace(NewSuDung.MaDV) && NewSuDung.NgaySD != null);
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
-            TinhTongTienCommand = new RelayCommand(p => TinhTongTien(), p => SelectedSuDung != null && !string.IsNullOrEmpty(SelectedSuDung.MaTH));
+            TinhTongTienCommand = new RelayCommand(p => TinhTongTien(), p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
+
             LoadData();
+            ResetForm();
+        }
+
+        private void ResetForm()
+        {
+            NewSuDung = new SuDungModel() { NgaySD = DateTime.Now };
         }
 
         private void LoadData()
@@ -52,7 +84,6 @@ namespace DoAn.ViewModel
             if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
             DanhSachSuDung.Clear();
 
-            // Gọi VIEW siêu ngắn gọn
             string sql = "EXEC SP_DSDichVuSuDung";
             DataTable dt = DBConnect.GetData(sql);
 
@@ -74,25 +105,22 @@ namespace DoAn.ViewModel
         private void ThemSuDung()
         {
             if (!DBConnect.RequireStaffOrAdmin("Đăng ký dịch vụ")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    // Khi Thêm dữ liệu, vẫn phải tác động vào bảng gốc (SUDUNG)
                     string sql = "EXEC SP_ThemDichVuSuDung @math, @madv, @ngaysudung, @ghichu";
                     var cmd = new SqlCommand(sql, conn);
-
-                    cmd.Parameters.AddWithValue("@math", SelectedSuDung.MaTH);
-                    cmd.Parameters.AddWithValue("@madv", SelectedSuDung.MaDV);
-                    cmd.Parameters.AddWithValue("@ngaysudung", SelectedSuDung.NgaySD);
-                    cmd.Parameters.AddWithValue("@ghichu", SelectedSuDung.GhiChu);
+                    cmd.Parameters.AddWithValue("@math", NewSuDung.MaTH);
+                    cmd.Parameters.AddWithValue("@madv", NewSuDung.MaDV);
+                    cmd.Parameters.AddWithValue("@ngaysudung", NewSuDung.NgaySD);
+                    cmd.Parameters.AddWithValue("@ghichu", NewSuDung.GhiChu);
                     cmd.ExecuteNonQuery();
-                    MessageBox.Show("Đã thêm/đăng ký dịch vụ thành công!", "Thành công");
 
+                    MessageBox.Show("Đã thêm/đăng ký dịch vụ thành công!", "Thành công");
                     LoadData();
-                    SelectedSuDung = new SuDungModel() { NgaySD = DateTime.Now };
+                    ResetForm();
                 }
             }
             catch (SqlException ex)
@@ -106,32 +134,61 @@ namespace DoAn.ViewModel
         private void XoaSuDung()
         {
             if (!DBConnect.RequireAdmin("Hủy dịch vụ")) return;
-
-            if (MessageBox.Show($"Bạn có chắc muốn hủy dịch vụ {SelectedSuDung.MaDV} của thi hài {SelectedSuDung.MaTH}?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (MessageBox.Show($"Bạn có chắc muốn hủy dịch vụ {NewSuDung.MaDV} của thi hài {NewSuDung.MaTH}?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
                 {
                     using (var conn = new SqlConnection(DBConnect.ConnectionString))
                     {
                         conn.Open();
-                        // Phải xóa dựa trên bảng gốc
                         string sql = "EXEC SP_XoaDichVuSuDung @math, @madv, @ngaysudung";
                         var cmd = new SqlCommand(sql, conn);
-                        cmd.Parameters.AddWithValue("@math", SelectedSuDung.MaTH);
-                        cmd.Parameters.AddWithValue("@madv", SelectedSuDung.MaDV);
-                        cmd.Parameters.AddWithValue("@ngaysudung", SelectedSuDung.NgaySD);
-                        cmd.Parameters.AddWithValue("@ghichu", SelectedSuDung.GhiChu);
+                        cmd.Parameters.AddWithValue("@math", NewSuDung.MaTH);
+                        cmd.Parameters.AddWithValue("@madv", NewSuDung.MaDV);
+                        cmd.Parameters.AddWithValue("@ngaysudung", NewSuDung.NgaySD);
                         cmd.ExecuteNonQuery();
 
                         MessageBox.Show("Đã hủy dịch vụ thành công!");
                         LoadData();
-                        SelectedSuDung = new SuDungModel() { NgaySD = DateTime.Now };
+                        ResetForm();
                     }
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi xóa: " + ex.Message); }
             }
         }
 
+        private void TinhTongTien()
+        {
+            if (!DBConnect.RequireStaffOrAdmin("Tính tổng tiền dịch vụ")) return;
+            string maTH = NewSuDung.MaTH; // Lấy từ form input đang gõ
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_TinhTongTienDichVu", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@MaTH", maTH);
+
+                        SqlParameter outParam = new SqlParameter("@TongTien", SqlDbType.Money);
+                        outParam.Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add(outParam);
+
+                        cmd.ExecuteNonQuery();
+
+                        decimal tongTien = 0;
+                        if (cmd.Parameters["@TongTien"].Value != DBNull.Value)
+                        {
+                            tongTien = (decimal)cmd.Parameters["@TongTien"].Value;
+                        }
+                        TongTien = $"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ";
+                        MessageBox.Show($"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ", "Thông báo chi phí");
+                    }
+                }
+            }
+            catch (Exception ex) { MessageBox.Show("Lỗi tính toán: " + ex.Message); }
+        }
         private void XuatExcel()
         {
             if (!DBConnect.RequireAdmin("Xuất Excel dịch vụ đã mua")) return;
@@ -272,44 +329,6 @@ namespace DoAn.ViewModel
                 {
                     MessageBox.Show("Lỗi đọc file (Vui lòng đóng file Excel đang mở): " + ex.Message);
                 }
-            }
-        }
-
-        private void TinhTongTien()
-        {
-            if (!DBConnect.RequireStaffOrAdmin("Tính tổng tiền dịch vụ")) return;
-
-            string maTH = SelectedSuDung.MaTH;
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand("sp_TinhTongTienDichVu", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@MaTH", maTH);
-
-                        SqlParameter outParam = new SqlParameter("@TongTien", SqlDbType.Money);
-                        outParam.Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add(outParam);
-
-                        cmd.ExecuteNonQuery();
-
-                        decimal tongTien = (decimal)cmd.Parameters["@TongTien"].Value;
-                        if (cmd.Parameters["@TongTien"].Value != DBNull.Value)
-                        {
-                            tongTien= (decimal)cmd.Parameters["@TongTien"].Value;
-                        }
-                        TongTien = $"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ";
-                        MessageBox.Show($"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ", "Thông báo chi phí");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tính toán: " + ex.Message);
             }
         }
     }

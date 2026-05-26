@@ -2,29 +2,48 @@
 using DoAn.Model;
 using DoAn.Views.Shared;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using ClosedXML;
 using DoAn.Core;
+
 namespace DoAn.ViewModel
 {
     public class DichVuViewModel : BaseViewModel
     {
         public ObservableCollection<DichVuModel> DanhSachDichVu { get; set; }
 
+        private DichVuModel _newDichVu;
+        public DichVuModel NewDichVu
+        {
+            get => _newDichVu;
+            set { _newDichVu = value; OnPropertyChanged(); }
+        }
+
         private DichVuModel _selectedDichVu;
         public DichVuModel SelectedDichVu
         {
             get => _selectedDichVu;
-            set { _selectedDichVu = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedDichVu = value;
+                OnPropertyChanged();
+                if (_selectedDichVu != null)
+                {
+                    NewDichVu = new DichVuModel
+                    {
+                        MaDV = _selectedDichVu.MaDV,
+                        TenDV = _selectedDichVu.TenDV,
+                        GiaTien = _selectedDichVu.GiaTien
+                    };
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
         }
 
         public ICommand LoadCommand { get; set; }
@@ -39,24 +58,24 @@ namespace DoAn.ViewModel
         public DichVuViewModel()
         {
             DanhSachDichVu = new ObservableCollection<DichVuModel>();
-            SelectedDichVu = new DichVuModel();
 
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemDichVu(), p => SelectedDichVu != null && !string.IsNullOrWhiteSpace(SelectedDichVu.MaDV) && !string.IsNullOrWhiteSpace(SelectedDichVu.TenDV));
-            SuaCommand = new RelayCommand(p => SuaDichVu(), p => SelectedDichVu != null && !string.IsNullOrWhiteSpace(SelectedDichVu.MaDV));
-            XoaCommand = new RelayCommand(p => XoaDichVu(), p => SelectedDichVu != null && !string.IsNullOrWhiteSpace(SelectedDichVu.MaDV));
+            ThemCommand = new RelayCommand(p => ThemDichVu(), p => NewDichVu != null && !string.IsNullOrWhiteSpace(NewDichVu.MaDV) && !string.IsNullOrWhiteSpace(NewDichVu.TenDV));
+            SuaCommand = new RelayCommand(p => SuaDichVu(), p => NewDichVu != null && !string.IsNullOrWhiteSpace(NewDichVu.MaDV));
+            XoaCommand = new RelayCommand(p => XoaDichVu(), p => NewDichVu != null && !string.IsNullOrWhiteSpace(NewDichVu.MaDV));
             DichVuECommand = new RelayCommand(p => DichVuE());
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => SelectedDichVu != null && !string.IsNullOrEmpty(SelectedDichVu.MaDV));
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewDichVu != null && !string.IsNullOrEmpty(NewDichVu.MaDV));
 
             LoadData();
+            ResetForm();
         }
+
 
         private void LoadData()
         {
             if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
-
             DanhSachDichVu.Clear();
             string sql = "EXEC SP_DSDichVu";
             DataTable dt = DBConnect.GetData(sql);
@@ -74,30 +93,47 @@ namespace DoAn.ViewModel
 
         private void XemChiTiet()
         {
-            DetailWindow f = new DetailWindow(SelectedDichVu, "CHI TIẾT DỊCH VỤ");
+            DetailWindow f = new DetailWindow(NewDichVu, "CHI TIẾT DỊCH VỤ");
             f.ShowDialog();
         }
 
+        private string TaoMaDV()
+        {
+            if (DanhSachDichVu == null || DanhSachDichVu.Count == 0) return "DV001";
+
+            var maxId = DanhSachDichVu
+                .Select(d => {
+                    if (d.MaDV != null && d.MaDV.StartsWith("DV") && int.TryParse(d.MaDV.Substring(2), out int num))
+                        return num;
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"DV{(maxId + 1):D3}";
+        }
+        private void ResetForm()
+        {
+            NewDichVu = new DichVuModel();
+            NewDichVu.MaDV = TaoMaDV();
+        }
         private void ThemDichVu()
         {
             if (!DBConnect.RequireAdmin("Thêm dịch vụ")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "EXEC SP_ThemDichVu @ma, @ten, @gia";
-                    var cmd = new SqlCommand(sql, conn);
-
-                    cmd.Parameters.AddWithValue("@ma", SelectedDichVu.MaDV);
-                    cmd.Parameters.AddWithValue("@ten", SelectedDichVu.TenDV);
-                    cmd.Parameters.AddWithValue("@gia", SelectedDichVu.GiaTien);
-
+                    var cmd = new SqlCommand("EXEC SP_ThemDichVu @ma, @ten, @gia", conn);
+                    cmd.Parameters.AddWithValue("@ma", NewDichVu.MaDV);
+                    cmd.Parameters.AddWithValue("@ten", NewDichVu.TenDV);
+                    cmd.Parameters.AddWithValue("@gia", NewDichVu.GiaTien);
                     cmd.ExecuteNonQuery();
+
                     MessageBox.Show("Thêm dịch vụ thành công!");
                     LoadData();
-                    SelectedDichVu = new DichVuModel();
+                    ResetForm();
                 }
             }
             catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
@@ -106,24 +142,21 @@ namespace DoAn.ViewModel
         private void SuaDichVu()
         {
             if (!DBConnect.RequireAdmin("Sửa dịch vụ")) return;
-
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sqlUpdate = "EXEC SP_SuaDichVu @ma, @t, @g";
-                    var cmdUpdate = new SqlCommand(sqlUpdate, conn);
-
-                    cmdUpdate.Parameters.AddWithValue("@ma", SelectedDichVu.MaDV);
-                    cmdUpdate.Parameters.AddWithValue("@t", string.IsNullOrWhiteSpace(SelectedDichVu.TenDV) ? DBNull.Value : (object)SelectedDichVu.TenDV);
-                    cmdUpdate.Parameters.AddWithValue("@g", SelectedDichVu.GiaTien);
+                    var cmdUpdate = new SqlCommand("EXEC SP_SuaDichVu @ma, @t, @g", conn);
+                    cmdUpdate.Parameters.AddWithValue("@ma", NewDichVu.MaDV);
+                    cmdUpdate.Parameters.AddWithValue("@t", string.IsNullOrWhiteSpace(NewDichVu.TenDV) ? DBNull.Value : (object)NewDichVu.TenDV);
+                    cmdUpdate.Parameters.AddWithValue("@g", NewDichVu.GiaTien);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
                         MessageBox.Show("Cập nhật dịch vụ thành công!");
                         LoadData();
-                        SelectedDichVu = new DichVuModel();
+                        ResetForm();
                     }
                 }
             }
@@ -133,7 +166,6 @@ namespace DoAn.ViewModel
         private void XoaDichVu()
         {
             if (!DBConnect.RequireAdmin("Xóa dịch vụ")) return;
-
             if (MessageBox.Show("Xóa dịch vụ này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -142,12 +174,12 @@ namespace DoAn.ViewModel
                     {
                         conn.Open();
                         var cmd = new SqlCommand("EXEC SP_XoaDichVu @ma", conn);
-                        cmd.Parameters.AddWithValue("@ma", SelectedDichVu.MaDV);
+                        cmd.Parameters.AddWithValue("@ma", NewDichVu.MaDV);
                         cmd.ExecuteNonQuery();
 
                         MessageBox.Show("Đã xóa!");
                         LoadData();
-                        SelectedDichVu = new DichVuModel();
+                        ResetForm();
                     }
                 }
                 catch (Exception) { MessageBox.Show("Không thể xóa dịch vụ này (Đang có người sử dụng)."); }

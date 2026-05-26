@@ -35,14 +35,16 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Text="Mã Dịch Vụ:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding SelectedDichVu.MaDV, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                <TextBox Text="{Binding NewDichVu.MaDV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+         IsReadOnly="True" Background="#E2E8F0" Foreground="#475569" 
+         Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Tên Dịch Vụ:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding SelectedDichVu.TenDV, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                <TextBox Text="{Binding NewDichVu.TenDV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Giá Tiền (VNĐ):" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
-                <TextBox Text="{Binding SelectedDichVu.GiaTien, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
-
+                <TextBox Text="{Binding NewDichVu.GiaTien, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
+                
                 <StackPanel Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <StackPanel.Resources>
                         <Style TargetType="Button">

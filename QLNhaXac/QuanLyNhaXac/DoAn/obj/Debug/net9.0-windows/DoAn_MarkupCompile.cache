@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\Users\LENOVO\Desktop\HQT_CSDL\QL_NhaXac\Mortuary-Management\QLNhaXac\QuanLyNhaXac\DoAn\obj\Debug\net9.0-windows\
+C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QuanLyNhaXac\DoAn\obj\Debug\net9.0-windows\
 DoAn
 none
 false
 TRACE;DEBUG;NET;NET9_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-C:\Users\LENOVO\Desktop\HQT_CSDL\QL_NhaXac\Mortuary-Management\QLNhaXac\QuanLyNhaXac\DoAn\App.xaml
+C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QuanLyNhaXac\DoAn\App.xaml
 11-1545930216
 
 33527591820
-236684228380
+236-1508454076
 Views\Auth\LoginWindow.xaml;Views\Auth\Register.xaml;Views\Layouts\MainWindow.xaml;Views\Shared\DetailWindow.xaml;Views\Staff\StaffWindow.xaml;Views\UserControls\BacSi.xaml;Views\UserControls\DichVu.xaml;Views\UserControls\HoSoKB.xaml;Views\UserControls\NganKeo.xaml;Views\UserControls\SuDung.xaml;Views\UserControls\ThiHai.xaml;
 
 False

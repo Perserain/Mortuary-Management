@@ -35,19 +35,18 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Text="Mã Bác Sĩ:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding SelectedBacSi.MaBS, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                <TextBox Text="{Binding NewBacSi.MaBS, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" Background="#F1F5F9" Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Họ và Tên:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding SelectedBacSi.HoTenBS, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                <TextBox Text="{Binding NewBacSi.HoTenBS, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Chuyên Khoa:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding SelectedBacSi.ChuyenKhoa, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
-
+                <ComboBox ItemsSource="{Binding DanhSachChuyenKhoa}" SelectedItem="{Binding NewBacSi.ChuyenKhoa, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
                 <TextBlock Text="Kinh Nghiệm:" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding SelectedBacSi.NamKinhNghiem, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                <TextBox Text="{Binding NewBacSi.NamKinhNghiem, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Mã Cấp Trên:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
-                <TextBox Text="{Binding SelectedBacSi.MaTruongKhoa, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
+                <TextBox Text="{Binding NewBacSi.MaTruongKhoa, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
 
                 <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <StackPanel.Resources>
