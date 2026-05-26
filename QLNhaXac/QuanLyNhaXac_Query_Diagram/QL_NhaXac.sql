@@ -9,7 +9,7 @@ CREATE DATABASE QuanLyNhaXac
 ON PRIMARY
 (
     NAME = 'QuanLyNhaXac_Main',
-    FILENAME = 'C:\QLNhaXac\QuanLyNhaXac_Main\QuanLyNhaXac_Main.mdf',
+    FILENAME = 'C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QuanLyNhaXac_Main\QuanLyNhaXac_Main.mdf',
     SIZE = 10MB,          -- Kích thước ban đầu
     MAXSIZE = 30MB,      -- Kích thước tối đa
     FILEGROWTH = 5MB      -- Tốc độ tăng trưởng
@@ -18,7 +18,7 @@ ON PRIMARY
 FILEGROUP SecondaryGroup
 (
     NAME = 'QuanLyNhaXac_Sub',
-    FILENAME = 'C:\QLNhaXac\QuanLyNhaXac_Sub\QuanLyNhaXac_Sub.ndf',
+    FILENAME = 'C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QuanLyNhaXac_Sub\QuanLyNhaXac_Sub.ndf',
     SIZE = 10MB,          -- Kích thước ban đầu
     MAXSIZE = 30MB,      -- Kích thước tối đa
     FILEGROWTH = 5MB      -- Tốc độ tăng trưởng
@@ -27,7 +27,7 @@ FILEGROUP SecondaryGroup
 LOG ON
 (
     NAME = 'QuanLyNhaXac_Log',
-    FILENAME = 'C:\QLNhaXac\QuanLyNhaXac_Log\QuanLyNhaXac_Log.ldf',
+    FILENAME = 'C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QuanLyNhaXac_Log\QuanLyNhaXac_Log.ldf',
     SIZE = 5MB,
     MAXSIZE = 20MB,
     FILEGROWTH = 1MB
@@ -49,7 +49,7 @@ GO
 -- Bảng 1: Thông tin Tử Thi (Gốc)
 CREATE TABLE THIHAI 
 (
-    MATH CHAR(15) NOT NULL,       
+    MATH VARCHAR(15) NOT NULL,       
     HOTEN_TH NVARCHAR(100) ,    
     NGAYSINH DATE,
     NGAYMAT DATE,
@@ -61,7 +61,7 @@ CREATE TABLE THIHAI
 -- Bảng 2: Bác Sĩ
 CREATE TABLE BACSI 
 (
-    MABS CHAR(15) NOT NULL,
+    MABS VARCHAR(15) NOT NULL,
     HOTEN_BS NVARCHAR(100),
     CHUYENKHOA NVARCHAR(100),
     NAMKINHNGHIEM INT,
@@ -72,7 +72,7 @@ CREATE TABLE BACSI
 -- Bảng 3: Dịch Vụ (Ví dụ: Khâm liệm, Trang điểm...)
 CREATE TABLE DICHVU 
 (
-    MADV CHAR(15) NOT NULL,
+    MADV VARCHAR(15) NOT NULL,
     TENDV NVARCHAR(100),
     GIATIEN MONEY,
     -- KHÓA CHÍNH
@@ -82,10 +82,10 @@ CREATE TABLE DICHVU
 -- Bảng 4: Ngăn Kéo (Quan hệ 1-1 với Tử Thi)
 CREATE TABLE NGANKEO 
 (
-    MANGAN CHAR(15) NOT NULL,
+    MANGAN VARCHAR(15) NOT NULL,
     VITRI NVARCHAR(50),              -- Ví dụ: Khu A, Tầng 2
     NHIETDO FLOAT,                   -- Nhiệt độ bảo quản
-    MATH CHAR(15),     
+    MATH VARCHAR(15),     
     -- KHÓA CHÍNH
     CONSTRAINT PK_NK PRIMARY KEY(MANGAN)
 )
@@ -93,11 +93,11 @@ CREATE TABLE NGANKEO
 -- Bảng 5: Hồ Sơ Khám Nghiệm (Quan hệ 1-n: Bác sĩ khám cho Tử thi)
 CREATE TABLE HOSOKHAMBENH
 (
-    MAHS CHAR(15) NOT NULL,
+    MAHS VARCHAR(15) NOT NULL,
     THOIGIANKHAM DATE,
     KETLUAN NVARCHAR(50),           
-    MATH CHAR(15),
-    MABS CHAR(15),
+    MATH VARCHAR(15),
+    MABS VARCHAR(15),
     -- KHÓA CHÍNH
     CONSTRAINT PK_HS PRIMARY KEY(MAHS)
 )
@@ -105,8 +105,8 @@ CREATE TABLE HOSOKHAMBENH
 -- Bảng 6: Sử Dụng Dịch Vụ (Quan hệ n-n: Tử thi dùng Dịch vụ)
 CREATE TABLE SUDUNG 
 (
-    MATH CHAR(15) NOT NULL,
-    MADV CHAR(15) NOT NULL,
+    MATH VARCHAR(15) NOT NULL,
+    MADV VARCHAR(15) NOT NULL,
     NGAYSUDUNG DATE,
     GHICHU NVARCHAR(200),
     -- Khóa chính là cặp (MATH, MADV)
@@ -117,7 +117,7 @@ GO
 
 -- 1. Thêm cột MA_TRUONGKHOA vào bảng BACSI
 ALTER TABLE BACSI
-ADD MA_TRUONGKHOA CHAR(15); 
+ADD MA_TRUONGKHOA VARCHAR(15); 
 
 GO
 
@@ -398,7 +398,7 @@ CREATE PROC SP_ThemBacSi
     @HOTEN_BS NVARCHAR(100),
     @CHUYENKHOA NVARCHAR(100),
     @NAMKINHNGHIEM INT,
-    @MA_TRUONGKHOA CHAR(15)
+    @MA_TRUONGKHOA VARCHAR(15)
 AS
 BEGIN
     INSERT INTO BacSi
@@ -410,7 +410,7 @@ END
 GO
 -- THỦ TỤC XÓA
 CREATE PROC SP_XoaBacSi
-    @MABS CHAR(15)
+    @MABS VARCHAR(15)
 AS
 BEGIN
 
@@ -422,11 +422,11 @@ GO
 
 -- THỦ TỤC SỬA
 CREATE PROC SP_SuaBacSi
-	@MABS CHAR(15),
+	@MABS VARCHAR(15),
     @HOTEN_BS NVARCHAR(100),
     @CHUYENKHOA NVARCHAR(100),
     @NAMKINHNGHIEM INT,
-    @MA_TRUONGKHOA CHAR(15)
+    @MA_TRUONGKHOA VARCHAR(15)
 AS
 BEGIN
 	UPDATE BACSI
@@ -459,7 +459,7 @@ END
 GO
 -- THỦ TỤC THÊM
 CREATE PROC SP_ThemThiHai
-    @MATH CHAR(15),
+    @MATH VARCHAR(15),
     @HOTEN_TH NVARCHAR(100),
     @NGAYSINH DATE,
     @NGAYMAT DATE,
@@ -475,7 +475,7 @@ END
 GO
 -- THỦ TỤC SỬA
 CREATE PROC SP_SuaThiHai
-    @MATH CHAR(15),
+    @MATH VARCHAR(15),
     @HOTEN_TH NVARCHAR(100),
     @NGAYSINH DATE,
     @NGAYMAT DATE,
@@ -494,7 +494,7 @@ GO
 -- THỦ TỤC XÓA
 
 CREATE PROC SP_XoaThiHai
-    @MATH CHAR(15)
+    @MATH VARCHAR(15)
 AS
 BEGIN
 	BEGIN TRANSACTION
@@ -528,7 +528,7 @@ CREATE PROC SP_DonDepThiHaiQuaHan
 AS
 BEGIN
     -- Khai báo biến chứa mã thi hài đang được xử lý trong mỗi vòng lặp
-    DECLARE @MATH_XULY CHAR(15);
+    DECLARE @MATH_XULY VARCHAR(15);
 
     -- ĐIỀU KIỆN LẶP:
     -- 1. DATEDIFF tính từ NGAYMAT đến hiện tại > 15 ngày
@@ -578,10 +578,10 @@ END
 GO
 -- THỦ TỤC THÊM
 CREATE PROC SP_ThemNganKeo
-    @MANGAN CHAR(15),
+    @MANGAN VARCHAR(15),
     @VITRI NVARCHAR(50),
     @NHIETDO FLOAT,
-    @MATH CHAR(15)
+    @MATH VARCHAR(15)
 AS
 BEGIN
     INSERT INTO NGANKEO
@@ -593,10 +593,10 @@ END
 GO
 -- THỦ TỤC SỬA
 CREATE PROC SP_SuaNganKeo
-	@MANGAN CHAR(15),
+	@MANGAN VARCHAR(15),
     @VITRI NVARCHAR(50),
     @NHIETDO FLOAT,
-    @MATH CHAR(15)
+    @MATH VARCHAR(15)
 AS
 BEGIN
 	UPDATE NGANKEO
@@ -609,7 +609,7 @@ END
 GO
 -- THỦ TỤC XÓA
 CREATE PROC SP_XoaNganKeo
-    @MANGAN CHAR(15)
+    @MANGAN VARCHAR(15)
 AS
 BEGIN
 	BEGIN TRANSACTION
@@ -633,11 +633,11 @@ END
 GO
 -- THỦ TỤC THÊM
 CREATE PROC SP_ThemHoSoKhamBenh
-    @MAHS CHAR(15),
+    @MAHS VARCHAR(15),
     @THOIGIANKHAM DATE,
     @KETLUAN NVARCHAR(50),
-    @MATH CHAR(15),
-    @MABS CHAR(15)
+    @MATH VARCHAR(15),
+    @MABS VARCHAR(15)
 AS
 BEGIN
     INSERT INTO HOSOKHAMBENH
@@ -666,7 +666,7 @@ GO
 
 -- THỦ TỤC XÓA
 CREATE PROC SP_XoaHoSoKhamBenh
-    @MAHS CHAR(15)
+    @MAHS VARCHAR(15)
 AS
 BEGIN
 	BEGIN TRANSACTION
@@ -689,7 +689,7 @@ END
 GO
 -- THỦ TỤC THÊM
 CREATE PROC SP_ThemDichVu
-    @MADV CHAR(15),
+    @MADV VARCHAR(15),
 	@TENDV NVARCHAR(100),
 	@GIA MONEY
 AS
@@ -701,7 +701,7 @@ END
 GO
 -- THỦ TỤC SỬA
 CREATE PROC SP_SuaDichVu
-    @MADV CHAR(15),
+    @MADV VARCHAR(15),
     @TENDV NVARCHAR(100),
     @GIA MONEY
 AS
@@ -715,7 +715,7 @@ END
 GO
 -- THỦ TỤC XÓA
 CREATE PROC SP_XoaDichVu
-    @MADV CHAR(15)
+    @MADV VARCHAR(15)
 AS
 BEGIN
 	BEGIN TRANSACTION
@@ -746,8 +746,8 @@ END
 GO
 -- THỦ TỤC THÊM
 CREATE PROC SP_ThemDichVuSudung
-	@MATH CHAR(15),
-    @MADV CHAR(15),
+	@MATH VARCHAR(15),
+    @MADV VARCHAR(15),
 	@NGAYSD DATE,
 	@GHICHU NVARCHAR(200)
 AS
@@ -759,8 +759,8 @@ END
 GO
 --Xóa
 CREATE PROC SP_XoaDichVuSuDung
-	@MATH CHAR(15),
-    @MADV CHAR(15),
+	@MATH VARCHAR(15),
+    @MADV VARCHAR(15),
 	@NGAYSD DATE
 AS
 BEGIN
@@ -774,8 +774,8 @@ END
 GO
 -- THỦ TỤC SỬA
 CREATE PROC SP_SuaDichVuSudung
-    @MATH CHAR(15),
-    @MADV CHAR(15),
+    @MATH VARCHAR(15),
+    @MADV VARCHAR(15),
     @NGAYSD DATE,
     @GHICHU NVARCHAR(200)
 AS
@@ -789,7 +789,7 @@ END
 GO
 -- THỦ TỤC TÍNH TỔNG TIỀN DỊCH VỤ CỦA THI HÀI
 CREATE PROCEDURE sp_TinhTongTienDichVu
-    @MaTH CHAR(15),           -- Tham số Input: Mã thi hài
+    @MaTH VARCHAR(15),           -- Tham số Input: Mã thi hài
     @TongTien MONEY OUTPUT    -- Tham số Output: Tổng tiền trả về
 AS
 BEGIN
@@ -805,7 +805,7 @@ GO
 -- 6. HÀM
 -- =============================================
 -- 1. Hàm tính tổng tiền dịch vụ của mã thi hài đó
-CREATE FUNCTION FN_TinhTongTienDichVu(@MATH CHAR(15))
+CREATE FUNCTION FN_TinhTongTienDichVu(@MATH VARCHAR(15))
 RETURNS MONEY
 AS
 BEGIN
@@ -822,12 +822,12 @@ END
 GO
 
 -- 2. Hàm cập nhật trạng thái ngăn kéo
-CREATE FUNCTION FN_CapNhatTrangThaiNganKeo(@MANGAN CHAR(15))
+CREATE FUNCTION FN_CapNhatTrangThaiNganKeo(@MANGAN VARCHAR(15))
 RETURNS NVARCHAR(50)
 AS
 BEGIN
 	DECLARE @TrangThai NVARCHAR(50)
-	DECLARE @MATH CHAR(15)
+	DECLARE @MATH VARCHAR(15)
 
 	SELECT @MATH = MATH FROM NGANKEO WHERE MANGAN=@MANGAN
 
@@ -855,7 +855,7 @@ RETURN
 GO
 
 -- 4. Hàm tìm kiếm dịch vụ của tử thi
-CREATE FUNCTION fn_LichSuDichVuCuaTuThi (@MATH CHAR(15))
+CREATE FUNCTION fn_LichSuDichVuCuaTuThi (@MATH VARCHAR(15))
 RETURNS TABLE
 AS
 RETURN
@@ -882,7 +882,7 @@ RETURN
 GO
 
 -- 6. Hàm liệt kê hồ sơ khám nghiệm của bác sĩ ...
-CREATE FUNCTION fn_DanhSachKhamNghiemTheoBacSi (@MABS CHAR(15))
+CREATE FUNCTION fn_DanhSachKhamNghiemTheoBacSi (@MABS VARCHAR(15))
 RETURNS TABLE
 AS
 RETURN
@@ -896,7 +896,7 @@ RETURN
 GO
 
 -- 7. Hàm liệt kê hô sơ khàm nghiệm theo tử thi
-CREATE FUNCTION fn_DanhSachKhamNghiemTheoTuThi (@MATH CHAR(15))
+CREATE FUNCTION fn_DanhSachKhamNghiemTheoTuThi (@MATH VARCHAR(15))
 RETURNS TABLE
 AS
 RETURN
