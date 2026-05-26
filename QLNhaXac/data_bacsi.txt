@@ -1,0 +1,3 @@
+BS013,Nguyễn Văn A,Pháp Y,10
+BS014,Trần Thị B,Giải Phẫu,5
+BS015,Lê Văn C,Đa Khoa,8
