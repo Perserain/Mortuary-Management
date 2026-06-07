@@ -25,6 +25,8 @@ namespace DoAn.ViewModel
             }
         }
 
+        public bool IsAdmin => DoAn.Core.DBConnect.IsAdmin;
+
         public ICommand ShowBacSiCommand { get; set; }
         public ICommand ShowHoSoCommand { get; set; }
         public ICommand ShowThiHaiCommand { get; set; }
@@ -32,6 +34,8 @@ namespace DoAn.ViewModel
         public ICommand ShowNganKeoCommand { get; set; }
         public ICommand ShowSuDungCommand { get; set; }
         public ICommand LogOutCommand { get; set; }
+        public ICommand ShowQuanLyTaiKhoanCommand { get; set; }
+        public ICommand ShowQuanLyNhomQuyenCommand { get; set; }
 
         public MainViewModel()
         {
@@ -43,6 +47,8 @@ namespace DoAn.ViewModel
             ShowDichVuCommand = new RelayCommand(p => CurrentView = new DichVuViewModel());
             ShowNganKeoCommand = new RelayCommand(p => CurrentView = new NganKeoViewModel());
             ShowSuDungCommand = new RelayCommand(p => CurrentView = new SuDungViewModel());
+            ShowQuanLyTaiKhoanCommand = new RelayCommand(p => CurrentView = new QuanLyTaiKhoanViewModel());
+            ShowQuanLyNhomQuyenCommand = new RelayCommand(p => CurrentView = new QuanLyNhomQuyenViewModel());
 
             // Khởi tạo lệnh Đăng Xuất
             LogOutCommand = new RelayCommand(p => ExecuteLogOut(p));

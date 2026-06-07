@@ -11,6 +11,7 @@
     </Window.DataContext>
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <DataTemplate DataType="{x:Type vm:BacSiViewModel}">
             <views:BacSi/>
         </DataTemplate>
@@ -28,6 +29,12 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SuDungViewModel}">
             <views:SuDung/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuanLyTaiKhoanViewModel}">
+            <views:QuanLyTaiKhoan/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuanLyNhomQuyenViewModel}">
+            <views:QuanLyNhomQuyen/>
         </DataTemplate>
     </Window.Resources>
 
@@ -86,6 +93,14 @@
                     <Button Content="Quản Lý Thi Hài" Command="{Binding ShowThiHaiCommand}"/>
                     <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
                     <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
+                    <!-- Chỉ Admin mới thấy menu phân quyền -->
+                    <Button Content="Quản Lý Tài Khoản"
+                        Command="{Binding ShowQuanLyTaiKhoanCommand}"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="Quản Lý Nhóm Quyền"
+                        Command="{Binding ShowQuanLyNhomQuyenCommand}"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Margin="15,0,15,30">

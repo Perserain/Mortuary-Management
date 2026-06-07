@@ -1195,3 +1195,457 @@ ALTER ROLE [app_admin] ADD MEMBER [MAYCUA_BAN\TenUser]
 ALTER ROLE [app_staff] ADD MEMBER [MAYCUA_BAN\TenUser]
 GO
 */
+
+-- =============================================
+-- PHẦN MỞ RỘNG: HỆ THỐNG PHÂN QUYỀN NÂNG CAO
+-- Dành cho QuanLyNhaXac
+-- =============================================
+
+USE QuanLyNhaXac
+GO
+
+-- =============================================
+-- BƯỚC 1: TẠO 3 NHÓM QUYỀN (DATABASE ROLES)
+-- =============================================
+
+-- Nhóm Admin: Toàn quyền tất cả bảng
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'QL_ADMIN' AND type = 'R')
+    CREATE ROLE [QL_ADMIN];
+GO
+
+-- Nhóm Nhân Viên: SELECT trên THIHAI + toàn quyền DICHVU, SUDUNG
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'QL_NHANVIEN' AND type = 'R')
+    CREATE ROLE [QL_NHANVIEN];
+GO
+
+-- Nhóm Bác Sĩ: toàn quyền THIHAI, NGANKEO, HOSOKHAMBENH
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'QL_BACSI' AND type = 'R')
+    CREATE ROLE [QL_BACSI];
+GO
+
+-- =============================================
+-- BƯỚC 2: CẤP QUYỀN CHO TỪNG NHÓM
+-- =============================================
+
+-- QL_ADMIN: Toàn quyền 7 bảng
+GRANT SELECT, INSERT, UPDATE, DELETE ON THIHAI TO [QL_ADMIN] WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON DICHVU TO [QL_ADMIN] WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON SUDUNG TO [QL_ADMIN] WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON NGANKEO TO [QL_ADMIN] WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON HOSOKHAMBENH TO [QL_ADMIN] WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON NHANVIEN TO [QL_ADMIN] WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON BACSI TO [QL_ADMIN] WITH GRANT OPTION;
+GO
+
+-- QL_NHANVIEN: Chỉ SELECT trên THIHAI, toàn quyền DICHVU và SUDUNG
+GRANT SELECT ON THIHAI TO [QL_NHANVIEN];
+GRANT SELECT, INSERT, UPDATE, DELETE ON DICHVU TO [QL_NHANVIEN];
+GRANT SELECT, INSERT, UPDATE, DELETE ON SUDUNG TO [QL_NHANVIEN];
+GO
+
+-- QL_BACSI: Toàn quyền THIHAI, NGANKEO, HOSOKHAMBENH
+GRANT SELECT, INSERT, UPDATE, DELETE ON THIHAI TO [QL_BACSI];
+GRANT SELECT, INSERT, UPDATE, DELETE ON NGANKEO TO [QL_BACSI];
+GRANT SELECT, INSERT, UPDATE, DELETE ON HOSOKHAMBENH TO [QL_BACSI];
+GO
+
+-- =============================================
+-- BƯỚC 3: TẠO BẢNG NHANVIEN (nếu chưa có)
+-- =============================================
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'NHANVIEN')
+BEGIN
+    CREATE TABLE NHANVIEN
+    (
+        MANV VARCHAR(15) NOT NULL,
+        HOTEN_NV NVARCHAR(100),
+        CHUCVU NVARCHAR(100),
+        DIENTHOAI VARCHAR(15),
+        CONSTRAINT PK_NV PRIMARY KEY (MANV)
+    );
+
+    -- Dữ liệu mẫu
+    INSERT INTO NHANVIEN VALUES
+    ('NV001', N'Nguyễn Thị Lan', N'Lễ tân', '0901111111'),
+    ('NV002', N'Trần Văn Bình', N'Chăm sóc thi hài','0902222222'),
+    ('NV003', N'Lê Thị Hoa', N'Kế toán', '0903333333');
+END
+GO
+
+-- =============================================
+-- BƯỚC 4: STORED PROCEDURES HỖ TRỢ PHÂN QUYỀN
+-- =============================================
+
+-- SP: Lấy danh sách tất cả Database Users (loại trừ system)
+IF OBJECT_ID('SP_DanhSachUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_DanhSachUser;
+GO
+CREATE PROCEDURE SP_DanhSachUser
+AS
+BEGIN
+    SELECT 
+        dp.name AS TenUser,
+        dp.type_desc AS LoaiUser,
+        ISNULL(sp.name,'(No Login)') AS TenLogin,
+        dp.create_date AS NgayTao
+    FROM sys.database_principals dp
+    LEFT JOIN sys.server_principals sp ON dp.sid = sp.sid
+    WHERE dp.type IN ('S','U','G') -- SQL user / Windows user / Windows group
+      AND dp.name NOT IN ('dbo','guest','INFORMATION_SCHEMA','sys')
+      AND dp.name NOT LIKE '##%'
+    ORDER BY dp.name;
+END
+GO
+
+-- SP: Lấy danh sách tất cả Roles (nhóm quyền)
+IF OBJECT_ID('SP_DanhSachRole', 'P') IS NOT NULL
+    DROP PROCEDURE SP_DanhSachRole;
+GO
+CREATE PROCEDURE SP_DanhSachRole
+AS
+BEGIN
+    SELECT 
+        name AS TenRole,
+        type_desc AS LoaiRole,
+        create_date AS NgayTao
+    FROM sys.database_principals
+    WHERE type = 'R'
+      AND is_fixed_role = 0
+      AND name NOT IN ('public')
+    ORDER BY name;
+END
+GO
+
+-- SP: Lấy quyền của 1 user trên 1 bảng cụ thể
+IF OBJECT_ID('SP_QuyenCuaUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_QuyenCuaUser;
+GO
+CREATE PROCEDURE SP_QuyenCuaUser
+    @TenUser NVARCHAR(128),
+    @TenBang NVARCHAR(128)
+AS
+BEGIN
+    -- Kiểm tra quyền trực tiếp
+    SELECT 
+        p.class_desc AS NguonQuyen,
+        p.permission_name AS TenQuyen,
+        p.state_desc AS TrangThai,
+        @TenUser AS TenUser,
+        @TenBang AS TenBang
+    FROM sys.database_permissions p
+    JOIN sys.objects o ON p.major_id = o.object_id
+    JOIN sys.database_principals dp ON p.grantee_principal_id = dp.principal_id
+    WHERE dp.name = @TenUser
+      AND o.name = @TenBang
+      AND p.class = 1
+
+    UNION ALL
+
+    -- Kiểm tra quyền qua Role
+    SELECT 
+        'THROUGH ROLE' AS NguonQuyen,
+        p.permission_name AS TenQuyen,
+        p.state_desc AS TrangThai,
+        @TenUser AS TenUser,
+        @TenBang AS TenBang
+    FROM sys.database_permissions p
+    JOIN sys.objects o ON p.major_id = o.object_id
+    JOIN sys.database_principals role_dp ON p.grantee_principal_id = role_dp.principal_id
+    JOIN sys.database_role_members rm ON role_dp.principal_id = rm.role_principal_id
+    JOIN sys.database_principals user_dp ON rm.member_principal_id = user_dp.principal_id
+    WHERE user_dp.name = @TenUser
+      AND o.name = @TenBang
+      AND p.class = 1;
+END
+GO
+
+-- SP: Lấy toàn bộ quyền hiện tại của 1 user (tổng hợp tất cả bảng)
+IF OBJECT_ID('SP_TatCaQuyenCuaUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_TatCaQuyenCuaUser;
+GO
+CREATE PROCEDURE SP_TatCaQuyenCuaUser
+    @TenUser NVARCHAR(128)
+AS
+BEGIN
+    SELECT DISTINCT
+        o.name AS TenBang,
+        p.permission_name AS TenQuyen,
+        p.state_desc AS TrangThai
+    FROM sys.database_permissions p
+    JOIN sys.objects o ON p.major_id = o.object_id
+    JOIN sys.database_principals dp ON p.grantee_principal_id = dp.principal_id
+    WHERE dp.name = @TenUser AND p.class = 1
+
+    UNION
+
+    SELECT DISTINCT
+        o.name AS TenBang,
+        p.permission_name AS TenQuyen,
+        p.state_desc AS TrangThai
+    FROM sys.database_permissions p
+    JOIN sys.objects o ON p.major_id = o.object_id
+    JOIN sys.database_principals role_dp ON p.grantee_principal_id = role_dp.principal_id
+    JOIN sys.database_role_members rm ON role_dp.principal_id = rm.role_principal_id
+    JOIN sys.database_principals user_dp ON rm.member_principal_id = user_dp.principal_id
+    WHERE user_dp.name = @TenUser AND p.class = 1
+    ORDER BY TenBang, TenQuyen;
+END
+GO
+
+-- SP: Lấy danh sách User thuộc Role nào
+IF OBJECT_ID('SP_UserTrongRole', 'P') IS NOT NULL
+    DROP PROCEDURE SP_UserTrongRole;
+GO
+CREATE PROCEDURE SP_UserTrongRole
+    @TenRole NVARCHAR(128)
+AS
+BEGIN
+    SELECT 
+        u.name AS TenUser,
+        u.type_desc AS LoaiUser
+    FROM sys.database_role_members rm
+    JOIN sys.database_principals r ON rm.role_principal_id = r.principal_id
+    JOIN sys.database_principals u ON rm.member_principal_id = u.principal_id
+    WHERE r.name = @TenRole
+    ORDER BY u.name;
+END
+GO
+
+-- SP: Lấy danh sách Role mà 1 User thuộc về
+IF OBJECT_ID('SP_RoleCuaUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_RoleCuaUser;
+GO
+CREATE PROCEDURE SP_RoleCuaUser
+    @TenUser NVARCHAR(128)
+AS
+BEGIN
+    SELECT 
+        r.name AS TenRole,
+        r.type_desc AS LoaiRole
+    FROM sys.database_role_members rm
+    JOIN sys.database_principals r ON rm.role_principal_id = r.principal_id
+    JOIN sys.database_principals u ON rm.member_principal_id = u.principal_id
+    WHERE u.name = @TenUser
+    ORDER BY r.name;
+END
+GO
+
+-- SP: Lấy danh sách User CHƯA thuộc Role (để hiện khi nhấn Grant)
+IF OBJECT_ID('SP_UserChuaThuocRole', 'P') IS NOT NULL
+    DROP PROCEDURE SP_UserChuaThuocRole;
+GO
+CREATE PROCEDURE SP_UserChuaThuocRole
+    @TenRole NVARCHAR(128)
+AS
+BEGIN
+    SELECT 
+        dp.name AS TenUser,
+        dp.type_desc AS LoaiUser
+    FROM sys.database_principals dp
+    WHERE dp.type IN ('S','U','G')
+      AND dp.name NOT IN ('dbo','guest','INFORMATION_SCHEMA','sys')
+      AND dp.name NOT LIKE '##%'
+      AND dp.principal_id NOT IN (
+            SELECT rm.member_principal_id
+            FROM sys.database_role_members rm
+            JOIN sys.database_principals r ON rm.role_principal_id = r.principal_id
+            WHERE r.name = @TenRole
+      )
+    ORDER BY dp.name;
+END
+GO
+
+-- =============================================
+-- BƯỚC 5: STORED PROCEDURES THỰC HIỆN GRANT/REVOKE ĐỘNG
+-- =============================================
+
+-- SP: GRANT quyền trực tiếp cho User trên bảng
+IF OBJECT_ID('SP_GrantQuyenChoUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_GrantQuyenChoUser;
+GO
+CREATE PROCEDURE SP_GrantQuyenChoUser
+    @TenUser NVARCHAR(128),
+    @TenBang NVARCHAR(128),
+    @CoSelect BIT = 0,
+    @CoInsert BIT = 0,
+    @CoUpdate BIT = 0,
+    @CoDelete BIT = 0,
+    @WithGrant BIT = 0
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX);
+    DECLARE @option NVARCHAR(50) = CASE WHEN @WithGrant = 1 THEN ' WITH GRANT OPTION' ELSE '' END;
+
+    IF @CoSelect = 1
+    BEGIN
+        SET @sql = N'GRANT SELECT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+    IF @CoInsert = 1
+    BEGIN
+        SET @sql = N'GRANT INSERT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+    IF @CoUpdate = 1
+    BEGIN
+        SET @sql = N'GRANT UPDATE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+    IF @CoDelete = 1
+    BEGIN
+        SET @sql = N'GRANT DELETE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+END
+GO
+
+-- SP: REVOKE quyền trực tiếp của User trên bảng
+IF OBJECT_ID('SP_RevokeQuyenCuaUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_RevokeQuyenCuaUser;
+GO
+CREATE PROCEDURE SP_RevokeQuyenCuaUser
+    @TenUser NVARCHAR(128),
+    @TenBang NVARCHAR(128),
+    @CoSelect BIT = 0,
+    @CoInsert BIT = 0,
+    @CoUpdate BIT = 0,
+    @CoDelete BIT = 0,
+    @Cascade BIT = 0
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX);
+    DECLARE @option NVARCHAR(50) = CASE WHEN @Cascade = 1 THEN ' CASCADE' ELSE '' END;
+
+    IF @CoSelect = 1
+    BEGIN
+        SET @sql = N'REVOKE SELECT ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+    IF @CoInsert = 1
+    BEGIN
+        SET @sql = N'REVOKE INSERT ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+    IF @CoUpdate = 1
+    BEGIN
+        SET @sql = N'REVOKE UPDATE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+    IF @CoDelete = 1
+    BEGIN
+        SET @sql = N'REVOKE DELETE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @option;
+        EXEC sp_executesql @sql;
+    END
+END
+GO
+
+-- SP: GRANT User vào Role
+IF OBJECT_ID('SP_GrantUserVaoRole', 'P') IS NOT NULL
+    DROP PROCEDURE SP_GrantUserVaoRole;
+GO
+CREATE PROCEDURE SP_GrantUserVaoRole
+    @TenUser NVARCHAR(128),
+    @TenRole NVARCHAR(128)
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX);
+    SET @sql = N'ALTER ROLE [' + @TenRole + N'] ADD MEMBER [' + @TenUser + N']';
+    EXEC sp_executesql @sql;
+END
+GO
+
+-- SP: REVOKE User khỏi Role
+IF OBJECT_ID('SP_RevokeUserKhoiRole', 'P') IS NOT NULL
+    DROP PROCEDURE SP_RevokeUserKhoiRole;
+GO
+CREATE PROCEDURE SP_RevokeUserKhoiRole
+    @TenUser NVARCHAR(128),
+    @TenRole NVARCHAR(128)
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX);
+    SET @sql = N'ALTER ROLE [' + @TenRole + N'] DROP MEMBER [' + @TenUser + N']';
+    EXEC sp_executesql @sql;
+END
+GO
+
+-- SP: Tạo Role mới và cấp quyền cho các bảng
+IF OBJECT_ID('SP_TaoRoleMoi', 'P') IS NOT NULL
+    DROP PROCEDURE SP_TaoRoleMoi;
+GO
+CREATE PROCEDURE SP_TaoRoleMoi
+    @TenRole NVARCHAR(128),
+    -- THIHAI
+    @TH_Select BIT = 0, @TH_Insert BIT = 0, @TH_Update BIT = 0, @TH_Delete BIT = 0,
+    -- DICHVU
+    @DV_Select BIT = 0, @DV_Insert BIT = 0, @DV_Update BIT = 0, @DV_Delete BIT = 0,
+    -- SUDUNG
+    @SD_Select BIT = 0, @SD_Insert BIT = 0, @SD_Update BIT = 0, @SD_Delete BIT = 0,
+    -- NGANKEO
+    @NK_Select BIT = 0, @NK_Insert BIT = 0, @NK_Update BIT = 0, @NK_Delete BIT = 0,
+    -- HOSOKHAMBENH
+    @HS_Select BIT = 0, @HS_Insert BIT = 0, @HS_Update BIT = 0, @HS_Delete BIT = 0,
+    -- NHANVIEN
+    @NV_Select BIT = 0, @NV_Insert BIT = 0, @NV_Update BIT = 0, @NV_Delete BIT = 0,
+    -- BACSI
+    @BS_Select BIT = 0, @BS_Insert BIT = 0, @BS_Update BIT = 0, @BS_Delete BIT = 0
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX);
+
+    -- Tạo Role nếu chưa tồn tại
+    IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = @TenRole AND type = 'R')
+    BEGIN
+        SET @sql = N'CREATE ROLE [' + @TenRole + N']';
+        EXEC sp_executesql @sql;
+    END
+
+    -- Helper: cấp quyền theo flag
+    DECLARE @Tables TABLE (TenBang NVARCHAR(50), DoS BIT, DoI BIT, DoU BIT, DoD BIT)
+    INSERT INTO @Tables VALUES
+        ('THIHAI', @TH_Select, @TH_Insert, @TH_Update, @TH_Delete),
+        ('DICHVU', @DV_Select, @DV_Insert, @DV_Update, @DV_Delete),
+        ('SUDUNG', @SD_Select, @SD_Insert, @SD_Update, @SD_Delete),
+        ('NGANKEO', @NK_Select, @NK_Insert, @NK_Update, @NK_Delete),
+        ('HOSOKHAMBENH', @HS_Select, @HS_Insert, @HS_Update, @HS_Delete),
+        ('NHANVIEN', @NV_Select, @NV_Insert, @NV_Update, @NV_Delete),
+        ('BACSI', @BS_Select, @BS_Insert, @BS_Update, @BS_Delete);
+
+    DECLARE @Bang NVARCHAR(50), @S BIT, @I BIT, @U BIT, @D BIT;
+    DECLARE cur CURSOR FOR SELECT TenBang, DoS, DoI, DoU, DoD FROM @Tables;
+    OPEN cur;
+    FETCH NEXT FROM cur INTO @Bang, @S, @I, @U, @D;
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Chỉ grant nếu bảng tồn tại
+        IF EXISTS (SELECT 1 FROM sys.tables WHERE name = @Bang)
+        BEGIN
+            IF @S = 1 BEGIN SET @sql = N'GRANT SELECT ON ['+@Bang+N'] TO ['+@TenRole+N']'; EXEC sp_executesql @sql; END
+            IF @I = 1 BEGIN SET @sql = N'GRANT INSERT ON ['+@Bang+N'] TO ['+@TenRole+N']'; EXEC sp_executesql @sql; END
+            IF @U = 1 BEGIN SET @sql = N'GRANT UPDATE ON ['+@Bang+N'] TO ['+@TenRole+N']'; EXEC sp_executesql @sql; END
+            IF @D = 1 BEGIN SET @sql = N'GRANT DELETE ON ['+@Bang+N'] TO ['+@TenRole+N']'; EXEC sp_executesql @sql; END
+        END
+        FETCH NEXT FROM cur INTO @Bang, @S, @I, @U, @D;
+    END
+    CLOSE cur; DEALLOCATE cur;
+
+    PRINT N'Đã tạo/cập nhật Role [' + @TenRole + N'] thành công.';
+END
+GO
+
+-- =============================================
+-- BƯỚC 6: CẤP QUYỀN EXECUTE CHO app_admin
+-- =============================================
+GRANT EXECUTE ON SP_DanhSachUser TO [app_admin];
+GRANT EXECUTE ON SP_DanhSachRole TO [app_admin];
+GRANT EXECUTE ON SP_QuyenCuaUser TO [app_admin];
+GRANT EXECUTE ON SP_TatCaQuyenCuaUser TO [app_admin];
+GRANT EXECUTE ON SP_UserTrongRole TO [app_admin];
+GRANT EXECUTE ON SP_RoleCuaUser TO [app_admin];
+GRANT EXECUTE ON SP_UserChuaThuocRole TO [app_admin];
+GRANT EXECUTE ON SP_GrantQuyenChoUser TO [app_admin];
+GRANT EXECUTE ON SP_RevokeQuyenCuaUser TO [app_admin];
+GRANT EXECUTE ON SP_GrantUserVaoRole TO [app_admin];
+GRANT EXECUTE ON SP_RevokeUserKhoiRole TO [app_admin];
+GRANT EXECUTE ON SP_TaoRoleMoi TO [app_admin];
+GO
+

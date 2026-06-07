@@ -1,0 +1,552 @@
+﻿<UserControl x:Class="DoAn.Views.UserControls.QuanLyNhomQuyen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:DoAn.ViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1000">
+
+    <UserControl.DataContext>
+        <vm:QuanLyNhomQuyenViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <!-- Checkbox trong grid -->
+        <Style x:Key="GridCheckBox" TargetType="CheckBox">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment"   Value="Center"/>
+            <Setter Property="Margin" Value="2,0"/>
+        </Style>
+
+        <!-- Nút Primary -->
+        <Style x:Key="BtnPrimary" TargetType="Button">
+            <Setter Property="Height"          Value="34"/>
+            <Setter Property="Padding"         Value="16,0"/>
+            <Setter Property="Background"      Value="#1E293B"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#334155"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#CBD5E1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BtnGreen" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+            <Setter Property="Background" Value="#16A34A"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#15803D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="BtnRed" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+            <Setter Property="Background" Value="#DC2626"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#B91C1C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid styles -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"      Value="#1E293B"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Padding"         Value="8,6"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush"     Value="#334155"/>
+        </Style>
+        <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#DBEAFE"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F5F9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness"  Value="0"/>
+            <Setter Property="Padding"          Value="6,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#1E293B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Converter: Visibility -->
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="QUẢN LÝ NHÓM QUYỀN"
+                   FontSize="24" FontWeight="Bold"
+                   Foreground="#1E293B" Margin="0,0,0,15"/>
+
+        <TabControl Grid.Row="1"
+                    SelectedIndex="{Binding TabIndex}"
+                    Background="White"
+                    BorderBrush="#E2E8F0">
+
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="FontWeight"      Value="SemiBold"/>
+                    <Setter Property="FontSize"        Value="14"/>
+                    <Setter Property="Padding"         Value="20,8"/>
+                    <Setter Property="Background"      Value="#F1F5F9"/>
+                    <Setter Property="Foreground"      Value="#475569"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="Foreground" Value="#1E293B"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- ═══════════ TAB 1: TẠO NHÓM QUYỀN ═══════════ -->
+            <TabItem Header="🔑  Tạo Nhóm Quyền">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Nhập tên nhóm -->
+                    <Border Grid.Row="0" Background="White" CornerRadius="8"
+                            BorderBrush="#E2E8F0" BorderThickness="1"
+                            Padding="20,16" Margin="0,0,0,16">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="6" Color="Black" Opacity="0.05" ShadowDepth="1"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="Tên nhóm quyền:"
+                                       FontWeight="SemiBold" Foreground="#475569"
+                                       VerticalAlignment="Center" Margin="0,0,14,0"/>
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding TenNhomMoi, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="34" FontSize="14"
+                                     VerticalContentAlignment="Center"
+                                     Padding="10,0"
+                                     BorderBrush="#CBD5E1" BorderThickness="1">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <Border Background="White" CornerRadius="6"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ScrollViewer x:Name="PART_ContentHost"
+                                                                      VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            <TextBlock Grid.Column="2"
+                                       Text="Ví dụ: QL_KETOAN, QL_BAOVE, ..."
+                                       Foreground="#94A3B8" FontStyle="Italic"
+                                       VerticalAlignment="Center" Margin="14,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Bảng phân quyền cho từng table -->
+                    <Border Grid.Row="1" Background="White" CornerRadius="8"
+                            BorderBrush="#E2E8F0" BorderThickness="1">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                    Padding="16,12" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Chọn quyền cho từng bảng dữ liệu"
+                                           FontWeight="Bold" FontSize="13" Foreground="#334155"/>
+                            </Border>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding DanhSachBangTaoNhom}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserResizeRows="False"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9"
+                                      BorderThickness="0"
+                                      RowHeight="40">
+                                <DataGrid.Columns>
+
+                                    <!-- Tên bảng -->
+                                    <DataGridTextColumn Header="Tên Bảng"
+                                                        Binding="{Binding TenBang}"
+                                                        IsReadOnly="True" Width="200">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight"       Value="SemiBold"/>
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="Margin"           Value="16,0"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+
+                                    <!-- Mô tả ngắn -->
+                                    <DataGridTemplateColumn Header="Mô Tả" Width="180" IsReadOnly="True">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock VerticalAlignment="Center" Margin="8,0"
+                                                           Foreground="#64748B" FontStyle="Italic">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="THIHAI">
+                                                                    <Setter Property="Text" Value="Thông tin tử thi"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="DICHVU">
+                                                                    <Setter Property="Text" Value="Dịch vụ tang lễ"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="SUDUNG">
+                                                                    <Setter Property="Text" Value="Sử dụng dịch vụ"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="NGANKEO">
+                                                                    <Setter Property="Text" Value="Ngăn kéo bảo quản"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="HOSOKHAMBENH">
+                                                                    <Setter Property="Text" Value="Hồ sơ khám nghiệm"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="NHANVIEN">
+                                                                    <Setter Property="Text" Value="Nhân viên"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TenBang}" Value="BACSI">
+                                                                    <Setter Property="Text" Value="Bác sĩ pháp y"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- SELECT -->
+                                    <DataGridTemplateColumn Header="SELECT" Width="90">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding CoSelect, UpdateSourceTrigger=PropertyChanged}"
+                                                          Style="{StaticResource GridCheckBox}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- INSERT -->
+                                    <DataGridTemplateColumn Header="INSERT" Width="90">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding CoInsert, UpdateSourceTrigger=PropertyChanged}"
+                                                          Style="{StaticResource GridCheckBox}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- UPDATE -->
+                                    <DataGridTemplateColumn Header="UPDATE" Width="90">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding CoUpdate, UpdateSourceTrigger=PropertyChanged}"
+                                                          Style="{StaticResource GridCheckBox}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- DELETE -->
+                                    <DataGridTemplateColumn Header="DELETE" Width="90">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding CoDelete, UpdateSourceTrigger=PropertyChanged}"
+                                                          Style="{StaticResource GridCheckBox}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Nút Tạo mới -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal"
+                                HorizontalAlignment="Right" Margin="0,14,0,0">
+                        <Button Content="✚  Tạo Nhóm Quyền"
+                                Style="{StaticResource BtnGreen}"
+                                Command="{Binding TaoNhomCommand}"
+                                Height="38" FontSize="14"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ═══════════ TAB 2: THÊM USER VÀO NHÓM ═══════════ -->
+            <TabItem Header="👥  Thêm User">
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="240"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Bảng Nhóm Quyền (trái) -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="8"
+                            BorderBrush="#E2E8F0" BorderThickness="1">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                    Padding="12,10" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Danh Sách Nhóm Quyền"
+                                           FontWeight="Bold" FontSize="13" Foreground="#334155"/>
+                            </Border>
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding DanhSachRole}"
+                                      SelectedItem="{Binding SelectedRole}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      CanUserResizeRows="False"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9"
+                                      BorderThickness="0"
+                                      RowHeight="36">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tên Nhóm"
+                                                        Binding="{Binding TenRole}"
+                                                        Width="*">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight"        Value="SemiBold"/>
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="Margin"            Value="8,0"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Phần phải: User trong Role + Panels Grant/Revoke -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header: nhóm đang chọn + 3 nút Grant/Revoke/Lưu -->
+                        <Border Grid.Row="0" Background="White" CornerRadius="8"
+                                BorderBrush="#E2E8F0" BorderThickness="1"
+                                Padding="16,12" Margin="0,0,0,12">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="6" Color="Black" Opacity="0.05" ShadowDepth="1"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Nhóm đang chọn: "
+                                               FontWeight="SemiBold" Foreground="#475569"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SelectedRole.TenRole, FallbackValue='(chưa chọn)'}"
+                                               Foreground="#2563EB" FontWeight="Bold" FontSize="15"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Content="✚ Grant"
+                                            Style="{StaticResource BtnGreen}"
+                                            Command="{Binding GrantCommand}"
+                                            Margin="0,0,8,0"/>
+                                    <Button Content="✖ Revoke"
+                                            Style="{StaticResource BtnRed}"
+                                            Command="{Binding RevokeCommand}"
+                                            Margin="0,0,8,0"/>
+                                    <Button Content="💾 Lưu"
+                                            Style="{StaticResource BtnPrimary}"
+                                            Command="{Binding LuuUserCommand}"
+                                            Margin="0,0,8,0"/>
+                                    <Button Content="Hủy"
+                                            Style="{StaticResource BtnPrimary}"
+                                            Command="{Binding HuyUserCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Bảng User đang trong Role -->
+                        <Border Grid.Row="1" Background="White" CornerRadius="8"
+                                BorderBrush="#E2E8F0" BorderThickness="1">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                        Padding="12,10" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="User đang trong nhóm"
+                                                   FontWeight="Bold" FontSize="13" Foreground="#334155"/>
+                                        <Border Background="#DBEAFE" CornerRadius="10"
+                                                Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DanhSachUserTrongRole.Count}"
+                                                       Foreground="#1D4ED8" FontWeight="Bold" FontSize="12"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding DanhSachUserTrongRole}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserResizeRows="False"
+                                          GridLinesVisibility="Horizontal"
+                                          HorizontalGridLinesBrush="#F1F5F9"
+                                          BorderThickness="0"
+                                          RowHeight="36">
+                                    <DataGrid.Columns>
+                                        <!-- Checkbox chọn để Revoke -->
+                                        <DataGridTemplateColumn Width="50"
+                                                                Visibility="{Binding DataContext.ShowRevokePanel,
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl},
+                                                                    Converter={StaticResource BoolToVis}}">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}" Foreground="#DC2626"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Tên User"  Binding="{Binding TenUser}"  Width="*"/>
+                                        <DataGridTextColumn Header="Loại"      Binding="{Binding LoaiUser}" Width="140"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Panel Grant: User CHƯA thuộc nhóm -->
+                        <Border Grid.Row="2"
+                                Visibility="{Binding ShowGrantPanel, Converter={StaticResource BoolToVis}}"
+                                Background="White" CornerRadius="8"
+                                BorderBrush="#86EFAC" BorderThickness="2"
+                                Margin="0,12,0,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" Color="#16A34A" Opacity="0.12" ShadowDepth="2"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="150"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="#DCFCE7" CornerRadius="6,6,0,0"
+                                        Padding="12,10">
+                                    <TextBlock Text="✚  Chọn User để GRANT vào nhóm (tick vào checkbox rồi nhấn Lưu)"
+                                               FontWeight="Bold" FontSize="13" Foreground="#15803D"/>
+                                </Border>
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding DanhSachUserChuaThuoc}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserResizeRows="False"
+                                          GridLinesVisibility="Horizontal"
+                                          HorizontalGridLinesBrush="#F1F5F9"
+                                          BorderThickness="0"
+                                          RowHeight="36">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}" Foreground="#16A34A"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Tên User"  Binding="{Binding TenUser}"  Width="*"/>
+                                        <DataGridTextColumn Header="Loại"      Binding="{Binding LoaiUser}" Width="140"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Hướng dẫn trạng thái khi chưa chọn -->
+                        <Border Grid.Row="3"
+                                Background="#FFFBEB" CornerRadius="8"
+                                BorderBrush="#FCD34D" BorderThickness="1"
+                                Padding="16,10" Margin="0,12,0,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedRole}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="💡  Chọn 1 nhóm quyền bên trái để xem danh sách user và thực hiện Grant / Revoke."
+                                       Foreground="#92400E" FontStyle="Italic"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
