@@ -55,8 +55,8 @@ namespace DoAn.Core
                 CheckUserRole();
                 return;
             }
-
-            builder.DataSource = "26.79.168.121,1433";
+            builder.DataSource = "192.168.1.57";
+            //builder.DataSource = "26.79.168.121,1433";
             builder.UserID = user;
             builder.Password = pass;
             builder.IntegratedSecurity = false;

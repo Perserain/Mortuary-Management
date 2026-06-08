@@ -1161,8 +1161,8 @@ GO
 CREATE USER [NhaXacAdmin] FOR LOGIN [NhaXacAdmin]
 GO
 
-CREATE LOGIN [bb] WITH PASSWORD='bb', DEFAULT_DATABASE=[QuanLyNhaXac], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
-CREATE USER [bb] for LOGIN [bb]
+--CREATE LOGIN [bb] WITH PASSWORD='bb', DEFAULT_DATABASE=[QuanLyNhaXac], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+--CREATE USER [bb] for LOGIN [bb]
 -- 3. Cấp quyền "Tối thượng" (db_owner) để App thoải mái Thêm/Sửa/Xóa
 ALTER ROLE [db_owner] ADD MEMBER [NhaXacAdmin]
 ALTER ROLE [app_admin] ADD MEMBER [NhaXacAdmin]
