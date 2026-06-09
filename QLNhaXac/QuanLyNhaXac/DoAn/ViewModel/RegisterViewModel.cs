@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using DoAn.Core;
 
 namespace DoAn.ViewModel
 {
@@ -43,8 +44,8 @@ namespace DoAn.ViewModel
 
             try
             {
-                string connStr = "Data Source=26.79.168.121,1433;Initial Catalog=QuanLyNhaXac;User ID=sa;Password=123;TrustServerCertificate=True";
-                using (SqlConnection conn = new SqlConnection(connStr))
+                DBConnect.SetConnection("sa", "123", false);
+                using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
                     string sqlLogin = $"CREATE LOGIN [{u}] WITH PASSWORD=N'{p}', DEFAULT_DATABASE=[QuanLyNhaXac], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF";
@@ -53,7 +54,7 @@ namespace DoAn.ViewModel
                     string sqlUser = $"CREATE USER [{u}] FOR LOGIN [{u}]";
                     using (SqlCommand cmd = new SqlCommand(sqlUser, conn)) { cmd.ExecuteNonQuery(); }
 
-                        string sqlRole = $"ALTER ROLE [db_datareader] ADD MEMBER [{u}]; ALTER ROLE [app_staff] ADD MEMBER [{u}];";
+                        string sqlRole = $"ALTER ROLE [QL_NHANVIEN] ADD MEMBER [{u}];";
                     using (SqlCommand cmd = new SqlCommand(sqlRole, conn)) { cmd.ExecuteNonQuery(); }
 
                     MessageBox.Show("Đăng ký thành công! Vui lòng dùng tài khoản này để đăng nhập.", "Thành công");

@@ -137,7 +137,7 @@ namespace DoAn.ViewModel
 
         private void XoaSuDung()
         {
-            if (!DBConnect.RequireAdmin("Hủy dịch vụ")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Hủy dịch vụ")) return;
             if (MessageBox.Show($"Bạn có chắc muốn hủy dịch vụ {NewSuDung.MaDV} của thi hài {NewSuDung.MaTH}?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
@@ -232,7 +232,7 @@ namespace DoAn.ViewModel
         }
         private void XuatExcel()
         {
-            if (!DBConnect.RequireAdmin("Xuất Excel dịch vụ đã mua")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Xuất Excel dịch vụ đã mua")) return;
 
             if (DanhSachSuDung == null || DanhSachSuDung.Count == 0) return;
 
@@ -287,7 +287,7 @@ namespace DoAn.ViewModel
         // HÀM NHẬP TỪ FILE
         private void NhapTuFile()
         {
-            if (!DBConnect.RequireAdmin("Nhập Excel dịch vụ đã mua")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Nhập Excel dịch vụ đã mua")) return;
 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";

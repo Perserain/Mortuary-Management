@@ -119,7 +119,7 @@ namespace DoAn.ViewModel
         }
         private void ThemDichVu()
         {
-            if (!DBConnect.RequireAdmin("Thêm dịch vụ")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Thêm dịch vụ")) return;
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -141,7 +141,7 @@ namespace DoAn.ViewModel
 
         private void SuaDichVu()
         {
-            if (!DBConnect.RequireAdmin("Sửa dịch vụ")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Sửa dịch vụ")) return;
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -165,7 +165,7 @@ namespace DoAn.ViewModel
 
         private void XoaDichVu()
         {
-            if (!DBConnect.RequireAdmin("Xóa dịch vụ")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Xóa dịch vụ")) return;
             if (MessageBox.Show("Xóa dịch vụ này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
@@ -222,7 +222,7 @@ namespace DoAn.ViewModel
         // --- HÀM XUẤT EXCEL
         private void XuatExcel()
         {
-            if (!DBConnect.RequireAdmin("Xuất Excel dịch vụ")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Xuất Excel dịch vụ")) return;
 
             if (DanhSachDichVu == null || DanhSachDichVu.Count == 0)
             {
@@ -288,7 +288,7 @@ namespace DoAn.ViewModel
         // --- HÀM NHẬP EXCEL ---
         private void NhapTuFile()
         {
-            if (!DBConnect.RequireAdmin("Nhập Excel dịch vụ")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Nhập Excel dịch vụ")) return;
 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";

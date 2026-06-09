@@ -104,16 +104,18 @@ namespace DoAn.ViewModel
                 using var conn = new SqlConnection(DBConnect.ConnectionString);
                 conn.Open();
 
-                // Lấy toàn bộ DB users không thuộc system
-                var cmd = new SqlCommand("EXEC SP_DanhSachUser", conn);
+                // Sử dụng SP_UserTrongRole để chỉ load các user thuộc Tab tương ứng
+                var cmd = new SqlCommand("SP_UserTrongRole", conn)
+                { CommandType = CommandType.StoredProcedure };
+                cmd.Parameters.AddWithValue("@TenRole", roleName);
+
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     DanhSachUser.Add(new UserModel
                     {
-                        TenUser  = reader["TenUser"].ToString(),
-                        LoaiUser = reader["LoaiUser"].ToString(),
-                        TenLogin = reader["TenLogin"].ToString()
+                        TenUser = reader["TenUser"].ToString(),
+                        LoaiUser = reader["LoaiUser"].ToString()
                     });
                 }
             }
@@ -181,48 +183,34 @@ namespace DoAn.ViewModel
                 int dem = 0;
                 foreach (var row in DanhSachBang)
                 {
-                    // 1. Thực hiện GRANT cho các quyền ĐƯỢC TICK (true)
-                    bool hasGrant = row.CoSelect || row.CoInsert || row.CoUpdate || row.CoDelete;
-                    if (hasGrant)
-                    {
-                        var cmdGrant = new SqlCommand("SP_GrantQuyenChoUser", conn)
-                        { CommandType = CommandType.StoredProcedure };
-                        cmdGrant.Parameters.AddWithValue("@TenUser", SelectedUser.TenUser);
-                        cmdGrant.Parameters.AddWithValue("@TenBang", row.TenBang);
-                        cmdGrant.Parameters.AddWithValue("@CoSelect", row.CoSelect ? 1 : 0);
-                        cmdGrant.Parameters.AddWithValue("@CoInsert", row.CoInsert ? 1 : 0);
-                        cmdGrant.Parameters.AddWithValue("@CoUpdate", row.CoUpdate ? 1 : 0);
-                        cmdGrant.Parameters.AddWithValue("@CoDelete", row.CoDelete ? 1 : 0);
-                        cmdGrant.Parameters.AddWithValue("@WithGrant", (row.WithGrant || WithGrantOption) ? 1 : 0);
-                        cmdGrant.ExecuteNonQuery();
-                    }
+                    // Gọi duy nhất 1 SP đồng bộ toàn bộ trạng thái CheckBox xuống DB
+                    using var cmd = new SqlCommand("SP_CapNhatQuyenChoUser", conn)
+                    { CommandType = CommandType.StoredProcedure };
 
-                    // 2. Thực hiện REVOKE cho các quyền BỊ BỎ TICK (false)
-                    bool hasRevoke = !row.CoSelect || !row.CoInsert || !row.CoUpdate || !row.CoDelete;
-                    if (hasRevoke)
-                    {
-                        var cmdRevoke = new SqlCommand("SP_RevokeQuyenCuaUser", conn)
-                        { CommandType = CommandType.StoredProcedure };
-                        cmdRevoke.Parameters.AddWithValue("@TenUser", SelectedUser.TenUser);
-                        cmdRevoke.Parameters.AddWithValue("@TenBang", row.TenBang);
+                    cmd.Parameters.AddWithValue("@TenUser", SelectedUser.TenUser);
+                    cmd.Parameters.AddWithValue("@TenBang", row.TenBang);
 
-                        // Đảo ngược logic: Nếu checkbox false -> truyền 1 vào SP để gọi lệnh REVOKE
-                        cmdRevoke.Parameters.AddWithValue("@CoSelect", !row.CoSelect ? 1 : 0);
-                        cmdRevoke.Parameters.AddWithValue("@CoInsert", !row.CoInsert ? 1 : 0);
-                        cmdRevoke.Parameters.AddWithValue("@CoUpdate", !row.CoUpdate ? 1 : 0);
-                        cmdRevoke.Parameters.AddWithValue("@CoDelete", !row.CoDelete ? 1 : 0);
-                        cmdRevoke.Parameters.AddWithValue("@Cascade", CascadeRevoke ? 1 : 0);
-                        cmdRevoke.ExecuteNonQuery();
-                    }
+                    // Truyền trực tiếp kiểu bool, ADO.NET tự chuyển thành BIT (0/1) tương ứng trong SQL
+                    cmd.Parameters.AddWithValue("@CoSelect", row.CoSelect);
+                    cmd.Parameters.AddWithValue("@CoInsert", row.CoInsert);
+                    cmd.Parameters.AddWithValue("@CoUpdate", row.CoUpdate);
+                    cmd.Parameters.AddWithValue("@CoDelete", row.CoDelete);
+
+                    cmd.Parameters.AddWithValue("@WithGrant", (row.WithGrant || WithGrantOption) ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@Cascade", CascadeRevoke ? 1 : 0);
+
+                    cmd.ExecuteNonQuery();
                     dem++;
                 }
 
-                MessageBox.Show($"Đã cập nhật quyền cho [{SelectedUser.TenUser}] trên {dem} bảng!", "Thành công");
+                MessageBox.Show($"Đã đồng bộ và cập nhật quyền thành công cho [{SelectedUser.TenUser}] trên {dem} bảng hệ thống!", "Thành công");
+
+                // Tải lại quyền từ cơ sở dữ liệu để đảm bảo giao diện hiển thị chuẩn xác nhất
                 LoadUserPermissions(SelectedUser.TenUser);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi lưu quyền: " + ex.Message);
+                MessageBox.Show("Lỗi đồng bộ quyền: " + ex.Message);
             }
         }
 

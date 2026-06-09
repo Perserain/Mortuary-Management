@@ -142,7 +142,7 @@ namespace DoAn.ViewModel
 
         private void ThemThiHai()
         {
-            if (!DBConnect.RequireAdmin("Thêm thi hài")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Thêm thi hài")) return;
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -168,7 +168,7 @@ namespace DoAn.ViewModel
 
         private void SuaThiHai()
         {
-            if (!DBConnect.RequireAdmin("Sửa thi hài")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Sửa thi hài")) return;
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -196,7 +196,7 @@ namespace DoAn.ViewModel
 
         private void XoaThiHai()
         {
-            if (!DBConnect.RequireAdmin("Xóa thi hài")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Xóa thi hài")) return;
             if (MessageBox.Show("Bạn chắc chắn muốn xóa thi hài này?", "Cảnh báo", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
@@ -327,7 +327,7 @@ namespace DoAn.ViewModel
 
         private void XuatExcel()
         {
-            if (!DBConnect.RequireAdmin("Xuất Excel thi hài")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Xuất Excel thi hài")) return;
 
             if (DanhSachThiHai == null || DanhSachThiHai.Count == 0)
             {
@@ -395,7 +395,7 @@ namespace DoAn.ViewModel
         // --- HÀM NHẬP EXCEL
         private void NhapTuFile()
         {
-            if (!DBConnect.RequireAdmin("Nhập Excel thi hài")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Nhập Excel thi hài")) return;
 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
@@ -510,7 +510,7 @@ namespace DoAn.ViewModel
         // --- HÀM THANH LÝ THI HÀI QUÁ HẠN
         private void ThanhLyThiHaiHangLoat()
         {
-            if (!DBConnect.RequireAdmin("Thanh lý thi hài")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Thanh lý thi hài")) return;
 
             try
             {

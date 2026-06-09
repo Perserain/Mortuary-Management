@@ -1087,50 +1087,29 @@ GO
 -- =============================================
 -- PHÂN QUYỀN
 -- =============================================
-IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'app_admin')
-    CREATE ROLE [app_admin];
-IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'app_staff')
-    CREATE ROLE [app_staff];
-
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'QL_ADMIN')
+    CREATE ROLE [QL_ADMIN];
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'QL_NHANVIEN')
+    CREATE ROLE [QL_NHANVIEN];
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'QL_BACSI')
+    CREATE ROLE [QL_BACSI];
 GO
 
 CREATE PROC SP_KiemTraQuyenHan
 AS
 BEGIN
-    -- Kiểm tra quyền và trả về chuỗi tương ứng
-    IF (IS_ROLEMEMBER('app_admin') = 1 OR IS_ROLEMEMBER('db_owner') = 1)
+    -- Kiểm tra quyền và trả về chuỗi tương ứng, bao gồm cả các Role hệ thống và Role tùy chỉnh
+    IF (IS_ROLEMEMBER('QL_ADMIN') = 1 OR IS_ROLEMEMBER('db_owner') = 1)
         SELECT 'Admin' AS QuyenHan;
-    ELSE IF (IS_ROLEMEMBER('app_staff') = 1 OR IS_ROLEMEMBER('db_datareader') = 1)
+        
+    ELSE IF (IS_ROLEMEMBER('QL_BACSI') = 1 OR IS_ROLEMEMBER('QL_NHANVIEN') = 1)
         SELECT 'Staff' AS QuyenHan;
+        
     ELSE
         SELECT 'ReadOnly' AS QuyenHan;
 END;
-
 GO
 
-GRANT EXECUTE ON sp_KiemTraQuyenHan TO public;
-
-GO
-
-GRANT EXECUTE ON SP_DSThiHai TO public;
-
-GO
-
-GRANT EXECUTE ON SP_DemThiHai TO public;
-
-GO
-
-GRANT EXECUTE ON SP_DSDichVu TO public;
-
-GO
-
-GRANT EXECUTE ON SP_DSThiHai TO app_staff;
-GRANT EXECUTE ON SP_DSDichVu TO app_staff;
-GRANT EXECUTE ON SP_DSDichVuSuDung TO app_staff;
-GRANT EXECUTE ON SP_ThemDichVuSudung TO app_staff;
-GRANT EXECUTE ON sp_TinhTongTienDichVu TO app_staff;
-
-GO
 -- =============================================
 
 -- =============================================
@@ -1165,7 +1144,7 @@ GO
 --CREATE USER [bb] for LOGIN [bb]
 -- 3. Cấp quyền "Tối thượng" (db_owner) để App thoải mái Thêm/Sửa/Xóa
 ALTER ROLE [db_owner] ADD MEMBER [NhaXacAdmin]
-ALTER ROLE [app_admin] ADD MEMBER [NhaXacAdmin]
+ALTER ROLE [QL_ADMIN] ADD MEMBER [NhaXacAdmin]
 GO
 
 USE QuanLyNhaXac
@@ -1241,7 +1220,38 @@ GO
 GRANT SELECT ON THIHAI TO [QL_NHANVIEN];
 GRANT SELECT, INSERT, UPDATE, DELETE ON DICHVU TO [QL_NHANVIEN];
 GRANT SELECT, INSERT, UPDATE, DELETE ON SUDUNG TO [QL_NHANVIEN];
+
 GO
+-- 0. Cấp quyền xem danh sách THI HÀI, DỊCH VỤ, SỬ DỤNG
+GRANT EXECUTE ON SP_DSDichVuSuDung TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_DSThiHai TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_DSDichVu TO [QL_NHANVIEN];
+
+GO
+-- ====================================================
+-- 1. Cấp quyền Thêm, Sửa, Xóa trên bảng THI HÀI
+-- ====================================================
+GRANT EXECUTE ON SP_ThemThiHai TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_SuaThiHai TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_XoaThiHai TO [QL_NHANVIEN];
+GO
+
+-- ====================================================
+-- 2. Cấp quyền Thêm, Sửa, Xóa trên bảng DỊCH VỤ
+-- ====================================================
+GRANT EXECUTE ON SP_ThemDichVu TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_SuaDichVu TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_XoaDichVu TO [QL_NHANVIEN];
+GO
+
+-- ====================================================
+-- 3. Cấp quyền Thêm, Sửa, Xóa trên bảng SỬ DỤNG DỊCH VỤ
+-- ====================================================
+GRANT EXECUTE ON SP_ThemDichVuSudung TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_SuaDichVuSudung TO [QL_NHANVIEN];
+GRANT EXECUTE ON SP_XoaDichVuSuDung TO [QL_NHANVIEN];
+GO
+
 
 -- QL_BACSI: Toàn quyền THIHAI, NGANKEO, HOSOKHAMBENH
 GRANT SELECT, INSERT, UPDATE, DELETE ON THIHAI TO [QL_BACSI];
@@ -1633,19 +1643,160 @@ END
 GO
 
 -- =============================================
--- BƯỚC 6: CẤP QUYỀN EXECUTE CHO app_admin
+-- BƯỚC 6: CẤP QUYỀN EXECUTE CHO [QL_ADMIN]
 -- =============================================
-GRANT EXECUTE ON SP_DanhSachUser TO [app_admin];
-GRANT EXECUTE ON SP_DanhSachRole TO [app_admin];
-GRANT EXECUTE ON SP_QuyenCuaUser TO [app_admin];
-GRANT EXECUTE ON SP_TatCaQuyenCuaUser TO [app_admin];
-GRANT EXECUTE ON SP_UserTrongRole TO [app_admin];
-GRANT EXECUTE ON SP_RoleCuaUser TO [app_admin];
-GRANT EXECUTE ON SP_UserChuaThuocRole TO [app_admin];
-GRANT EXECUTE ON SP_GrantQuyenChoUser TO [app_admin];
-GRANT EXECUTE ON SP_RevokeQuyenCuaUser TO [app_admin];
-GRANT EXECUTE ON SP_GrantUserVaoRole TO [app_admin];
-GRANT EXECUTE ON SP_RevokeUserKhoiRole TO [app_admin];
-GRANT EXECUTE ON SP_TaoRoleMoi TO [app_admin];
+GRANT EXECUTE ON SP_DanhSachUser TO [QL_ADMIN];
+GRANT EXECUTE ON SP_DanhSachRole TO [QL_ADMIN];
+GRANT EXECUTE ON SP_QuyenCuaUser TO [QL_ADMIN];
+GRANT EXECUTE ON SP_TatCaQuyenCuaUser TO [QL_ADMIN];
+GRANT EXECUTE ON SP_UserTrongRole TO [QL_ADMIN];
+GRANT EXECUTE ON SP_RoleCuaUser TO [QL_ADMIN];
+GRANT EXECUTE ON SP_UserChuaThuocRole TO [QL_ADMIN];
+GRANT EXECUTE ON SP_GrantQuyenChoUser TO [QL_ADMIN];
+GRANT EXECUTE ON SP_RevokeQuyenCuaUser TO [QL_ADMIN];
+GRANT EXECUTE ON SP_GrantUserVaoRole TO [QL_ADMIN];
+GRANT EXECUTE ON SP_RevokeUserKhoiRole TO [QL_ADMIN];
+GRANT EXECUTE ON SP_TaoRoleMoi TO [QL_ADMIN];
 GO
 
+
+IF OBJECT_ID('SP_CapNhatQuyenChoUser', 'P') IS NOT NULL
+    DROP PROCEDURE SP_CapNhatQuyenChoUser;
+GO
+
+CREATE PROCEDURE SP_CapNhatQuyenChoUser
+    @TenUser NVARCHAR(128),
+    @TenBang NVARCHAR(128),
+    @CoSelect BIT,
+    @CoInsert BIT,
+    @CoUpdate BIT,
+    @CoDelete BIT,
+    @WithGrant BIT = 0,
+    @Cascade BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @sql NVARCHAR(MAX);
+    DECLARE @grant_opt NVARCHAR(50) = CASE WHEN @WithGrant = 1 THEN ' WITH GRANT OPTION' ELSE '' END;
+    DECLARE @cascade_opt NVARCHAR(50) = CASE WHEN @Cascade = 1 THEN ' CASCADE' ELSE '' END;
+
+    -- Khai báo nhiều biến để hứng các SP phụ trợ
+    DECLARE @sp_Sel1 NVARCHAR(100), @sp_Sel2 NVARCHAR(100), @sp_Sel3 NVARCHAR(100);
+    DECLARE @sp_Ins NVARCHAR(100);
+    DECLARE @sp_Upd NVARCHAR(100);
+    DECLARE @sp_Del1 NVARCHAR(100), @sp_Del2 NVARCHAR(100);
+    
+    DECLARE @func_TVF1 NVARCHAR(100), @func_TVF2 NVARCHAR(100); 
+    DECLARE @func_Sca NVARCHAR(100); 
+
+    -- ==========================================
+    -- 1. ÁNH XẠ: MAP BẢNG VỚI CÁC SP VÀ FUNCTION
+    -- ==========================================
+    IF @TenBang = 'THIHAI' BEGIN 
+        SET @sp_Sel1 = 'SP_DSThiHai'; SET @sp_Sel2 = 'SP_ThiHaiSot'; SET @sp_Sel3 = 'SP_DemThiHai';
+        SET @sp_Ins = 'SP_ThemThiHai'; 
+        SET @sp_Upd = 'SP_SuaThiHai'; 
+        SET @sp_Del1 = 'SP_XoaThiHai'; SET @sp_Del2 = 'SP_DonDepThiHaiQuaHan';
+        
+        SET @func_TVF1 = 'fn_TimKiemThiHaiTheoNgay'; SET @func_TVF2 = 'fn_LichSuDichVuCuaTuThi';
+    END
+    ELSE IF @TenBang = 'BACSI' BEGIN 
+        SET @sp_Sel1 = 'SP_DSBacSi'; SET @sp_Sel2 = 'SP_BSLaoLang'; 
+        SET @sp_Ins = 'SP_ThemBacSi'; 
+        SET @sp_Upd = 'SP_SuaBacSi'; 
+        SET @sp_Del1 = 'SP_XoaBacSi'; 
+    END
+    ELSE IF @TenBang = 'DICHVU' BEGIN 
+        SET @sp_Sel1 = 'SP_DSDichVu'; SET @sp_Sel2 = 'SP_DichVuE';
+        SET @sp_Ins = 'SP_ThemDichVu'; 
+        SET @sp_Upd = 'SP_SuaDichVu'; 
+        SET @sp_Del1 = 'SP_XoaDichVu'; 
+    END
+    ELSE IF @TenBang = 'SUDUNG' BEGIN 
+        SET @sp_Sel1 = 'SP_DSDichVuSuDung'; SET @sp_Sel2 = 'sp_TinhTongTienDichVu'; -- Gộp tính tiền vào quyền xem
+        SET @sp_Ins = 'SP_ThemDichVuSudung'; 
+        SET @sp_Upd = 'SP_SuaDichVuSudung'; 
+        SET @sp_Del1 = 'SP_XoaDichVuSuDung'; 
+        
+        SET @func_Sca = 'FN_TinhTongTienDichVu';
+    END
+    ELSE IF @TenBang = 'NGANKEO' BEGIN 
+        SET @sp_Sel1 = 'SP_DSNganKeo'; 
+        SET @sp_Ins = 'SP_ThemNganKeo'; 
+        SET @sp_Upd = 'SP_SuaNganKeo'; 
+        SET @sp_Del1 = 'SP_XoaNganKeo'; 
+        
+        SET @func_TVF1 = 'fn_DanhSachNganKeoTrong'; SET @func_Sca = 'FN_CapNhatTrangThaiNganKeo';
+    END
+    ELSE IF @TenBang = 'HOSOKHAMBENH' BEGIN 
+        SET @sp_Sel1 = 'SP_DSHoSoKhamNghiem'; 
+        SET @sp_Ins = 'SP_ThemHoSoKhamBenh'; 
+        SET @sp_Upd = 'SP_SuaHoSoKhamBenh'; 
+        SET @sp_Del1 = 'SP_XoaHoSoKhamBenh'; 
+        
+        SET @func_TVF1 = 'fn_DanhSachKhamNghiemTheoBacSi'; SET @func_TVF2 = 'fn_DanhSachKhamNghiemTheoTuThi';
+    END
+
+    -- ==========================================
+    -- 2. ĐỒNG BỘ QUYỀN SELECT 
+    -- ==========================================
+    IF @CoSelect = 1 BEGIN
+        SET @sql = N'GRANT SELECT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @grant_opt; EXEC sp_executesql @sql;
+        IF @sp_Sel1 IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Sel1 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+        IF @sp_Sel2 IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Sel2 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+        IF @sp_Sel3 IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Sel3 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+        
+        IF @func_TVF1 IS NOT NULL BEGIN SET @sql = N'GRANT SELECT ON [' + @func_TVF1 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+        IF @func_TVF2 IS NOT NULL BEGIN SET @sql = N'GRANT SELECT ON [' + @func_TVF2 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+        IF @func_Sca IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @func_Sca + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+    END ELSE BEGIN
+        SET @sql = N'REVOKE SELECT ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql;
+        IF @sp_Sel1 IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Sel1 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+        IF @sp_Sel2 IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Sel2 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+        IF @sp_Sel3 IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Sel3 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+        
+        IF @func_TVF1 IS NOT NULL BEGIN SET @sql = N'REVOKE SELECT ON [' + @func_TVF1 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+        IF @func_TVF2 IS NOT NULL BEGIN SET @sql = N'REVOKE SELECT ON [' + @func_TVF2 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+        IF @func_Sca IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @func_Sca + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+    END
+
+    -- ==========================================
+    -- 3. ĐỒNG BỘ QUYỀN INSERT
+    -- ==========================================
+    IF @CoInsert = 1 BEGIN
+        SET @sql = N'GRANT INSERT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @grant_opt; EXEC sp_executesql @sql;
+        IF @sp_Ins IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Ins + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+    END ELSE BEGIN
+        SET @sql = N'REVOKE INSERT ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql;
+        IF @sp_Ins IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Ins + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+    END
+
+    -- ==========================================
+    -- 4. ĐỒNG BỘ QUYỀN UPDATE
+    -- ==========================================
+    IF @CoUpdate = 1 BEGIN
+        SET @sql = N'GRANT UPDATE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @grant_opt; EXEC sp_executesql @sql;
+        IF @sp_Upd IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Upd + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+    END ELSE BEGIN
+        SET @sql = N'REVOKE UPDATE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql;
+        IF @sp_Upd IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Upd + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+    END
+
+    -- ==========================================
+    -- 5. ĐỒNG BỘ QUYỀN DELETE
+    -- ==========================================
+    IF @CoDelete = 1 BEGIN
+        SET @sql = N'GRANT DELETE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @grant_opt; EXEC sp_executesql @sql;
+        IF @sp_Del1 IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Del1 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+        IF @sp_Del2 IS NOT NULL BEGIN SET @sql = N'GRANT EXECUTE ON [' + @sp_Del2 + N'] TO [' + @TenUser + N']'; EXEC sp_executesql @sql; END
+    END ELSE BEGIN
+        SET @sql = N'REVOKE DELETE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql;
+        IF @sp_Del1 IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Del1 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+        IF @sp_Del2 IS NOT NULL BEGIN SET @sql = N'REVOKE EXECUTE ON [' + @sp_Del2 + N'] FROM [' + @TenUser + N']' + @cascade_opt; EXEC sp_executesql @sql; END
+    END
+END
+GO
+
+-- Cấp quyền thực thi thủ tục mới cho nhóm Admin quản lý tài khoản
+GRANT EXECUTE ON SP_CapNhatQuyenChoUser TO [QL_ADMIN];
+GO
