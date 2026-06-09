@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -154,6 +155,93 @@ namespace DoAn.ViewModel
             }
         }
 
+        private static bool IsLocalSqlServer(string dataSource)
+        {
+            if (string.IsNullOrWhiteSpace(dataSource))
+                return true;
+
+            var normalized = dataSource.Trim();
+            return normalized.Equals(".", StringComparison.OrdinalIgnoreCase)
+                || normalized.Equals("(local)", StringComparison.OrdinalIgnoreCase)
+                || normalized.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                || normalized.StartsWith("(localdb)\\", StringComparison.OrdinalIgnoreCase)
+                || normalized.StartsWith("127.0.0.1", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool CanSqlServerAccessPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return false;
+
+            try
+            {
+                var builder = new SqlConnectionStringBuilder(DBConnect.ConnectionString);
+                if (IsLocalSqlServer(builder.DataSource))
+                    return true;
+            }
+            catch
+            {
+                return true;
+            }
+
+            return path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool ValidateBackupFolderForSqlServer(string folderPath, string actionName)
+        {
+            if (CanSqlServerAccessPath(folderPath))
+                return true;
+
+            HienThongBao(false,
+                $"{actionName} không thể dùng đường dẫn local khi SQL Server đang chạy trên máy khác.\n" +
+                "Hãy dùng thư mục share/UNC mà SQL Server truy cập được, hoặc chạy SQL Server trên cùng máy với ứng dụng.");
+            return false;
+        }
+
+        private bool ValidateRestoreFileForSqlServer(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                HienThongBao(false, $"Không tìm thấy file backup:\n{filePath}");
+                return false;
+            }
+
+            var extension = Path.GetExtension(filePath);
+            if (!extension.Equals(".bak", StringComparison.OrdinalIgnoreCase) &&
+                !extension.Equals(".trn", StringComparison.OrdinalIgnoreCase))
+            {
+                HienThongBao(false, "Chỉ hỗ trợ file .bak hoặc .trn để Restore.");
+                return false;
+            }
+
+            if (!CanSqlServerAccessPath(filePath))
+            {
+                HienThongBao(false,
+                    "SQL Server đang chạy trên máy khác nên không thể đọc đường dẫn local này.\n" +
+                    "Hãy dùng đường dẫn UNC/share mà máy SQL Server truy cập được, hoặc đặt file backup trên chính máy SQL Server.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static string GetRestoreHint(string filePath)
+        {
+            var extension = Path.GetExtension(filePath);
+
+            if (extension.Equals(".trn", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Lưu ý: file .trn chỉ restore được sau khi đã restore FULL/DIFF với NORECOVERY và đang tiếp tục chuỗi log.";
+            }
+
+            if (filePath.IndexOf("_Diff_", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return "Lưu ý: file Differential .bak cần restore FULL gốc với NORECOVERY trước khi áp dụng.";
+            }
+
+            return string.Empty;
+        }
+
 
         // ════════════════════════════════════════════════════════════
         // Kiểm tra quyền Admin phía client (double check, server cũng check)
@@ -200,6 +288,7 @@ namespace DoAn.ViewModel
             try
             {
                 var folder = BackupFolder.TrimEnd('\\') + @"\Full";
+                if (!ValidateBackupFolderForSqlServer(folder, "Full Backup")) return;
                 if (!EnsureFolder(folder)) return;
                 var result = await Task.Run(() => CallStoredProc("SP_FullBackup",
                     new SqlParameter("@BackupFolder", folder)));
@@ -227,6 +316,7 @@ namespace DoAn.ViewModel
             try
             {
                 var folder = BackupFolder.TrimEnd('\\') + @"\Diff";
+                if (!ValidateBackupFolderForSqlServer(folder, "Differential Backup")) return;
                 if (!EnsureFolder(folder)) return;
                 var result = await Task.Run(() => CallStoredProc("SP_DiffBackup",
                     new SqlParameter("@BackupFolder", folder)));
@@ -254,6 +344,7 @@ namespace DoAn.ViewModel
             try
             {
                 var folder = BackupFolder.TrimEnd('\\') + @"\Log";
+                if (!ValidateBackupFolderForSqlServer(folder, "Transaction Log Backup")) return;
                 if (!EnsureFolder(folder)) return;
                 var result = await Task.Run(() => CallStoredProc("SP_LogBackup",
                     new SqlParameter("@BackupFolder", folder)));
@@ -281,12 +372,24 @@ namespace DoAn.ViewModel
                 return;
             }
 
+            if (!ValidateRestoreFileForSqlServer(RestoreFile))
+                return;
+
+            var restoreHint = GetRestoreHint(RestoreFile);
+
             // Xác nhận trước khi restore (thao tác nguy hiểm)
-            var confirm = MessageBox.Show(
+            var confirmMessage =
                 $"⚠ CẢNH BÁO: Thao tác Restore sẽ GHI ĐÈ toàn bộ dữ liệu hiện tại!\n\n" +
                 $"File: {RestoreFile}\n" +
-                $"Tùy chọn: {(WithRecovery ? "WITH RECOVERY (hoàn thành)" : "WITH NORECOVERY (chờ apply thêm)")}\n\n" +
-                $"Bạn chắc chắn muốn tiếp tục?",
+                $"Tùy chọn: {(WithRecovery ? "WITH RECOVERY (hoàn thành)" : "WITH NORECOVERY (chờ apply thêm)")}";
+
+            if (!string.IsNullOrWhiteSpace(restoreHint))
+                confirmMessage += "\n\n" + restoreHint;
+
+            confirmMessage += "\n\nBạn chắc chắn muốn tiếp tục?";
+
+            var confirm = MessageBox.Show(
+                confirmMessage,
                 "Xác nhận Restore",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);

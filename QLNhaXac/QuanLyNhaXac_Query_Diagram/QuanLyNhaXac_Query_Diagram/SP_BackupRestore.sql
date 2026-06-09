@@ -305,7 +305,7 @@ BEGIN
     EXEC master.dbo.xp_fileexist @BackupFile, @FileExists OUTPUT;
     IF @FileExists = 0
     BEGIN
-        RAISERROR(N'Không tìm thấy file backup trên máy SQL Server: %s. Nếu SQL Server chạy trên máy khác, hãy dùng đường dẫn UNC/share hoặc đặt file backup trên chính máy SQL Server.', 16, 1, @BackupFile);
+        RAISERROR(N'Không tìm thấy file backup: %s', 16, 1, @BackupFile);
         RETURN;
     END
 
