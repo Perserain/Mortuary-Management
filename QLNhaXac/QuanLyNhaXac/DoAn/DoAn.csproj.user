@@ -5,6 +5,9 @@
     <Compile Update="Views\Layouts\MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\UserControls\BackupRestore.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\UserControls\BacSi.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

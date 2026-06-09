@@ -1,0 +1,503 @@
+﻿<UserControl x:Class="DoAn.Views.UserControls.BackupRestore"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:DoAn.ViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="650" d:DesignWidth="850">
+
+    <UserControl.DataContext>
+        <vm:BackupRestoreViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+
+        <!-- ── Converter ────────────────────────────────────────────── -->
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- ── Nút chính (đậm) ─────────────────────────────────────── -->
+        <Style x:Key="BtnPrimary" TargetType="Button">
+            <Setter Property="Height"          Value="38"/>
+            <Setter Property="Padding"         Value="20,0"/>
+            <Setter Property="Background"      Value="#1E293B"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#334155"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Nút xanh lá (Backup) ─────────────────────────────────── -->
+        <Style x:Key="BtnSuccess" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+            <Setter Property="Background" Value="#10B981"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#059669"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#94A3B8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── Nút vàng cam (Restore) ────────────────────────────────── -->
+        <Style x:Key="BtnWarning" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+            <Setter Property="Background" Value="#F59E0B"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D97706"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#94A3B8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── Nút Browse ────────────────────────────────────────────── -->
+        <Style x:Key="BtnBrowse" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+            <Setter Property="Background" Value="#64748B"/>
+            <Setter Property="Padding"    Value="14,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#475569"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── Header DataGrid ──────────────────────────────────────── -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"      Value="#1E293B"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Padding"         Value="8,6"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush"     Value="#334155"/>
+        </Style>
+
+        <!-- ── Row DataGrid ─────────────────────────────────────────── -->
+        <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#DBEAFE"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F5F9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness"   Value="0"/>
+            <Setter Property="Padding"           Value="6,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#1E293B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── TextBox chung ────────────────────────────────────────── -->
+        <Style x:Key="InputBox" TargetType="TextBox">
+            <Setter Property="Height"          Value="34"/>
+            <Setter Property="Padding"         Value="8,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush"     Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="White" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Card container ───────────────────────────────────────── -->
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background"      Value="White"/>
+            <Setter Property="BorderBrush"     Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius"    Value="10"/>
+            <Setter Property="Padding"         Value="18"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#CBD5E1" BlurRadius="6" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Label badge LoaiBackup ────────────────────────────────── -->
+        <DataTemplate x:Key="BadgeTemplate">
+            <Border CornerRadius="4" Padding="6,2">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding LoaiBackup}" Value="FULL">
+                                <Setter Property="Background" Value="#DCFCE7"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding LoaiBackup}" Value="DIFFERENTIAL">
+                                <Setter Property="Background" Value="#FEF9C3"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding LoaiBackup}" Value="TRANSACTION LOG">
+                                <Setter Property="Background" Value="#DBEAFE"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding LoaiBackup}" FontWeight="SemiBold" FontSize="11">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding LoaiBackup}" Value="FULL">
+                                    <Setter Property="Foreground" Value="#166534"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding LoaiBackup}" Value="DIFFERENTIAL">
+                                    <Setter Property="Foreground" Value="#854D0E"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding LoaiBackup}" Value="TRANSACTION LOG">
+                                    <Setter Property="Foreground" Value="#1E40AF"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- LAYOUT CHÍNH                                                   -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Tiêu đề -->
+            <RowDefinition Height="Auto"/>
+            <!-- Thông báo lỗi/thành công -->
+            <RowDefinition Height="Auto"/>
+            <!-- Thư mục Backup -->
+            <RowDefinition Height="Auto"/>
+            <!-- Khu vực Backup -->
+            <RowDefinition Height="Auto"/>
+            <!-- Khu vực Restore -->
+            <RowDefinition Height="*"/>
+            <!-- Lịch sử -->
+        </Grid.RowDefinitions>
+
+        <!-- ─── TIÊU ĐỀ ─────────────────────────────────────────────── -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="BACKUP &amp; RESTORE"
+                       FontSize="22" FontWeight="Black" Foreground="#1E293B"/>
+            <TextBlock Text="Chỉ Admin mới có thể thực hiện thao tác này"
+                       FontSize="12" Foreground="#64748B" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- ─── THÔNG BÁO ────────────────────────────────────────────── -->
+        <Border Grid.Row="1"
+                CornerRadius="8" Padding="14,10"
+                Margin="0,0,0,14"
+                Visibility="{Binding ThongBaoVisible}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsThanhCong}" Value="True">
+                            <Setter Property="Background" Value="#DCFCE7"/>
+                            <Setter Property="BorderBrush" Value="#86EFAC"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsThanhCong}" Value="False">
+                            <Setter Property="Background" Value="#FEE2E2"/>
+                            <Setter Property="BorderBrush" Value="#FCA5A5"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding ThongBaoText}" FontSize="13" TextWrapping="Wrap">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsThanhCong}" Value="True">
+                                <Setter Property="Foreground" Value="#166534"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsThanhCong}" Value="False">
+                                <Setter Property="Foreground" Value="#991B1B"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Border>
+
+        <!-- ─── THƯ MỤC BACKUP ──────────────────────────────────────── -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="📁 Thư mục lưu Backup" FontWeight="Bold"
+                           FontSize="13" Foreground="#1E293B" Margin="0,0,0,10"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Style="{StaticResource InputBox}"
+                             Text="{Binding BackupFolder, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,8,0"
+                             ToolTip="Thư mục gốc chứa 3 sub-folder: Full, Diff, Log"/>
+                    <Button Grid.Column="1"
+                            Content="Chọn thư mục"
+                            Style="{StaticResource BtnBrowse}"
+                            Command="{Binding ChonThuMucCommand}"/>
+                </Grid>
+                <TextBlock Text="Hệ thống sẽ tự tạo 3 thư mục con: \Full, \Diff, \Log"
+                           FontSize="11" Foreground="#94A3B8" Margin="0,6,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ─── KHU VỰC BACKUP ──────────────────────────────────────── -->
+        <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="💾  Thực hiện Backup"
+                           FontWeight="Bold" FontSize="13" Foreground="#1E293B" Margin="0,0,0,14"/>
+
+                <!-- 3 nút backup -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- FULL BACKUP -->
+                    <Border Grid.Column="0" Background="#F0FDF4" CornerRadius="8" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Full Backup" FontWeight="Bold"
+                                       FontSize="13" Foreground="#166534"/>
+                            <TextBlock Text="Sao lưu toàn bộ database. Làm gốc cho Diff và Log."
+                                       FontSize="11" Foreground="#64748B" TextWrapping="Wrap"
+                                       Margin="0,4,0,10"/>
+                            <Button Content="▶  Chạy Full Backup"
+                                    Style="{StaticResource BtnSuccess}"
+                                    Command="{Binding FullBackupCommand}"
+                                    IsEnabled="{Binding IsNotBusy}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- DIFF BACKUP -->
+                    <Border Grid.Column="2" Background="#FEFCE8" CornerRadius="8" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Differential Backup" FontWeight="Bold"
+                                       FontSize="13" Foreground="#854D0E"/>
+                            <TextBlock Text="Chỉ sao lưu thay đổi kể từ Full gần nhất. Nhanh hơn Full."
+                                       FontSize="11" Foreground="#64748B" TextWrapping="Wrap"
+                                       Margin="0,4,0,10"/>
+                            <Button Content="▶  Chạy Diff Backup"
+                                    Style="{StaticResource BtnWarning}"
+                                    Command="{Binding DiffBackupCommand}"
+                                    IsEnabled="{Binding IsNotBusy}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- LOG BACKUP -->
+                    <Border Grid.Column="4" Background="#EFF6FF" CornerRadius="8" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Transaction Log Backup" FontWeight="Bold"
+                                       FontSize="13" Foreground="#1E40AF"/>
+                            <TextBlock Text="Sao lưu log giao dịch. Restore đến thời điểm chính xác."
+                                       FontSize="11" Foreground="#64748B" TextWrapping="Wrap"
+                                       Margin="0,4,0,10"/>
+                            <Button Content="▶  Chạy Log Backup"
+                                    Style="{StaticResource BtnPrimary}"
+                                    Command="{Binding LogBackupCommand}"
+                                    IsEnabled="{Binding IsNotBusy}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ─── KHU VỰC RESTORE ─────────────────────────────────────── -->
+        <Border Grid.Row="4" Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="♻  Restore từ file Backup"
+                           FontWeight="Bold" FontSize="13" Foreground="#1E293B" Margin="0,0,0,12"/>
+
+                <!-- Chọn file restore -->
+                <Grid Grid.Row="1" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Style="{StaticResource InputBox}"
+                             Text="{Binding RestoreFile, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,8,0"
+                             ToolTip="Chọn file .bak (Full/Diff) hoặc .trn (Log) để restore"/>
+                    <Button Grid.Column="1"
+                            Content="Chọn file..."
+                            Style="{StaticResource BtnBrowse}"
+                            Command="{Binding ChonFileRestoreCommand}"/>
+                </Grid>
+
+                <!-- Tùy chọn Recovery + nút Restore -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding WithRecovery}"
+                                  VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="WITH RECOVERY (hoàn thành restore, dùng được ngay)"
+                                       FontSize="12" FontWeight="SemiBold" Foreground="#1E293B"/>
+                            <TextBlock Text="Bỏ chọn nếu còn cần apply thêm Diff hoặc Log tiếp theo"
+                                       FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Content="♻  Thực hiện Restore"
+                            Style="{StaticResource BtnWarning}"
+                            Command="{Binding RestoreCommand}"
+                            IsEnabled="{Binding IsNotBusy}"
+                            Width="180"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ─── LỊCH SỬ BACKUP ──────────────────────────────────────── -->
+        <Border Grid.Row="5" Style="{StaticResource CardBorder}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header lịch sử -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="📋  Lịch sử Backup gần đây"
+                               FontWeight="Bold" FontSize="13" Foreground="#1E293B"
+                               VerticalAlignment="Center"/>
+                    <Button Grid.Column="1"
+                            Content="↻  Làm mới"
+                            Style="{StaticResource BtnPrimary}"
+                            Command="{Binding TaiLaiBangCommand}"
+                            Height="32" Padding="12,0"/>
+                </Grid>
+
+                <!-- Loading indicator -->
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+                    <!-- Chỉ hiển thị khi đang chạy -->
+                </StackPanel>
+
+                <!-- Bảng lịch sử -->
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding DanhSachLichSu}"
+                          SelectedItem="{Binding SelectedLichSu}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          RowHeight="36"
+                          FontSize="12"
+                          MaxHeight="200"
+                          BorderThickness="1"
+                          BorderBrush="#E2E8F0">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn     Header="Thời gian" Width="145"
+                                                Binding="{Binding ThoiGianBackup, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}"/>
+
+                        <DataGridTemplateColumn Header="Loại Backup" Width="130"
+                                                CellTemplate="{StaticResource BadgeTemplate}"/>
+
+                        <DataGridTextColumn     Header="Kích thước (MB)" Width="120"
+                                                Binding="{Binding KichThuoc_MB}"/>
+
+                        <DataGridTextColumn     Header="Người thực hiện" Width="130"
+                                                Binding="{Binding NguoiThucHien}"/>
+
+                        <DataGridTextColumn     Header="Đường dẫn file" Width="*"
+                                                Binding="{Binding DuongDanFile}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    <Setter Property="ToolTip"      Value="{Binding DuongDanFile}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- ─── LOADING OVERLAY ─────────────────────────────────────── -->
+        <Grid Grid.Row="0" Grid.RowSpan="6"
+              Background="#80000000"
+              Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <Border Background="White" CornerRadius="12"
+                    Padding="30,20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding BusyText}"
+                               FontSize="15" FontWeight="SemiBold"
+                               Foreground="#1E293B" HorizontalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Height="6"
+                                 Width="220" Margin="0,12,0,0"
+                                 Foreground="#10B981" Background="#E2E8F0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>

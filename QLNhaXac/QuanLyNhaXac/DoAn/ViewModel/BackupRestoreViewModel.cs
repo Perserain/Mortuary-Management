@@ -1,0 +1,457 @@
+﻿using DoAn.Core;
+using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
+using System;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+
+namespace DoAn.ViewModel
+{
+    // ═══════════════════════════════════════════════════════════════════
+    // Model cho 1 dòng lịch sử backup
+    // ═══════════════════════════════════════════════════════════════════
+    public class LichSuBackupModel
+    {
+        public DateTime ThoiGianBackup { get; set; }
+        public string LoaiBackup { get; set; }   // FULL / DIFFERENTIAL / TRANSACTION LOG
+        public string DuongDanFile { get; set; }
+        public decimal KichThuoc_MB { get; set; }
+        public string NguoiThucHien { get; set; }
+        public string CoChecksum { get; set; }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ViewModel chính
+    // ═══════════════════════════════════════════════════════════════════
+    public class BackupRestoreViewModel : BaseViewModel
+    {
+        // ── Thư mục backup mặc định ─────────────────────────────────
+        private string _backupFolder = @"C:\QuanLyNhaXac_Backup";
+        public string BackupFolder
+        {
+            get => _backupFolder;
+            set { _backupFolder = value; OnPropertyChanged(); }
+        }
+
+        // ── File restore được chọn ──────────────────────────────────
+        private string _restoreFile = string.Empty;
+        public string RestoreFile
+        {
+            get => _restoreFile;
+            set { _restoreFile = value; OnPropertyChanged(); }
+        }
+
+        // ── Tùy chọn WITH RECOVERY khi restore ─────────────────────
+        private bool _withRecovery = true;
+        public bool WithRecovery
+        {
+            get => _withRecovery;
+            set { _withRecovery = value; OnPropertyChanged(); }
+        }
+
+        // ── Trạng thái đang xử lý (disable UI) ─────────────────────
+        private bool _isBusy = false;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set
+            {
+                _isBusy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNotBusy));
+            }
+        }
+        public bool IsNotBusy => !_isBusy;
+
+        // ── Text hiển thị trong loading overlay ─────────────────────
+        private string _busyText = "Đang xử lý...";
+        public string BusyText
+        {
+            get => _busyText;
+            set { _busyText = value; OnPropertyChanged(); }
+        }
+
+        // ── Thông báo kết quả ────────────────────────────────────────
+        private string _thongBaoText = string.Empty;
+        public string ThongBaoText
+        {
+            get => _thongBaoText;
+            set { _thongBaoText = value; OnPropertyChanged(); }
+        }
+
+        private bool _isThanhCong = true;
+        public bool IsThanhCong
+        {
+            get => _isThanhCong;
+            set { _isThanhCong = value; OnPropertyChanged(); }
+        }
+
+        private Visibility _thongBaoVisible = Visibility.Collapsed;
+        public Visibility ThongBaoVisible
+        {
+            get => _thongBaoVisible;
+            set { _thongBaoVisible = value; OnPropertyChanged(); }
+        }
+
+        // ── Lịch sử backup ──────────────────────────────────────────
+        public ObservableCollection<LichSuBackupModel> DanhSachLichSu { get; set; } = new();
+
+        private LichSuBackupModel _selectedLichSu;
+        public LichSuBackupModel SelectedLichSu
+        {
+            get => _selectedLichSu;
+            set { _selectedLichSu = value; OnPropertyChanged(); }
+        }
+
+        // ── Commands ─────────────────────────────────────────────────
+        public ICommand FullBackupCommand { get; }
+        public ICommand DiffBackupCommand { get; }
+        public ICommand LogBackupCommand { get; }
+        public ICommand RestoreCommand { get; }
+        public ICommand ChonThuMucCommand { get; }
+        public ICommand ChonFileRestoreCommand { get; }
+        public ICommand TaiLaiBangCommand { get; }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Constructor
+        // ════════════════════════════════════════════════════════════
+        public BackupRestoreViewModel()
+        {
+            FullBackupCommand = new RelayCommand(_ => ExecuteAsync(RunFullBackup), _ => IsNotBusy);
+            DiffBackupCommand = new RelayCommand(_ => ExecuteAsync(RunDiffBackup), _ => IsNotBusy);
+            LogBackupCommand = new RelayCommand(_ => ExecuteAsync(RunLogBackup), _ => IsNotBusy);
+            RestoreCommand = new RelayCommand(_ => ExecuteAsync(RunRestore), _ => IsNotBusy);
+            ChonThuMucCommand = new RelayCommand(_ => ChonThuMuc());
+            ChonFileRestoreCommand = new RelayCommand(_ => ChonFileRestore());
+            TaiLaiBangCommand = new RelayCommand(_ => ExecuteAsync(LoadLichSu));
+
+            // Tải lịch sử ngay khi mở
+            ExecuteAsync(LoadLichSu);
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Helper: Tự động tạo thư mục nếu chưa tồn tại
+        // SQL Server không tự tạo thư mục -> phải tạo trước từ phía app
+        // ════════════════════════════════════════════════════════════
+        private bool EnsureFolder(string folderPath)
+        {
+            try
+            {
+                if (!System.IO.Directory.Exists(folderPath))
+                    System.IO.Directory.CreateDirectory(folderPath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                HienThongBao(false,
+                    $"Khong the tao thu muc:\n{folderPath}\n\nLy do: {ex.Message}");
+                return false;
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Kiểm tra quyền Admin phía client (double check, server cũng check)
+        // ════════════════════════════════════════════════════════════
+        private bool KiemTraAdmin()
+        {
+            if (!DBConnect.IsAdmin)
+            {
+                HienThongBao(false,
+                    "⛔ Bạn không có quyền thực hiện thao tác này. Chỉ Admin mới có thể Backup / Restore.");
+                return false;
+            }
+            return true;
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Helper: chạy task async, wrap exception
+        // ════════════════════════════════════════════════════════════
+        private async void ExecuteAsync(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                HienThongBao(false, "Lỗi không xác định: " + ex.Message);
+                IsBusy = false;
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // FULL BACKUP
+        // ════════════════════════════════════════════════════════════
+        private async Task RunFullBackup()
+        {
+            if (!KiemTraAdmin()) return;
+            ThongBaoVisible = Visibility.Collapsed;
+            BusyText = "Đang thực hiện Full Backup...";
+            IsBusy = true;
+
+            try
+            {
+                var folder = BackupFolder.TrimEnd('\\') + @"\Full";
+                if (!EnsureFolder(folder)) return;
+                var result = await Task.Run(() => CallStoredProc("SP_FullBackup",
+                    new SqlParameter("@BackupFolder", folder)));
+
+                PhanTichKetQua(result, "Full Backup");
+                await LoadLichSu();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // DIFFERENTIAL BACKUP
+        // ════════════════════════════════════════════════════════════
+        private async Task RunDiffBackup()
+        {
+            if (!KiemTraAdmin()) return;
+            ThongBaoVisible = Visibility.Collapsed;
+            BusyText = "Đang thực hiện Differential Backup...";
+            IsBusy = true;
+
+            try
+            {
+                var folder = BackupFolder.TrimEnd('\\') + @"\Diff";
+                if (!EnsureFolder(folder)) return;
+                var result = await Task.Run(() => CallStoredProc("SP_DiffBackup",
+                    new SqlParameter("@BackupFolder", folder)));
+
+                PhanTichKetQua(result, "Differential Backup");
+                await LoadLichSu();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // TRANSACTION LOG BACKUP
+        // ════════════════════════════════════════════════════════════
+        private async Task RunLogBackup()
+        {
+            if (!KiemTraAdmin()) return;
+            ThongBaoVisible = Visibility.Collapsed;
+            BusyText = "Đang thực hiện Transaction Log Backup...";
+            IsBusy = true;
+
+            try
+            {
+                var folder = BackupFolder.TrimEnd('\\') + @"\Log";
+                if (!EnsureFolder(folder)) return;
+                var result = await Task.Run(() => CallStoredProc("SP_LogBackup",
+                    new SqlParameter("@BackupFolder", folder)));
+
+                PhanTichKetQua(result, "Transaction Log Backup");
+                await LoadLichSu();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // RESTORE
+        // ════════════════════════════════════════════════════════════
+        private async Task RunRestore()
+        {
+            if (!KiemTraAdmin()) return;
+
+            if (string.IsNullOrWhiteSpace(RestoreFile))
+            {
+                HienThongBao(false, "Vui lòng chọn file backup để Restore.");
+                return;
+            }
+
+            // Xác nhận trước khi restore (thao tác nguy hiểm)
+            var confirm = MessageBox.Show(
+                $"⚠ CẢNH BÁO: Thao tác Restore sẽ GHI ĐÈ toàn bộ dữ liệu hiện tại!\n\n" +
+                $"File: {RestoreFile}\n" +
+                $"Tùy chọn: {(WithRecovery ? "WITH RECOVERY (hoàn thành)" : "WITH NORECOVERY (chờ apply thêm)")}\n\n" +
+                $"Bạn chắc chắn muốn tiếp tục?",
+                "Xác nhận Restore",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            ThongBaoVisible = Visibility.Collapsed;
+            BusyText = "Đang thực hiện Restore... Vui lòng không tắt ứng dụng.";
+            IsBusy = true;
+
+            try
+            {
+                var result = await Task.Run(() => CallStoredProc("SP_RestoreDatabase",
+                    new SqlParameter("@BackupFile", RestoreFile),
+                    new SqlParameter("@WithRecovery", WithRecovery ? 1 : 0)));
+
+                PhanTichKetQua(result, "Restore");
+
+                if (WithRecovery)
+                    await LoadLichSu();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // TẢI LỊCH SỬ BACKUP
+        // ════════════════════════════════════════════════════════════
+        private async Task LoadLichSu()
+        {
+            try
+            {
+                var dt = await Task.Run(() => CallStoredProc("SP_LichSuBackup",
+                    new SqlParameter("@SoLuong", 30)));
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    DanhSachLichSu.Clear();
+                    if (dt == null) return;
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        DanhSachLichSu.Add(new LichSuBackupModel
+                        {
+                            ThoiGianBackup = row["ThoiGianBackup"] as DateTime? ?? DateTime.MinValue,
+                            LoaiBackup = row["LoaiBackup"]?.ToString() ?? "",
+                            DuongDanFile = row["DuongDanFile"]?.ToString() ?? "",
+                            KichThuoc_MB = row["KichThuoc_MB"] is DBNull ? 0
+                                             : Convert.ToDecimal(row["KichThuoc_MB"]),
+                            NguoiThucHien = row["NguoiThucHien"]?.ToString() ?? "",
+                            CoChecksum = row["CoChecksum"]?.ToString() ?? ""
+                        });
+                    }
+                });
+            }
+            catch
+            {
+                // Lịch sử chưa có hoặc chưa có quyền - bỏ qua lỗi khi load lần đầu
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Helper: gọi Stored Procedure, trả về DataTable
+        // ════════════════════════════════════════════════════════════
+        private DataTable CallStoredProc(string spName, params SqlParameter[] parameters)
+        {
+            DataTable dt = new DataTable();
+            using (var conn = new SqlConnection(DBConnect.ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(spName, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandTimeout = 300; // 5 phút (backup lớn cần thời gian)
+
+                    foreach (var p in parameters)
+                        cmd.Parameters.Add(p);
+
+                    using (var da = new SqlDataAdapter(cmd))
+                        da.Fill(dt);
+                }
+            }
+            return dt;
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Helper: phân tích DataTable kết quả từ SP
+        // ════════════════════════════════════════════════════════════
+        private void PhanTichKetQua(DataTable dt, string tenThaoTac)
+        {
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                HienThongBao(false, $"{tenThaoTac} không trả về kết quả. Kiểm tra lại SQL Server.");
+                return;
+            }
+
+            var row = dt.Rows[0];
+            var trangThai = row["TrangThai"]?.ToString() ?? "";
+            bool ok = trangThai.Contains("Thành công");
+            var filePath = row.Table.Columns.Contains("DuongDan")
+                           ? row["DuongDan"]?.ToString()
+                           : row.Table.Columns.Contains("FileNguon")
+                             ? row["FileNguon"]?.ToString() : "";
+
+            if (ok)
+                HienThongBao(true, $"✅ {tenThaoTac} thành công!\nFile: {filePath}");
+            else
+                HienThongBao(false, $"❌ {tenThaoTac} thất bại!\nChi tiết: {trangThai}");
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Helper: hiển thị thông báo
+        // ════════════════════════════════════════════════════════════
+        private void HienThongBao(bool thanhCong, string msg)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                IsThanhCong = thanhCong;
+                ThongBaoText = msg;
+                ThongBaoVisible = Visibility.Visible;
+            });
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Chọn thư mục backup (dùng WPF FolderBrowserDialog tương đương)
+        // ════════════════════════════════════════════════════════════
+        private void ChonThuMuc()
+        {
+            // WPF không có FolderBrowserDialog chuẩn, dùng hack qua OpenFileDialog
+            var dlg = new OpenFileDialog
+            {
+                Title = "Chọn thư mục lưu Backup",
+                Filter = "Thư mục|*.none",  // trick để chọn folder
+                CheckFileExists = false,
+                CheckPathExists = true,
+                FileName = "Chọn thư mục này"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                BackupFolder = System.IO.Path.GetDirectoryName(dlg.FileName);
+            }
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        // Chọn file để Restore
+        // ════════════════════════════════════════════════════════════
+        private void ChonFileRestore()
+        {
+            var dlg = new OpenFileDialog
+            {
+                Title = "Chọn file Backup để Restore",
+                Filter = "SQL Server Backup|*.bak;*.trn|Full/Diff Backup (*.bak)|*.bak|Log Backup (*.trn)|*.trn"
+            };
+
+            if (dlg.ShowDialog() == true)
+                RestoreFile = dlg.FileName;
+        }
+    }
+}

@@ -36,6 +36,9 @@
         <DataTemplate DataType="{x:Type vm:QuanLyNhomQuyenViewModel}">
             <views:QuanLyNhomQuyen/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BackupRestoreViewModel}">
+            <views:BackupRestore/>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -56,52 +59,57 @@
                     <TextBlock Text="MORTUARY" Foreground="#10B981" FontSize="26" FontWeight="Black" HorizontalAlignment="Center"/>
                     <TextBlock Text="MANAGEMENT SYSTEM" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Margin="15,0">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Height" Value="45"/>
+                                <Setter Property="Margin" Value="0,5"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                <Setter Property="Padding" Value="15,0,0,0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#334155"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Resources>
 
-                <StackPanel Grid.Row="1" Margin="15,0">
-                    <StackPanel.Resources>
-                        <Style TargetType="Button">
-                            <Setter Property="Height" Value="45"/>
-                            <Setter Property="Margin" Value="0,5"/>
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="#F8FAFC"/>
-                            <Setter Property="FontSize" Value="15"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                            <Setter Property="Padding" Value="15,0,0,0"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#334155"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Resources>
+                        <Button Content="Quản Lý Bác Sĩ" Command="{Binding ShowBacSiCommand}"/>
+                        <Button Content="Hồ Sơ Khám Nghiệm" Command="{Binding ShowHoSoCommand}"/>
+                        <Button Content="Bảng Giá Dịch Vụ" Command="{Binding ShowDichVuCommand}"/>
+                        <Button Content="Quản Lý Thi Hài" Command="{Binding ShowThiHaiCommand}"/>
+                        <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
+                        <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
+                        <!-- Chỉ Admin mới thấy menu phân quyền -->
+                        <Button Content="Quản Lý Tài Khoản"
+                            Command="{Binding ShowQuanLyTaiKhoanCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Quản Lý Nhóm Quyền"
+                            Command="{Binding ShowQuanLyNhomQuyenCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Backup &amp; Restore"
+                            Command="{Binding ShowBackupRestoreCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
 
-                    <Button Content="Quản Lý Bác Sĩ" Command="{Binding ShowBacSiCommand}"/>
-                    <Button Content="Hồ Sơ Khám Nghiệm" Command="{Binding ShowHoSoCommand}"/>
-                    <Button Content="Bảng Giá Dịch Vụ" Command="{Binding ShowDichVuCommand}"/>
-                    <Button Content="Quản Lý Thi Hài" Command="{Binding ShowThiHaiCommand}"/>
-                    <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
-                    <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
-                    <!-- Chỉ Admin mới thấy menu phân quyền -->
-                    <Button Content="Quản Lý Tài Khoản"
-                        Command="{Binding ShowQuanLyTaiKhoanCommand}"
-                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
-                    <Button Content="Quản Lý Nhóm Quyền"
-                        Command="{Binding ShowQuanLyNhomQuyenCommand}"
-                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
-
-                </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+                
 
                 <StackPanel Grid.Row="2" Margin="15,0,15,30">
                     <Button Content="Đăng Xuất" 
