@@ -402,7 +402,7 @@ namespace DoAn.ViewModel
 
             try
             {
-                var result = await Task.Run(() => CallStoredProc("SP_RestoreDatabase",
+                var result = await Task.Run(() => CallStoredProc("SP_RestoreDatabase", true,
                     new SqlParameter("@BackupFile", RestoreFile),
                     new SqlParameter("@WithRecovery", WithRecovery ? 1 : 0)));
 
@@ -460,17 +460,37 @@ namespace DoAn.ViewModel
         // ════════════════════════════════════════════════════════════
         private DataTable CallStoredProc(string spName, params SqlParameter[] parameters)
         {
+            // Chuyển tiếp công việc sang hàm số 2 và mặc định gán false
+            return CallStoredProc(spName, false, parameters);
+        }
+
+        // 2. Hàm mở rộng: Dành riêng cho tác vụ cần đổi Database (như Restore)
+        private DataTable CallStoredProc(string spName, bool useMasterDb, params SqlParameter[] parameters)
+        {
             DataTable dt = new DataTable();
-            using (var conn = new SqlConnection(DBConnect.ConnectionString))
+
+            // Xây dựng lại chuỗi kết nối dựa trên DBConnect gốc
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(DBConnect.ConnectionString);
+
+            // Nếu yêu cầu dùng master, ta đổi InitialCatalog
+            if (useMasterDb)
+            {
+                builder.InitialCatalog = "master";
+            }
+
+            using (var conn = new SqlConnection(builder.ConnectionString))
             {
                 conn.Open();
                 using (var cmd = new SqlCommand(spName, conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandTimeout = 300; // 5 phút (backup lớn cần thời gian)
+                    cmd.CommandTimeout = 300; // 5 phút
 
-                    foreach (var p in parameters)
-                        cmd.Parameters.Add(p);
+                    if (parameters != null)
+                    {
+                        foreach (var p in parameters)
+                            cmd.Parameters.Add(p);
+                    }
 
                     using (var da = new SqlDataAdapter(cmd))
                         da.Fill(dt);

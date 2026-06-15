@@ -48,7 +48,7 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Kiểm tra quyền Admin
-    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('app_admin') = 0)
+    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('QL_ADMIN') = 0)
     BEGIN
         RAISERROR(N'Từ chối truy cập: Chỉ Admin mới có thể thực hiện Backup.', 16, 1);
         RETURN;
@@ -120,7 +120,7 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Kiểm tra quyền Admin
-    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('app_admin') = 0)
+    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('QL_ADMIN') = 0)
     BEGIN
         RAISERROR(N'Từ chối truy cập: Chỉ Admin mới có thể thực hiện Backup.', 16, 1);
         RETURN;
@@ -201,7 +201,7 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Kiểm tra quyền Admin
-    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('app_admin') = 0)
+    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('QL_ADMIN') = 0)
     BEGIN
         RAISERROR(N'Từ chối truy cập: Chỉ Admin mới có thể thực hiện Backup.', 16, 1);
         RETURN;
@@ -282,6 +282,10 @@ GO
 -- Tự động phát hiện loại backup và thực hiện đúng kiểu Restore.
 -- Cần ngắt kết nối user trước khi restore.
 -- =============================================
+-- Chuyển hướng sang master
+USE master;
+GO
+
 IF OBJECT_ID('SP_RestoreDatabase', 'P') IS NOT NULL
     DROP PROCEDURE SP_RestoreDatabase;
 GO
@@ -402,7 +406,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('app_admin') = 0)
+    IF (IS_ROLEMEMBER('db_owner') = 0 AND IS_ROLEMEMBER('QL_ADMIN') = 0)
     BEGIN
         RAISERROR(N'Từ chối truy cập: Chỉ Admin mới có thể xem lịch sử Backup.', 16, 1);
         RETURN;
@@ -437,10 +441,10 @@ GO
 -- BƯỚC 7: CẤP QUYỀN EXECUTE CHO app_admin
 -- (Chỉ app_admin mới GRANT được, users thường không thể gọi trực tiếp)
 -- =============================================
-GRANT EXECUTE ON SP_FullBackup     TO [app_admin];
-GRANT EXECUTE ON SP_DiffBackup     TO [app_admin];
-GRANT EXECUTE ON SP_LogBackup      TO [app_admin];
-GRANT EXECUTE ON SP_LichSuBackup   TO [app_admin];
+GRANT EXECUTE ON SP_FullBackup     TO QL_ADMIN;
+GRANT EXECUTE ON SP_DiffBackup     TO QL_ADMIN;
+GRANT EXECUTE ON SP_LogBackup      TO QL_ADMIN;
+GRANT EXECUTE ON SP_LichSuBackup   TO QL_ADMIN;
 -- SP_RestoreDatabase cần quyền sysadmin ở server level, không grant được ở DB level
 GO
 

@@ -353,7 +353,8 @@
         </Border>
 
         <!-- ─── KHU VỰC RESTORE ─────────────────────────────────────── -->
-        <Border Grid.Row="4" Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+        <ScrollViewer Grid.Row="4">
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -407,7 +408,10 @@
                             Width="180"/>
                 </Grid>
             </Grid>
-        </Border>
+            </Border>
+        </ScrollViewer>
+        
+        
 
         <!-- ─── LỊCH SỬ BACKUP ──────────────────────────────────────── -->
         <Border Grid.Row="5" Style="{StaticResource CardBorder}">
