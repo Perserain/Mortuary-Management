@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace DoAn.ViewModel
 {
@@ -27,6 +28,29 @@ namespace DoAn.ViewModel
 
         public bool IsAdmin => DoAn.Core.DBConnect.IsAdmin;
 
+        // --- LOGIC BADGE CẢNH BÁO ---
+        private int _soCanhBao;
+        public int SoCanhBao
+        {
+            get => _soCanhBao;
+            set { _soCanhBao = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasCanhBao)); }
+        }
+
+        public bool HasCanhBao => SoCanhBao > 0;
+
+        private DispatcherTimer _badgeTimer;
+
+        private void RefreshBadge()
+        {
+            if (string.IsNullOrEmpty(DoAn.Core.DBConnect.ConnectionString)) return;
+            try
+            {
+                var dt = DoAn.Core.DBConnect.GetData("SELECT COUNT(*) AS SoCB FROM CANH_BAO WHERE DAOC = 0");
+                if (dt.Rows.Count > 0)
+                    SoCanhBao = Convert.ToInt32(dt.Rows[0]["SoCB"]);
+            }
+            catch { SoCanhBao = 0; }
+        }
         public ICommand ShowBacSiCommand { get; set; }
         public ICommand ShowHoSoCommand { get; set; }
         public ICommand ShowThiHaiCommand { get; set; }
@@ -40,6 +64,7 @@ namespace DoAn.ViewModel
         public ICommand ShowDashboardCommand { get; set; }
         public ICommand ShowThanNhanCommand { get; set; }
         public ICommand ShowHoaDonCommand { get; set; }
+        public ICommand ShowCanhBaoCommand { get; set; }
 
         public MainViewModel()
         {
@@ -57,9 +82,16 @@ namespace DoAn.ViewModel
             ShowQuanLyTaiKhoanCommand = new RelayCommand(p => CurrentView = new QuanLyTaiKhoanViewModel());
             ShowQuanLyNhomQuyenCommand = new RelayCommand(p => CurrentView = new QuanLyNhomQuyenViewModel());
             ShowHoaDonCommand = new RelayCommand(p => CurrentView = new HoaDonViewModel());
+            ShowCanhBaoCommand = new RelayCommand(p => CurrentView = new CanhBaoViewModel());
 
             // Khởi tạo lệnh Đăng Xuất
             LogOutCommand = new RelayCommand(p => ExecuteLogOut(p));
+
+            // Khởi động bộ đếm badge cảnh báo
+            RefreshBadge();
+            _badgeTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(3) };
+            _badgeTimer.Tick += (s, e) => RefreshBadge();
+            _badgeTimer.Start();
         }
 
         private void ExecuteLogOut(object parameter)

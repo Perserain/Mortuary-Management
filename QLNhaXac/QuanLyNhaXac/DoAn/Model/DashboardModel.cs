@@ -56,20 +56,4 @@ namespace DoAn.Model
     }
 
     /// <summary>Một dòng cảnh báo trong bảng Top 5</summary>
-    public class CanhBaoModel : BaseViewModel
-    {
-        private string _maCB;
-        private DateTime _thoiGian;
-        private string _loaiCB;
-        private string _noiDung;
-        private string _mucDoHienThi;
-        private bool _daOc;
-
-        public string MaCB { get => _maCB; set { _maCB = value; OnPropertyChanged(); } }
-        public DateTime ThoiGian { get => _thoiGian; set { _thoiGian = value; OnPropertyChanged(); } }
-        public string LoaiCB { get => _loaiCB; set { _loaiCB = value; OnPropertyChanged(); } }
-        public string NoiDung { get => _noiDung; set { _noiDung = value; OnPropertyChanged(); } }
-        public string MucDoHienThi { get => _mucDoHienThi; set { _mucDoHienThi = value; OnPropertyChanged(); } }
-        public bool DaDoc { get => _daOc; set { _daOc = value; OnPropertyChanged(); } }
-    }
 }

@@ -15,7 +15,9 @@
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView/>
         </DataTemplate>
-
+        <DataTemplate DataType="{x:Type vm:CanhBaoViewModel}">
+            <views:CanhBao/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:HoaDonViewModel}">
             <views:HoaDon/>
         </DataTemplate>
@@ -109,7 +111,20 @@
                         <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
                         <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
                         <Button Content="Hóa Đơn" Command="{Binding ShowHoaDonCommand}"/>
-                        
+                        <Grid Margin="0,5">
+                            <Button Content="🔔  Cảnh Báo" Command="{Binding ShowCanhBaoCommand}"/>
+                            <Border x:Name="BadgeCB"
+            Background="#EF4444" CornerRadius="10"
+            Width="22" Height="22"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Margin="0,0,8,0"
+            Visibility="{Binding HasCanhBao, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="{Binding SoCanhBao}"
+                   Foreground="White" FontSize="11" FontWeight="Bold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+
                         <!-- Chỉ Admin mới thấy menu phân quyền -->
                         <Button Content="Quản Lý Tài Khoản"
                             Command="{Binding ShowQuanLyTaiKhoanCommand}"

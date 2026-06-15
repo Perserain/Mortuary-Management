@@ -315,16 +315,20 @@ namespace DoAn.ViewModel
                 {
                     TopCanhBao.Add(new CanhBaoModel
                     {
-                        MaCB = reader["MACB"]?.ToString(),
-                        ThoiGian = reader["THOIGIAN"] != DBNull.Value
-                                         ? Convert.ToDateTime(reader["THOIGIAN"])
-                                         : DateTime.Now,
-                        LoaiCB = reader["LOAICB"]?.ToString(),
-                        NoiDung = reader["NOIDUNG"]?.ToString(),
-                        MucDoHienThi = reader.HasColumn("MUC_DO_HIEN_THI")
+                        // Ép kiểu MACB về int
+                        MACB = reader["MACB"] != DBNull.Value ? Convert.ToInt32(reader["MACB"]) : 0,
+
+                        // Ép kiểu THOIGIAN về string (định dạng ngày giờ)
+                        THOIGIAN = reader["THOIGIAN"] != DBNull.Value
+                                         ? Convert.ToDateTime(reader["THOIGIAN"]).ToString("HH:mm dd/MM")
+                                         : "",
+
+                        LOAICB = reader["LOAICB"]?.ToString(),
+                        NOIDUNG = reader["NOIDUNG"]?.ToString(),
+                        MUC_DO_HIEN_THI = reader.HasColumn("MUC_DO_HIEN_THI")
                                          ? reader["MUC_DO_HIEN_THI"]?.ToString()
-                                         : "Cảnh báo",
-                        DaDoc = reader["DAOC"] != DBNull.Value && Convert.ToBoolean(reader["DAOC"])
+                                         : "Thông báo",
+                        DAOC = reader.HasColumn("DAOC") && reader["DAOC"] != DBNull.Value ? Convert.ToBoolean(reader["DAOC"]) : false
                     });
                     count++;
                 }

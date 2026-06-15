@@ -319,10 +319,10 @@
                     </DataGrid.ColumnHeaderStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Thời Gian"
-                                            Binding="{Binding ThoiGian, StringFormat='HH:mm dd/MM'}"
+                                            Binding="{Binding THOIGIAN, StringFormat='HH:mm dd/MM'}"
                                             Width="110"/>
-                        <DataGridTextColumn Header="Loại" Binding="{Binding LoaiCB}" Width="120"/>
-                        <DataGridTextColumn Header="Nội Dung" Binding="{Binding NoiDung}" Width="*"/>
+                        <DataGridTextColumn Header="Loại" Binding="{Binding LOAICB}" Width="120"/>
+                        <DataGridTextColumn Header="Nội Dung" Binding="{Binding NOIDUNG}" Width="*"/>
                         <DataGridTemplateColumn Header="Mức Độ" Width="90">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -331,27 +331,27 @@
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="#FEF3C7"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding MucDoHienThi}" Value="Nguy hiểm">
+                                                    <DataTrigger Binding="{Binding MUC_DO_HIEN_THI}" Value="Nguy hiểm">
                                                         <Setter Property="Background" Value="#FEE2E2"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MucDoHienThi}" Value="Cảnh báo">
+                                                    <DataTrigger Binding="{Binding MUC_DO_HIEN_THI}" Value="Cảnh báo">
                                                         <Setter Property="Background" Value="#FEF3C7"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MucDoHienThi}" Value="Thông báo">
+                                                    <DataTrigger Binding="{Binding MUC_DO_HIEN_THI}" Value="Thông báo">
                                                         <Setter Property="Background" Value="#DBEAFE"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock Text="{Binding MucDoHienThi}" FontSize="11" FontWeight="SemiBold">
+                                        <TextBlock Text="{Binding MUC_DO_HIEN_THI}" FontSize="11" FontWeight="SemiBold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Foreground" Value="#92400E"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding MucDoHienThi}" Value="Nguy hiểm">
+                                                        <DataTrigger Binding="{Binding MUC_DO_HIEN_THI}" Value="Nguy hiểm">
                                                             <Setter Property="Foreground" Value="#991B1B"/>
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding MucDoHienThi}" Value="Thông báo">
+                                                        <DataTrigger Binding="{Binding MUC_DO_HIEN_THI}" Value="Thông báo">
                                                             <Setter Property="Foreground" Value="#1D4ED8"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
