@@ -15,7 +15,9 @@
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView/>
         </DataTemplate>
-        
+        <DataTemplate DataType="{x:Type vm:ThanNhanViewModel}">
+            <views:ThanNhan/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:BacSiViewModel}">
             <views:BacSi/>
         </DataTemplate>
@@ -99,6 +101,7 @@
                         <Button Content="Hồ Sơ Khám Nghiệm" Command="{Binding ShowHoSoCommand}"/>
                         <Button Content="Bảng Giá Dịch Vụ" Command="{Binding ShowDichVuCommand}"/>
                         <Button Content="Quản Lý Thi Hài" Command="{Binding ShowThiHaiCommand}"/>
+                        <Button Content="Thân Nhân" Command="{Binding ShowThanNhanCommand}"/>
                         <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
                         <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
                         

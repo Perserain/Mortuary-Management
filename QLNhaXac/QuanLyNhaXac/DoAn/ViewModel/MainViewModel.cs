@@ -38,6 +38,7 @@ namespace DoAn.ViewModel
         public ICommand ShowQuanLyNhomQuyenCommand { get; set; }
         public ICommand ShowBackupRestoreCommand { get; set; }
         public ICommand ShowDashboardCommand { get; set; }
+        public ICommand ShowThanNhanCommand { get; set; }
 
         public MainViewModel()
         {
@@ -47,6 +48,7 @@ namespace DoAn.ViewModel
             ShowBacSiCommand = new RelayCommand(p => CurrentView = new BacSiViewModel());
             ShowHoSoCommand = new RelayCommand(p => CurrentView = new HoSoKBViewModel());
             ShowThiHaiCommand = new RelayCommand(p => CurrentView = new ThiHaiViewModel());
+            ShowThanNhanCommand = new RelayCommand(p => CurrentView = new ThanNhanViewModel());
             ShowDichVuCommand = new RelayCommand(p => CurrentView = new DichVuViewModel());
             ShowNganKeoCommand = new RelayCommand(p => CurrentView = new NganKeoViewModel());
             ShowSuDungCommand = new RelayCommand(p => CurrentView = new SuDungViewModel());
