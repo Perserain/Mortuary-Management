@@ -15,6 +15,9 @@
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NhanVienViewModel}">
+            <views:NhanVien/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:CanhBaoViewModel}">
             <views:CanhBao/>
         </DataTemplate>
@@ -126,6 +129,10 @@
                         </Grid>
 
                         <!-- Chỉ Admin mới thấy menu phân quyền -->
+                        <Button Content="🧑‍💼  Nhân Viên"
+                            Command="{Binding ShowNhanVienCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
                         <Button Content="Quản Lý Tài Khoản"
                             Command="{Binding ShowQuanLyTaiKhoanCommand}"
                             Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
