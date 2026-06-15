@@ -64,7 +64,7 @@
             <Expander IsExpanded="True">
                 <Expander.Header>
                     <TextBlock FontWeight="Bold" FontSize="14" Foreground="#1E293B">
-                        <Run Text="🧟 THI HÀI ("/><Run Text="{Binding KetQuaThiHai.Count}"/><Run Text=" kết quả)"/>
+                        <Run Text="🧟 THI HÀI ("/><Run Text="{Binding KetQuaThiHai.Count, Mode=OneWay}"/><Run Text=" kết quả)"/>
                     </TextBlock>
                 </Expander.Header>
                 <DataGrid ItemsSource="{Binding KetQuaThiHai}" AutoGenerateColumns="False" 
@@ -97,7 +97,7 @@
                 </Border.Effect>
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" FontWeight="Bold" FontSize="14" Foreground="#1E293B" Margin="0,0,0,10">
-                        <Run Text="👪 THÂN NHÂN ("/><Run Text="{Binding KetQuaThanNhan.Count}"/><Run Text=" kết quả)"/>
+                        <Run Text="👪 THÂN NHÂN ("/><Run Text="{Binding KetQuaThanNhan.Count, Mode=OneWay}"/><Run Text=" kết quả)"/>
                     </TextBlock>
                     <DataGrid ItemsSource="{Binding KetQuaThanNhan}" AutoGenerateColumns="False"
                               CanUserAddRows="False" BorderThickness="0" HeadersVisibility="Column"
@@ -119,7 +119,7 @@
                 </Border.Effect>
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" FontWeight="Bold" FontSize="14" Foreground="#1E293B" Margin="0,0,0,10">
-                        <Run Text="🧾 HÓA ĐƠN ("/><Run Text="{Binding KetQuaHoaDon.Count}"/><Run Text=" kết quả)"/>
+                        <Run Text="🧾 HÓA ĐƠN ("/><Run Text="{Binding KetQuaHoaDon.Count, Mode=OneWay}"/><Run Text=" kết quả)"/>
                     </TextBlock>
                     <DataGrid ItemsSource="{Binding KetQuaHoaDon}" AutoGenerateColumns="False"
                               CanUserAddRows="False" BorderThickness="0" HeadersVisibility="Column"

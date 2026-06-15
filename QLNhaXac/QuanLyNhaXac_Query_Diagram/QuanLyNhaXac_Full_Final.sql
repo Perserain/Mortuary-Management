@@ -2334,3 +2334,35 @@ PRINT 'Sprint 2 SQL Migration — Hoàn tất!';
 PRINT 'SP_SuaNganKeo đã được ALTER thêm param @nhietDoCanhBao (DEFAULT NULL, backward-compatible).';
 GO
 
+-- FIX TIM KIEM
+CREATE OR ALTER PROC SP_TimKiem_ThiHai @keyword NVARCHAR(100)
+AS
+BEGIN
+    SELECT * FROM VIEW_DanhSachThiHai
+    WHERE HOTEN_TH LIKE N'%' + @keyword + N'%' OR MATH LIKE N'%' + @keyword + N'%'
+    ORDER BY HOTEN_TH;
+END
+GO
+
+CREATE OR ALTER PROC SP_TimKiem_ThanNhan @keyword NVARCHAR(100)
+AS
+BEGIN
+    SELECT tn.*, th.HOTEN_TH 
+    FROM THAN_NHAN tn 
+    JOIN THIHAI th ON tn.MATH = th.MATH
+    WHERE tn.HOTEN_TN LIKE N'%' + @keyword + N'%' 
+       OR tn.DIENTHOAI LIKE N'%' + @keyword + N'%'
+    ORDER BY tn.HOTEN_TN;
+END
+GO
+
+CREATE OR ALTER PROC SP_TimKiem_HoaDon @keyword NVARCHAR(100)
+AS
+BEGIN
+    SELECT hd.*, th.HOTEN_TH 
+    FROM HOADON hd 
+    JOIN THIHAI th ON hd.MATH = th.MATH
+    WHERE hd.MAHD LIKE N'%' + @keyword + N'%' 
+       OR th.HOTEN_TH LIKE N'%' + @keyword + N'%';
+END
+GO
