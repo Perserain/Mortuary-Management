@@ -243,7 +243,7 @@ namespace DoAn.ViewModel
                     list.Add(new DoanhThuTheoThangModel
                     {
                         Thang = "T" + reader["Thang"].ToString(),
-                        DoanhThu = GetDecimal(reader, "DoanhThu")
+                        DoanhThu = GetDecimal(reader, "TongDoanhThu")
                     });
                 }
 

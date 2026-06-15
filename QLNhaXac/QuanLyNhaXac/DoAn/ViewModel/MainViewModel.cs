@@ -66,7 +66,7 @@ namespace DoAn.ViewModel
         public ICommand ShowHoaDonCommand { get; set; }
         public ICommand ShowCanhBaoCommand { get; set; }
         public ICommand ShowNhanVienCommand { get; set; }
-
+        public ICommand ShowAuditLogCommand { get; set; }
         public MainViewModel()
         {
             CurrentView = new DashboardViewModel();
@@ -85,6 +85,8 @@ namespace DoAn.ViewModel
             ShowHoaDonCommand = new RelayCommand(p => CurrentView = new HoaDonViewModel());
             ShowCanhBaoCommand = new RelayCommand(p => CurrentView = new CanhBaoViewModel());
             ShowNhanVienCommand = new RelayCommand(p => CurrentView = new NhanVienViewModel());
+            ShowAuditLogCommand = new RelayCommand(p => CurrentView = new AuditLogViewModel());
+
 
             // Khởi tạo lệnh Đăng Xuất
             LogOutCommand = new RelayCommand(p => ExecuteLogOut(p));
