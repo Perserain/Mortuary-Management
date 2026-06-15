@@ -39,6 +39,7 @@ namespace DoAn.ViewModel
         public ICommand ShowBackupRestoreCommand { get; set; }
         public ICommand ShowDashboardCommand { get; set; }
         public ICommand ShowThanNhanCommand { get; set; }
+        public ICommand ShowHoaDonCommand { get; set; }
 
         public MainViewModel()
         {
@@ -55,6 +56,7 @@ namespace DoAn.ViewModel
             ShowBackupRestoreCommand = new RelayCommand(p => CurrentView = new BackupRestoreViewModel());
             ShowQuanLyTaiKhoanCommand = new RelayCommand(p => CurrentView = new QuanLyTaiKhoanViewModel());
             ShowQuanLyNhomQuyenCommand = new RelayCommand(p => CurrentView = new QuanLyNhomQuyenViewModel());
+            ShowHoaDonCommand = new RelayCommand(p => CurrentView = new HoaDonViewModel());
 
             // Khởi tạo lệnh Đăng Xuất
             LogOutCommand = new RelayCommand(p => ExecuteLogOut(p));

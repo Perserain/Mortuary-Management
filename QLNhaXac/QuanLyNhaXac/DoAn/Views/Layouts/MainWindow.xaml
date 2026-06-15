@@ -15,6 +15,10 @@
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView/>
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:HoaDonViewModel}">
+            <views:HoaDon/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:ThanNhanViewModel}">
             <views:ThanNhan/>
         </DataTemplate>
@@ -104,6 +108,7 @@
                         <Button Content="Thân Nhân" Command="{Binding ShowThanNhanCommand}"/>
                         <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
                         <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
+                        <Button Content="Hóa Đơn" Command="{Binding ShowHoaDonCommand}"/>
                         
                         <!-- Chỉ Admin mới thấy menu phân quyền -->
                         <Button Content="Quản Lý Tài Khoản"
