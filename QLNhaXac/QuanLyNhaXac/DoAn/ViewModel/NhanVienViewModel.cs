@@ -170,6 +170,12 @@ namespace DoAn.ViewModel
         private void ExecuteThem()
         {
             if (!DBConnect.RequireAdmin("Thêm nhân viên")) return;
+            if (!string.IsNullOrWhiteSpace(NewNhanVien.DIENTHOAI) && !Validator.IsValidPhone(NewNhanVien.DIENTHOAI))
+            {
+                MessageBox.Show("Số điện thoại không hợp lệ!\nVui lòng nhập đúng định dạng VN (10 số, bắt đầu bằng 03x / 05x / 07x / 08x / 09x).",
+                    "Số điện thoại không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
@@ -204,6 +210,12 @@ namespace DoAn.ViewModel
             if (string.IsNullOrWhiteSpace(NewNhanVien.HOTEN_NV))
             {
                 MessageBox.Show("Họ tên không được để trống!", "Thiếu thông tin");
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(NewNhanVien.DIENTHOAI) && !Validator.IsValidPhone(NewNhanVien.DIENTHOAI))
+            {
+                MessageBox.Show("Số điện thoại không hợp lệ!\nVui lòng nhập đúng định dạng VN (10 số, bắt đầu bằng 03x / 05x / 07x / 08x / 09x).",
+                    "Số điện thoại không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

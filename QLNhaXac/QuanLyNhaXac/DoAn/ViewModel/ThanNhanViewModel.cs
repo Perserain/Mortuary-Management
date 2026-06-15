@@ -268,8 +268,14 @@ namespace DoAn.ViewModel
         private void ExecuteThem()
         {
             if (!DBConnect.RequireStaffOrAdmin("Thêm thân nhân")) return;
-            if (SelectedThiHai == null) { MessageBox.Show("Vui lòng chọn thi hài."); return; }
-            if (string.IsNullOrWhiteSpace(HOTEN_TN)) { MessageBox.Show("Họ tên thân nhân không được để trống."); return; }
+            if (SelectedThiHai == null) { MessageBox.Show("Vui lòng chọn thi hài.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+            if (string.IsNullOrWhiteSpace(HOTEN_TN)) { MessageBox.Show("Họ tên thân nhân không được để trống.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+            if (!string.IsNullOrWhiteSpace(DIENTHOAI) && !Validator.IsValidPhone(DIENTHOAI))
+            {
+                MessageBox.Show("Số điện thoại không hợp lệ!\nVui lòng nhập đúng định dạng VN (10 số, bắt đầu bằng 03x / 05x / 07x / 08x / 09x).",
+                    "Số điện thoại không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
@@ -311,7 +317,13 @@ namespace DoAn.ViewModel
         {
             if (!DBConnect.RequireStaffOrAdmin("Sửa thân nhân")) return;
             if (Selected == null) return;
-            if (string.IsNullOrWhiteSpace(HOTEN_TN)) { MessageBox.Show("Họ tên không được để trống."); return; }
+            if (string.IsNullOrWhiteSpace(HOTEN_TN)) { MessageBox.Show("Họ tên không được để trống.", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+            if (!string.IsNullOrWhiteSpace(DIENTHOAI) && !Validator.IsValidPhone(DIENTHOAI))
+            {
+                MessageBox.Show("Số điện thoại không hợp lệ!\nVui lòng nhập đúng định dạng VN (10 số, bắt đầu bằng 03x / 05x / 07x / 08x / 09x).",
+                    "Số điện thoại không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {

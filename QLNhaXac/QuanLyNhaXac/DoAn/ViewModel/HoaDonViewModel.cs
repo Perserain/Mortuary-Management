@@ -1,9 +1,12 @@
-﻿using DoAn.Core;
+﻿using ClosedXML.Excel;
+using DoAn.Core;
 using DoAn.Model;
 using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -142,6 +145,7 @@ namespace DoAn.ViewModel
         public ICommand TaiLaiCommand { get; set; }
         public ICommand TaoHoaDonCommand { get; set; }
         public ICommand ThanhToanCommand { get; set; }
+        public ICommand InHoaDonCommand { get; set; }
 
         public ICommand ChonTabCommand { get; set; } // <--- THÊM DÒNG NÀY
 
@@ -158,6 +162,8 @@ namespace DoAn.ViewModel
                                                        && Selected.TRANGTHAITT != "Đã thanh toán"
                                                        && Selected.TRANGTHAITT != "Miễn phí");
 
+
+            InHoaDonCommand = new RelayCommand(p => XuatHoaDonExcel(), p => Selected != null);
 
             ChonTabCommand = new RelayCommand(p => {
                 if (p != null) TabDangChon = p.ToString();
@@ -400,6 +406,141 @@ namespace DoAn.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Lỗi");
+            }
+        }
+        // ──────────────────────────────────────────────
+        //  IN / XUẤT HÓA ĐƠN RA EXCEL (S2-01)
+        // ──────────────────────────────────────────────
+        private void XuatHoaDonExcel()
+        {
+            if (!DBConnect.RequireStaffOrAdmin("In hóa đơn")) return;
+            if (Selected == null) return;
+
+            // Đảm bảo dịch vụ đã load
+            if (DSDichVuDaDung.Count == 0)
+            {
+                MessageBox.Show("Hóa đơn này chưa có dịch vụ nào để in.", "Thông báo",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dlg = new SaveFileDialog
+            {
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                FileName = $"HoaDon_{Selected.MAHD}_{DateTime.Now:yyyyMMdd}.xlsx",
+                Title = "Lưu hóa đơn"
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                using var wb = new XLWorkbook();
+                var ws = wb.Worksheets.Add("Hóa Đơn");
+
+                // === HEADER ===
+                ws.Cell("A1").Value = "NHÀ XÁC - BỆNH VIỆN";
+                ws.Cell("A1").Style.Font.Bold = true;
+                ws.Cell("A1").Style.Font.FontSize = 16;
+                ws.Range("A1:F1").Merge();
+                ws.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                ws.Cell("A2").Value = "HÓA ĐƠN DỊCH VỤ";
+                ws.Cell("A2").Style.Font.Bold = true;
+                ws.Cell("A2").Style.Font.FontSize = 13;
+                ws.Range("A2:F2").Merge();
+                ws.Cell("A2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                // === THÔNG TIN HÓA ĐƠN ===
+                ws.Cell("A4").Value = "Mã hóa đơn:";
+                ws.Cell("B4").Value = Selected.MAHD;
+                ws.Cell("A5").Value = "Thi hài:";
+                ws.Cell("B5").Value = Selected.HOTEN_TH;
+                ws.Cell("A6").Value = "Người nhận:";
+                ws.Cell("B6").Value = Selected.NGUOI_NHAN;
+                ws.Cell("A7").Value = "SĐT người nhận:";
+                ws.Cell("B7").Value = Selected.SDT_NGUOI_NHAN;
+                ws.Cell("D4").Value = "Ngày lập:";
+                ws.Cell("E4").Value = Selected.NGAYLAP?.ToString("dd/MM/yyyy");
+                ws.Cell("D5").Value = "Trạng thái:";
+                ws.Cell("E5").Value = Selected.TRANGTHAITT;
+                ws.Cell("D6").Value = "Người lập:";
+                ws.Cell("E6").Value = Selected.NGUOILAP;
+                ws.Cell("D7").Value = "Ghi chú:";
+                ws.Cell("E7").Value = Selected.GHICHU;
+
+                foreach (var cell in new[] { "A4", "A5", "A6", "A7", "D4", "D5", "D6", "D7" })
+                    ws.Cell(cell).Style.Font.Bold = true;
+
+                // === BẢNG DỊCH VỤ ===
+                int row = 10;
+                ws.Cell(row, 1).Value = "STT";
+                ws.Cell(row, 2).Value = "Tên dịch vụ";
+                ws.Cell(row, 3).Value = "Ngày sử dụng";
+                ws.Cell(row, 4).Value = "Giá tiền (VNĐ)";
+                ws.Cell(row, 5).Value = "Ghi chú";
+
+                var headerRange = ws.Range(row, 1, row, 5);
+                headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
+                headerRange.Style.Font.FontColor = XLColor.White;
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                int stt = 1;
+                decimal tongTien = 0;
+                foreach (var dv in DSDichVuDaDung)
+                {
+                    row++;
+                    ws.Cell(row, 1).Value = stt++;
+                    ws.Cell(row, 2).Value = dv.TenDV;
+                    ws.Cell(row, 3).Value = dv.NgaySD?.ToString("dd/MM/yyyy");
+                    ws.Cell(row, 4).Value = (double)dv.GiaTien;
+                    ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0";
+                    ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    ws.Cell(row, 5).Value = dv.GhiChu;
+                    tongTien += dv.GiaTien;
+
+                    if (stt % 2 == 0)
+                        ws.Range(row, 1, row, 5).Style.Fill.BackgroundColor = XLColor.FromHtml("#F8FAFC");
+                }
+
+                // === TỔNG TIỀN ===
+                row += 2;
+                ws.Cell(row, 3).Value = "TỔNG TIỀN:";
+                ws.Cell(row, 3).Style.Font.Bold = true;
+                ws.Cell(row, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                ws.Cell(row, 4).Value = (double)tongTien;
+                ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0";
+                ws.Cell(row, 4).Style.Font.Bold = true;
+                ws.Cell(row, 4).Style.Font.FontColor = XLColor.FromHtml("#DC2626");
+                ws.Cell(row, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                // === CHÂN TRANG ===
+                row += 3;
+                ws.Cell(row, 4).Value = "Ngày xuất: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+                ws.Cell(row, 4).Style.Font.Italic = true;
+
+                // === FORMAT ===
+                ws.Columns().AdjustToContents();
+                ws.Column(1).Width = 6;
+                ws.Column(4).Width = 18;
+
+                // Bo viền bảng dịch vụ
+                var tableRange = ws.Range(10, 1, row - 4, 5);
+                tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Hair;
+
+                wb.SaveAs(dlg.FileName);
+
+                var ask = MessageBox.Show(
+                    $"Đã lưu hóa đơn thành công!\n\nBạn có muốn mở file không?",
+                    "Xuất hóa đơn thành công", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (ask == MessageBoxResult.Yes)
+                    Process.Start(new ProcessStartInfo(dlg.FileName) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xuất hóa đơn: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

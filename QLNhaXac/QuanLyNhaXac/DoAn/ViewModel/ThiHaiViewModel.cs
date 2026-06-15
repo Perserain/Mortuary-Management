@@ -39,7 +39,10 @@ namespace DoAn.ViewModel
                         HoTenTH = _selectedThiHai.HoTenTH,
                         GioiTinh = _selectedThiHai.GioiTinh,
                         NgaySinh = _selectedThiHai.NgaySinh,
-                        NgayMat = _selectedThiHai.NgayMat
+                        NgayMat = _selectedThiHai.NgayMat,
+                        // S3-02
+                        NoiTimThay = _selectedThiHai.NoiTimThay,
+                        CoCuaNhan = _selectedThiHai.CoCuaNhan
                     };
                 }
                 else
@@ -63,6 +66,7 @@ namespace DoAn.ViewModel
         public ICommand ThemCommand { get; set; }
         public ICommand SuaCommand { get; set; }
         public ICommand XoaCommand { get; set; }
+        public ICommand BanGiaoCommand { get; set; }
         public ICommand XuatExcelCommand { get; set; }
         public ICommand TimSotCommand { get; set; }
         public ICommand XemChiTietCommand { get; set; }
@@ -70,6 +74,9 @@ namespace DoAn.ViewModel
         public ICommand ThanhLyCommand { get; set; }
         public ICommand TimTheoNgayCommand { get; set; }
         public ICommand TaiLaiDanhSachCommand { get; set; }
+
+        // ── Phân quyền Admin ──
+        public bool IsAdmin => DBConnect.IsAdmin;
 
         public ThiHaiViewModel()
         {
@@ -79,6 +86,10 @@ namespace DoAn.ViewModel
             ThemCommand = new RelayCommand(p => ThemThiHai(), p => NewThiHai != null && !string.IsNullOrWhiteSpace(NewThiHai.MaTH));
             SuaCommand = new RelayCommand(p => SuaThiHai(), p => NewThiHai != null && !string.IsNullOrWhiteSpace(NewThiHai.MaTH));
             XoaCommand = new RelayCommand(p => XoaThiHai(), p => NewThiHai != null && !string.IsNullOrWhiteSpace(NewThiHai.MaTH));
+            BanGiaoCommand = new RelayCommand(
+                p => BanGiaoThiHai(),
+                p => NewThiHai != null && !string.IsNullOrEmpty(NewThiHai.MaTH)
+            );
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             TimSotCommand = new RelayCommand(p => TimSot());
@@ -128,7 +139,10 @@ namespace DoAn.ViewModel
                     GioiTinh = row["GIOITINH"].ToString(),
                     NgaySinh = row["NGAYSINH"] != DBNull.Value ? (DateTime?)row["NGAYSINH"] : null,
                     NgayMat = row["NGAYMAT"] != DBNull.Value ? (DateTime?)row["NGAYMAT"] : null,
-                    NhomTuoi = row["NHOMTUOI"].ToString()
+                    NhomTuoi = row["NHOMTUOI"].ToString(),
+                    // S3-02: Trường pháp y
+                    NoiTimThay = row.Table.Columns.Contains("NOITIMTHAY") && row["NOITIMTHAY"] != DBNull.Value ? row["NOITIMTHAY"].ToString() : null,
+                    CoCuaNhan = row.Table.Columns.Contains("COCUANHAN") && row["COCUANHAN"] != DBNull.Value ? row["COCUANHAN"].ToString() : null
                 });
             }
             DemSoLuongThiHai();
@@ -148,7 +162,7 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "EXEC SP_ThemThiHai @ma, @ten, @ns, @nm, @gt";
+                    string sql = "EXEC SP_ThemThiHai @ma, @ten, @ns, @nm, @gt, @noiTimThay, @coCuaNhan";
                     var cmd = new SqlCommand(sql, conn);
 
                     cmd.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
@@ -156,6 +170,9 @@ namespace DoAn.ViewModel
                     cmd.Parameters.AddWithValue("@gt", NewThiHai.GioiTinh ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@ns", NewThiHai.NgaySinh ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@nm", NewThiHai.NgayMat ?? (object)DBNull.Value);
+                    // S3-02
+                    cmd.Parameters.AddWithValue("@noiTimThay", string.IsNullOrWhiteSpace(NewThiHai.NoiTimThay) ? DBNull.Value : (object)NewThiHai.NoiTimThay);
+                    cmd.Parameters.AddWithValue("@coCuaNhan", string.IsNullOrWhiteSpace(NewThiHai.CoCuaNhan) ? DBNull.Value : (object)NewThiHai.CoCuaNhan);
 
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Thêm thành công!");
@@ -174,7 +191,7 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sqlUpdate = "EXEC SP_SuaThiHai @ma, @ten, @ns, @nm, @gt";
+                    string sqlUpdate = "EXEC SP_SuaThiHai @ma, @ten, @ns, @nm, @gt, @noiTimThay, @coCuaNhan";
                     var cmdUpdate = new SqlCommand(sqlUpdate, conn);
 
                     cmdUpdate.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
@@ -182,6 +199,9 @@ namespace DoAn.ViewModel
                     cmdUpdate.Parameters.AddWithValue("@gt", string.IsNullOrWhiteSpace(NewThiHai.GioiTinh) ? DBNull.Value : (object)NewThiHai.GioiTinh);
                     cmdUpdate.Parameters.AddWithValue("@ns", NewThiHai.NgaySinh ?? (object)DBNull.Value);
                     cmdUpdate.Parameters.AddWithValue("@nm", NewThiHai.NgayMat ?? (object)DBNull.Value);
+                    // S3-02
+                    cmdUpdate.Parameters.AddWithValue("@noiTimThay", string.IsNullOrWhiteSpace(NewThiHai.NoiTimThay) ? DBNull.Value : (object)NewThiHai.NoiTimThay);
+                    cmdUpdate.Parameters.AddWithValue("@coCuaNhan", string.IsNullOrWhiteSpace(NewThiHai.CoCuaNhan) ? DBNull.Value : (object)NewThiHai.CoCuaNhan);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
@@ -507,10 +527,86 @@ namespace DoAn.ViewModel
             }
         }
 
+        // --- HÀM BÀN GIAO THI HÀI
+        private void BanGiaoThiHai()
+        {
+            if (!DBConnect.RequireStaffOrAdmin("Bàn giao thi hài")) return;
+
+            var confirm = MessageBox.Show(
+                $"Bạn có chắc muốn bàn giao thi hài [{NewThiHai.MaTH} - {NewThiHai.HoTenTH}]?\n\n" +
+                "Thao tác này sẽ:\n" +
+                "  • Đánh dấu thi hài là ĐÃ BÀN GIAO\n" +
+                "  • Giải phóng ngăn kéo đang sử dụng\n\n" +
+                "Lưu ý: Hóa đơn phải được thanh toán trước khi bàn giao.",
+                "Xác nhận Bàn Giao",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+
+                    // Bắt PRINT messages từ SP (SP dùng PRINT thay vì RAISERROR)
+                    string serverMessage = string.Empty;
+                    conn.InfoMessage += (sender, e) => { serverMessage = e.Message; };
+
+                    var cmd = new SqlCommand("EXEC SP_BanGiaoThiHai @maTH", conn);
+                    cmd.Parameters.AddWithValue("@maTH", NewThiHai.MaTH);
+                    cmd.ExecuteNonQuery();
+
+                    // SP dùng PRINT để báo lỗi nghiệp vụ (chưa thanh toán)
+                    if (!string.IsNullOrEmpty(serverMessage) && serverMessage.Contains("Chưa thể"))
+                    {
+                        MessageBox.Show(serverMessage, "Không thể Bàn Giao", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    MessageBox.Show(
+                        $"Đã bàn giao thi hài [{NewThiHai.MaTH}] thành công!\nNgăn kéo đã được giải phóng.",
+                        "Bàn Giao Thành Công",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    LoadData();
+                    ResetForm();
+                }
+            }
+            catch (SqlException ex)
+            {
+                // Lỗi nghiệp vụ rõ ràng từ DB (nếu SP nâng cấp lên RAISERROR sau này)
+                if (ex.Number >= 50000)
+                    MessageBox.Show(ex.Message, "Không thể Bàn Giao", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show(
+                        $"Lỗi cơ sở dữ liệu khi bàn giao:\n{ex.Message}",
+                        "Lỗi",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi không xác định:\n{ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         // --- HÀM THANH LÝ THI HÀI QUÁ HẠN
         private void ThanhLyThiHaiHangLoat()
         {
-            if (!DBConnect.RequireStaffOrAdmin("Thanh lý thi hài")) return;
+            if (!DBConnect.RequireAdmin("Dọn dẹp thi hài quá hạn")) return;
+
+            var confirm = MessageBox.Show(
+                "⚠️ CẢNH BÁO: Hành động này sẽ XÓA VĨNH VIỄN toàn bộ thi hài đã lưu quá 15 ngày!\n\n" +
+                "Dữ liệu liên quan (ngăn kéo, hóa đơn, hồ sơ...) cũng sẽ bị xóa theo.\n\n" +
+                "Hành động này KHÔNG THỂ HOÀN TÁC. Bạn có chắc chắn muốn tiếp tục không?",
+                "⚠️ Xác nhận dọn dẹp thi hài",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirm != MessageBoxResult.Yes) return;
 
             try
             {

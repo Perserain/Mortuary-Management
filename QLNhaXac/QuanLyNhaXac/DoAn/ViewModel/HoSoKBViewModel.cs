@@ -5,6 +5,7 @@ using DoAn.Views.Shared;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using Microsoft.Data.SqlClient;
 using System.Windows;
 using System.Windows.Input;
@@ -16,6 +17,21 @@ namespace DoAn.ViewModel
         public ObservableCollection<HoSoKBModel> DanhSachHoSo { get; set; }
         public ObservableCollection<KhamNghiemTheoBacSiModel> DanhSachKhamNghiemTheoBacSi { get; set; }
         public ObservableCollection<KhamNghiemTheoTuThiModel> DanhSachKhamNghiemTheoTuThi { get; set; }
+        public ObservableCollection<BacSiModel> DanhSachBacSi { get; set; }
+
+        private BacSiModel _selectedBacSi;
+        public BacSiModel SelectedBacSi
+        {
+            get => _selectedBacSi;
+            set
+            {
+                _selectedBacSi = value;
+                OnPropertyChanged();
+                // Gán ngược về NewHoSo.MaBS để SP call vẫn dùng được
+                if (NewHoSo != null)
+                    NewHoSo.MaBS = value?.MaBS ?? string.Empty;
+            }
+        }
 
         private string _maBSTraCuu;
         public string MaBSTraCuu
@@ -56,6 +72,9 @@ namespace DoAn.ViewModel
                         KetLuan = _selectedHoSo.KetLuan,
                         TgKham = _selectedHoSo.TgKham
                     };
+                    // Đồng bộ ComboBox bác sĩ về đúng mục đang chọn
+                    _selectedBacSi = DanhSachBacSi.FirstOrDefault(b => b.MaBS == _selectedHoSo.MaBS);
+                    OnPropertyChanged(nameof(SelectedBacSi));
                 }
                 else
                 {
@@ -80,6 +99,7 @@ namespace DoAn.ViewModel
             DanhSachHoSo = new ObservableCollection<HoSoKBModel>();
             DanhSachKhamNghiemTheoBacSi = new ObservableCollection<KhamNghiemTheoBacSiModel>();
             DanhSachKhamNghiemTheoTuThi = new ObservableCollection<KhamNghiemTheoTuThiModel>();
+            DanhSachBacSi = new ObservableCollection<BacSiModel>();
 
             LoadCommand = new RelayCommand(p => LoadData());
             ThemCommand = new RelayCommand(p => ThemHoSo());
@@ -93,6 +113,7 @@ namespace DoAn.ViewModel
             LamMoiTraCuuCommand = new RelayCommand(p => LamMoiTraCuu());
 
             LoadData();
+            LoadDanhSachBacSi();
             ResetForm();
         }
 
@@ -113,6 +134,28 @@ namespace DoAn.ViewModel
                     KetLuan = row["KETLUAN"].ToString(),
                     TgKham = row["THOIGIANKHAM"] != DBNull.Value ? (DateTime?)row["THOIGIANKHAM"] : null
                 });
+            }
+        }
+
+        private void LoadDanhSachBacSi()
+        {
+            if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+            DanhSachBacSi.Clear();
+            try
+            {
+                DataTable dt = DBConnect.GetData("SELECT MABS, HOTEN_BS FROM BACSI ORDER BY HOTEN_BS");
+                foreach (DataRow row in dt.Rows)
+                {
+                    DanhSachBacSi.Add(new BacSiModel
+                    {
+                        MaBS = row["MABS"].ToString(),
+                        HoTenBS = row["HOTEN_BS"].ToString()
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi tải danh sách bác sĩ: " + ex.Message);
             }
         }
 
@@ -141,6 +184,8 @@ namespace DoAn.ViewModel
         {
             NewHoSo = new HoSoKBModel { TgKham = DateTime.Now }; 
             NewHoSo.MaHS = TaoMaHS();
+            _selectedBacSi = null;
+            OnPropertyChanged(nameof(SelectedBacSi));
         }
 
         private void ThemHoSo()

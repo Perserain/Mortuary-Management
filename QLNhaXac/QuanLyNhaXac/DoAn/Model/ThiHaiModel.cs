@@ -14,6 +14,9 @@ namespace DoAn.Model
         private DateTime? _ngayMat;
         private string _gioiTinh;
         private string _nhomTuoi;
+        // ── S3-02: Trường pháp y bổ sung ──
+        private string _noiTimThay;
+        private string _coCuaNhan;
 
         public string MaTH
         {
@@ -69,6 +72,19 @@ namespace DoAn.Model
                 _nhomTuoi = value;
                 OnPropertyChanged();
             }
+        }
+
+        // ── S3-02: Trường pháp y ──
+        public string NoiTimThay
+        {
+            get => _noiTimThay;
+            set { _noiTimThay = value; OnPropertyChanged(); }
+        }
+
+        public string CoCuaNhan
+        {
+            get => _coCuaNhan;
+            set { _coCuaNhan = value; OnPropertyChanged(); }
         }
     }
 }

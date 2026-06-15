@@ -289,6 +289,11 @@
                             <Button Content="THANH TOÁN" Style="{StaticResource BtnStyle}"
                                     Background="#3B82F6" HorizontalAlignment="Stretch"
                                     Command="{Binding ThanhToanCommand}"/>
+                            <Button Content="🖨️ IN HÓA ĐƠN (Excel)" Style="{StaticResource BtnStyle}"
+                                    Background="#0F766E" HorizontalAlignment="Stretch"
+                                    Margin="0,8,0,0"
+                                    ToolTip="Xuất hóa đơn đang chọn ra file Excel"
+                                    Command="{Binding InHoaDonCommand}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

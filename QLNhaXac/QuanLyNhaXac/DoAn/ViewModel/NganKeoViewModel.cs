@@ -46,7 +46,9 @@ namespace DoAn.ViewModel
                         MaNgan = _selectedNganKeo.MaNgan,
                         ViTri = _selectedNganKeo.ViTri,
                         NhietDo = _selectedNganKeo.NhietDo,
-                        MaTH = _selectedNganKeo.MaTH
+                        MaTH = _selectedNganKeo.MaTH,
+                        NhietDoCanhBao = _selectedNganKeo.NhietDoCanhBao,   // S2-04
+                        NgayBaoTri = _selectedNganKeo.NgayBaoTri              // S3-03
                     };
                     CapNhatTrangThai();
                 }
@@ -66,6 +68,16 @@ namespace DoAn.ViewModel
         public ICommand XemChiTietCommand { get; set; }
         public ICommand CapNhatTrangThaiCommand { get; set; }
         public ICommand LocNganKeoTrongCommand { get; set; }
+        // S3-03
+        public ICommand GhiNhanBaoTriCommand { get; set; }
+
+        // S3-03: Tóm tắt bảo trì
+        private string _tomTatBaoTri = "";
+        public string TomTatBaoTri
+        {
+            get => _tomTatBaoTri;
+            set { _tomTatBaoTri = value; OnPropertyChanged(); }
+        }
 
         public NganKeoViewModel()
         {
@@ -80,6 +92,11 @@ namespace DoAn.ViewModel
             XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
             CapNhatTrangThaiCommand = new RelayCommand(p => CapNhatTrangThai(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
             LocNganKeoTrongCommand = new RelayCommand(p => LocNganKeoTrong());
+            // S3-03
+            GhiNhanBaoTriCommand = new RelayCommand(
+                p => GhiNhanBaoTri(),
+                p => SelectedNganKeo != null && !string.IsNullOrEmpty(SelectedNganKeo.MaNgan)
+            );
 
             LoadData();
             ResetForm();
@@ -99,9 +116,18 @@ namespace DoAn.ViewModel
                     MaNgan = row["MANGAN"].ToString(),
                     ViTri = row["VITRI"].ToString(),
                     NhietDo = row["NHIETDO"] != DBNull.Value ? Convert.ToDouble(row["NHIETDO"]) : 0,
-                    MaTH = row["MATH"].ToString()
+                    MaTH = row["MATH"].ToString(),
+                    // S2-04: load ngưỡng cảnh báo (nullable — ngăn chưa cài để null)
+                    NhietDoCanhBao = row.Table.Columns.Contains("NHIETDO_CANH_BAO") && row["NHIETDO_CANH_BAO"] != DBNull.Value
+                        ? Convert.ToDouble(row["NHIETDO_CANH_BAO"])
+                        : (double?)null,
+                    // S3-03: ngày bảo trì
+                    NgayBaoTri = row.Table.Columns.Contains("NGAY_BAO_TRI") && row["NGAY_BAO_TRI"] != DBNull.Value
+                        ? (DateTime?)row["NGAY_BAO_TRI"]
+                        : null
                 });
             }
+            CapNhatTomTatBaoTri();
         }
 
         private void XemChiTiet()
@@ -171,13 +197,14 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sqlUpdate = "EXEC SP_SuaNganKeo @ma, @vt, @nd, @math";
+                    string sqlUpdate = "EXEC SP_SuaNganKeo @ma, @vt, @nd, @math, @canh_bao";
                     var cmdUpdate = new SqlCommand(sqlUpdate, conn);
 
                     cmdUpdate.Parameters.AddWithValue("@ma", NewNganKeo.MaNgan);
                     cmdUpdate.Parameters.AddWithValue("@vt", string.IsNullOrWhiteSpace(NewNganKeo.ViTri) ? DBNull.Value : (object)NewNganKeo.ViTri);
                     cmdUpdate.Parameters.AddWithValue("@nd", NewNganKeo.NhietDo);
                     cmdUpdate.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewNganKeo.MaTH) ? DBNull.Value : (object)NewNganKeo.MaTH);
+                    cmdUpdate.Parameters.AddWithValue("@canh_bao", NewNganKeo.NhietDoCanhBao.HasValue ? (object)NewNganKeo.NhietDoCanhBao.Value : DBNull.Value);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
@@ -366,6 +393,55 @@ namespace DoAn.ViewModel
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi nhập từ file: " + ex.Message); }
             }
+        }
+
+        // ── S3-03: Ghi nhận bảo trì ──
+        private void GhiNhanBaoTri()
+        {
+            if (!DBConnect.RequireAdmin("Ghi nhận bảo trì ngăn kéo")) return;
+
+            // Hiện dialog chọn ngày bảo trì
+            var dialog = new Views.Shared.ChonNgayBaoTriDialog(SelectedNganKeo.MaNgan, SelectedNganKeo.NgayBaoTri);
+            if (dialog.ShowDialog() != true) return;
+
+            DateTime ngayChon = dialog.NgayChon;
+
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    var cmd = new SqlCommand("EXEC SP_CapNhat_NgayBaoTri @maNgan, @ngay", conn);
+                    cmd.Parameters.AddWithValue("@maNgan", SelectedNganKeo.MaNgan);
+                    cmd.Parameters.AddWithValue("@ngay", ngayChon.Date);
+                    cmd.ExecuteNonQuery();
+
+                    MessageBox.Show(
+                        $"Đã cập nhật lịch bảo trì ngăn [{SelectedNganKeo.MaNgan}].\nNgày bảo trì: {ngayChon:dd/MM/yyyy}",
+                        "Cập Nhật Thành Công",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    LoadData();
+                    ResetForm();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi cập nhật lịch bảo trì: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CapNhatTomTatBaoTri()
+        {
+            int soNganQuaHan = 0;
+            foreach (var nk in DanhSachNganKeo)
+            {
+                if (nk.IsBaoTriOverdue) soNganQuaHan++;
+            }
+            TomTatBaoTri = soNganQuaHan > 0
+                ? $"⚠️ {soNganQuaHan} ngăn cần bảo trì"
+                : "✅ Tất cả ngăn đều trong hạn bảo trì";
         }
     }
 }

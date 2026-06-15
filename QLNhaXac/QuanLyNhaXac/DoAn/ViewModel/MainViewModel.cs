@@ -67,6 +67,7 @@ namespace DoAn.ViewModel
         public ICommand ShowCanhBaoCommand { get; set; }
         public ICommand ShowNhanVienCommand { get; set; }
         public ICommand ShowAuditLogCommand { get; set; }
+        public ICommand ShowTimKiemCommand { get; set; }  // S3-01
         public MainViewModel()
         {
             CurrentView = new DashboardViewModel();
@@ -86,6 +87,7 @@ namespace DoAn.ViewModel
             ShowCanhBaoCommand = new RelayCommand(p => CurrentView = new CanhBaoViewModel());
             ShowNhanVienCommand = new RelayCommand(p => CurrentView = new NhanVienViewModel());
             ShowAuditLogCommand = new RelayCommand(p => CurrentView = new AuditLogViewModel());
+            ShowTimKiemCommand = new RelayCommand(p => CurrentView = new TimKiemViewModel()); // S3-01
 
 
             // Khởi tạo lệnh Đăng Xuất

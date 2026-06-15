@@ -30,7 +30,7 @@ namespace DoAn.Model
         public double NhietDo 
         { 
             get => _nhietDo; 
-            set { _nhietDo = value; OnPropertyChanged(); } 
+            set { _nhietDo = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsWarning)); } 
         }
 
         public string MaTH {
@@ -43,5 +43,29 @@ namespace DoAn.Model
             get => _hoTenTH; 
             set { _hoTenTH = value; OnPropertyChanged(); } 
         }
+
+        // ── S2-04: Ngưỡng nhiệt độ cảnh báo từng ngăn ──
+        private double? _nhietDoCanhBao;
+        public double? NhietDoCanhBao
+        {
+            get => _nhietDoCanhBao;
+            set { _nhietDoCanhBao = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsWarning)); }
+        }
+
+        // True khi nhiệt độ hiện tại vượt ngưỡng cảnh báo
+        public bool IsWarning =>
+            NhietDoCanhBao.HasValue && NhietDo > NhietDoCanhBao.Value;
+
+        // ── S3-03: Lịch bảo trì ──
+        private DateTime? _ngayBaoTri;
+        public DateTime? NgayBaoTri
+        {
+            get => _ngayBaoTri;
+            set { _ngayBaoTri = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsBaoTriOverdue)); }
+        }
+
+        // True khi ngày bảo trì đã qua (quá hạn)
+        public bool IsBaoTriOverdue =>
+            NgayBaoTri.HasValue && NgayBaoTri.Value.Date < DateTime.Today;
     }
 }

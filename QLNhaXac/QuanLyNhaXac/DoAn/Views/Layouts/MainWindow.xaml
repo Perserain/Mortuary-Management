@@ -57,6 +57,10 @@
         <DataTemplate DataType="{x:Type vm:BackupRestoreViewModel}">
             <views:BackupRestore/>
         </DataTemplate>
+        <!-- S3-01: Tìm kiếm toàn hệ thống -->
+        <DataTemplate DataType="{x:Type vm:TimKiemViewModel}">
+            <views:TimKiem/>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -117,6 +121,8 @@
                         <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
                         <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
                         <Button Content="Hóa Đơn" Command="{Binding ShowHoaDonCommand}"/>
+                        <!-- S3-01: Tìm kiếm -->
+                        <Button Content="🔍 Tìm Kiếm" Command="{Binding ShowTimKiemCommand}"/>
                         <Grid Margin="0,5">
                             <Button Content="🔔  Cảnh Báo" Command="{Binding ShowCanhBaoCommand}"/>
                             <Border x:Name="BadgeCB"

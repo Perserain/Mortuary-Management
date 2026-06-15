@@ -7,6 +7,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="650" d:DesignWidth="850">
 
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,6 +27,7 @@
             </Border.Effect>
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -78,7 +83,18 @@
                     <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"/>
                     <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"/>
                     <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"/>
+                    <Button Content="🚪 BÀN GIAO" Command="{Binding BanGiaoCommand}" Background="#DC2626" Width="100"/>
                 </StackPanel>
+
+                <!-- S3-02: Trường pháp y -->
+                <TextBlock Text="Nơi Tìm Thấy:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,15,10,0"/>
+                <TextBox Text="{Binding NewThiHai.NoiTimThay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         Grid.Row="3" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,15,0,0"
+                         ToolTip="Địa điểm phát hiện thi hài (nếu có)"/>
+                <TextBlock Text="Cơ Quan Nhận:" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,15,10,0"/>
+                <TextBox Text="{Binding NewThiHai.CoCuaNhan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         Grid.Row="3" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,15,0,0"
+                         ToolTip="Cơ quan hoặc đơn vị bàn giao thi hài"/>
             </Grid>
         </Border>
 
@@ -152,7 +168,9 @@
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="TÌM THI HÀI SÓT" Command="{Binding TimSotCommand}" Background="#F97316"/>
-                <Button Content="THANH LÝ QUÁ HẠN" Command="{Binding ThanhLyCommand}" Background="#64748B"/>
+                <Button Content="THANH LÝ QUÁ HẠN" Command="{Binding ThanhLyCommand}" Background="#DC2626"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"
+                        ToolTip="⚠️ Xóa tất cả thi hài đã lưu quá 15 ngày (chỉ Admin — KHÔNG THỂ HOÀN TÁC)"/>
                 <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
                 <Button Content="XUẤT EXCEL" Command="{Binding XuatExcelCommand}" Background="#3B82F6"/>
             </StackPanel>

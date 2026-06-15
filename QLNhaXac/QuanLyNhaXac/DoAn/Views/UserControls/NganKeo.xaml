@@ -26,6 +26,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -47,7 +48,13 @@
 
                 <TextBlock Text="Mã Thi Hài Nằm:" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
                 <TextBox Text="{Binding NewNganKeo.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
-                <StackPanel Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,45,0,-45">
+
+                <!-- S2-04: Ngưỡng nhiệt độ cảnh báo -->
+                <TextBlock Text="Ngưỡng Cảnh Báo (°C):" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#D97706" Margin="0,10,10,0"/>
+                <TextBox Text="{Binding NewNganKeo.NhietDoCanhBao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                         Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,10,0,0"
+                         ToolTip="Nhập ngưỡng nhiệt độ cảnh báo (°C). Để trống nếu không cần cảnh báo."/>
+                <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                     <StackPanel.Resources>
                         <Style TargetType="Button">
                             <Setter Property="Width" Value="80"/>
@@ -73,9 +80,9 @@
                     <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"/>
                 </StackPanel>
 
-                <TextBlock Text="Trạng Thái:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,12,10,0"/>
-                <TextBox Text="{Binding TrangThaiNganKeo}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,12,0,0" IsReadOnly="True" Background="#E2E8F0" Foreground="#475569"/>
-                <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                <TextBlock Text="Trạng Thái:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,12,10,0"/>
+                <TextBox Text="{Binding TrangThaiNganKeo}" Grid.Row="3" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,12,0,0" IsReadOnly="True" Background="#E2E8F0" Foreground="#475569"/>
+                <StackPanel Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
                     <StackPanel.Resources>
                         <Style TargetType="Button">
                             <Setter Property="Width" Value="140"/>
@@ -107,6 +114,22 @@
             </Border.Effect>
             <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
                       ItemsSource="{Binding DanhSachNganKeo}" SelectedItem="{Binding SelectedNganKeo}">
+                <!-- S2-04: Tô đỏ hàng khi nhiệt độ vượt ngưỡng cảnh báo -->
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsWarning}" Value="True">
+                                <Setter Property="Background" Value="#FEE2E2"/>
+                                <Setter Property="ToolTip" Value="⚠️ Nhiệt độ vượt ngưỡng cảnh báo!"/>
+                            </DataTrigger>
+                            <!-- S3-03: Tô vàng hàng khi ngăn quá hạn bảo trì -->
+                            <DataTrigger Binding="{Binding IsBaoTriOverdue}" Value="True">
+                                <Setter Property="Background" Value="#FEF9C3"/>
+                                <Setter Property="ToolTip" Value="🔧 Ngăn kéo đã quá hạn bảo trì!"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#F1F5F9"/>
@@ -129,7 +152,25 @@
                     <DataGridTextColumn Header="Mã Ngăn" Binding="{Binding MaNgan}" Width="100"/>
                     <DataGridTextColumn Header="Vị Trí" Binding="{Binding ViTri}" Width="150"/>
                     <DataGridTextColumn Header="Nhiệt Độ" Binding="{Binding NhietDo, StringFormat={}{0} °C}" Width="100" FontWeight="SemiBold" Foreground="#3B82F6"/>
+                    <!-- S2-04: Cột ngưỡng cảnh báo -->
+                    <DataGridTextColumn Header="Ngưỡng Cảnh Báo" Binding="{Binding NhietDoCanhBao, StringFormat={}{0} °C, TargetNullValue='—'}" Width="130">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#D97706"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
                     <DataGridTextColumn Header="Mã Thi Hài (Người đang nằm)" Binding="{Binding MaTH}" Width="*"/>
+                    <!-- S3-03: Cột ngày bảo trì -->
+                    <DataGridTextColumn Header="Ngày Bảo Trì" Binding="{Binding NgayBaoTri, StringFormat=dd/MM/yyyy, TargetNullValue='Chưa đặt'}" Width="110">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#92400E"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -155,6 +196,9 @@
                     </Setter>
                 </Style>
             </StackPanel.Resources>
+            <!-- S3-03: Tóm tắt bảo trì -->
+            <TextBlock Text="{Binding TomTatBaoTri}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#92400E" Margin="0,0,15,0"/>
+            <Button Content="🔧 Ghi Nhận Bảo Trì" Command="{Binding GhiNhanBaoTriCommand}" Background="#D97706"/>
             <Button Content="NGĂN TRỐNG" Command="{Binding LocNganKeoTrongCommand}" Background="#F97316"/>
             <Button Content="TẤT CẢ" Command="{Binding LoadCommand}" Background="#64748B"/>
             <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
