@@ -133,7 +133,7 @@ namespace DoAn.ViewModel
                                     MATH = row["MATH"].ToString(),
                                     NGAYLAP = row["NGAYLAP"] != DBNull.Value ? (DateTime?)row["NGAYLAP"] : null,
                                     TONGTIEN = row["TONGTIEN"] != DBNull.Value ? Convert.ToDecimal(row["TONGTIEN"]) : 0,
-                                    TRANGTHAITT = row["TRANGTHAI"].ToString()
+                                    TRANGTHAITT = row["TRANGTHAITT"].ToString()
                                 });
                             }
                         }
