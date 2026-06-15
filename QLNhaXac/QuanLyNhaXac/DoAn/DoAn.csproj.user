@@ -17,6 +17,9 @@
     <Compile Update="Views\Auth\Register.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\UserControls\DashboardView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\UserControls\QuanLyNhomQuyen.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

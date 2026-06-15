@@ -12,6 +12,10 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+        
         <DataTemplate DataType="{x:Type vm:BacSiViewModel}">
             <views:BacSi/>
         </DataTemplate>
@@ -90,12 +94,14 @@
                             </Style>
                         </StackPanel.Resources>
 
+                        <Button Content="Dashboard" Command="{Binding ShowDashboardCommand}"/>
                         <Button Content="Quản Lý Bác Sĩ" Command="{Binding ShowBacSiCommand}"/>
                         <Button Content="Hồ Sơ Khám Nghiệm" Command="{Binding ShowHoSoCommand}"/>
                         <Button Content="Bảng Giá Dịch Vụ" Command="{Binding ShowDichVuCommand}"/>
                         <Button Content="Quản Lý Thi Hài" Command="{Binding ShowThiHaiCommand}"/>
                         <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
                         <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
+                        
                         <!-- Chỉ Admin mới thấy menu phân quyền -->
                         <Button Content="Quản Lý Tài Khoản"
                             Command="{Binding ShowQuanLyTaiKhoanCommand}"

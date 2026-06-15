@@ -37,11 +37,13 @@ namespace DoAn.ViewModel
         public ICommand ShowQuanLyTaiKhoanCommand { get; set; }
         public ICommand ShowQuanLyNhomQuyenCommand { get; set; }
         public ICommand ShowBackupRestoreCommand { get; set; }
+        public ICommand ShowDashboardCommand { get; set; }
 
         public MainViewModel()
         {
-            CurrentView = new BacSiViewModel();
+            CurrentView = new DashboardViewModel();
 
+            ShowDashboardCommand = new RelayCommand(p => CurrentView = new DashboardViewModel());
             ShowBacSiCommand = new RelayCommand(p => CurrentView = new BacSiViewModel());
             ShowHoSoCommand = new RelayCommand(p => CurrentView = new HoSoKBViewModel());
             ShowThiHaiCommand = new RelayCommand(p => CurrentView = new ThiHaiViewModel());
