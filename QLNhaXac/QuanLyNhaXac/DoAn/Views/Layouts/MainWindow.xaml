@@ -142,6 +142,9 @@
                             Command="{Binding ShowNhanVienCommand}"
                             Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
 
+                        <Border Height="1" Background="#334155" Margin="10,10,10,10" 
+                Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
                         <Button Content="Quản Lý Tài Khoản"
                             Command="{Binding ShowQuanLyTaiKhoanCommand}"
                             Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
