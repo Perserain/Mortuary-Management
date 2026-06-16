@@ -84,6 +84,7 @@ namespace DoAn.ViewModel
         }
 
         public ICommand LoadCommand { get; set; }
+        public bool IsAdmin => DBConnect.IsAdmin;
         public ICommand ThemCommand { get; set; }
         public ICommand SuaCommand { get; set; }
         public ICommand XoaCommand { get; set; }
@@ -190,7 +191,7 @@ namespace DoAn.ViewModel
 
         private void ThemHoSo()
         {
-            if (!DBConnect.RequireAdmin("Thêm hồ sơ khám")) return;
+            if (!DBConnect.RequireDoctorOrAdmin("Thêm hồ sơ khám")) return;
             if (string.IsNullOrWhiteSpace(NewHoSo.MaTH) || string.IsNullOrWhiteSpace(NewHoSo.MaBS))
             {
                 MessageBox.Show("Nhập thiếu Mã HS, Mã Thi Hài hoặc Mã Bác Sĩ!");
@@ -226,7 +227,7 @@ namespace DoAn.ViewModel
 
         private void SuaHoSo()
         {
-            if (!DBConnect.RequireAdmin("Sửa hồ sơ khám")) return;
+            if (!DBConnect.RequireDoctorOrAdmin("Sửa hồ sơ khám")) return;
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))

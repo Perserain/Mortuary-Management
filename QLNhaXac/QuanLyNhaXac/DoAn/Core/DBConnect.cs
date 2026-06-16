@@ -16,12 +16,23 @@ namespace DoAn.Core
         public static string QuyenHan = "";
         public static bool IsAdmin => string.Equals(QuyenHan, "Admin", StringComparison.OrdinalIgnoreCase);
         public static bool IsStaff => string.Equals(QuyenHan, "Staff", StringComparison.OrdinalIgnoreCase);
+        public static bool IsDoctor => string.Equals(QuyenHan, "Doctor", StringComparison.OrdinalIgnoreCase);
+
+        public static bool RequireDoctorOrAdmin(string action)
+        {
+            if (IsAdmin || IsDoctor) return true;
+
+            MessageBox.Show(
+                $"Tài khoản hiện tại không có quyền \"{action}\". Chức năng này chỉ dành cho Bác Sĩ hoặc Admin.",
+                "Yêu cầu quyền");
+            return false;
+        }
 
         public static bool RequireAdmin(string action)
         {
             if (IsAdmin) return true;
 
-            string message = IsStaff
+            string message = (IsStaff || IsDoctor)
                 ? $"Chức năng \"{action}\" chỉ dành cho Admin. Vui lòng gửi yêu cầu để Admin duyệt."
                 : $"Tài khoản hiện tại chỉ có quyền đọc. Vui lòng liên hệ Admin để duyệt \"{action}\".";
 
@@ -141,3 +152,4 @@ namespace DoAn.Core
         }
     }
 }
+

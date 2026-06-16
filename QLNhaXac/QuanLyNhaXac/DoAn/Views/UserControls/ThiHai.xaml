@@ -21,7 +21,8 @@
 
         <TextBlock Grid.Row="0" Text="QUẢN LÝ THI HÀI" FontSize="26" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
 
-        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,15">
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,15"
+                Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
             </Border.Effect>
@@ -80,10 +81,14 @@
                             </Setter>
                         </Style>
                     </StackPanel.Resources>
-                    <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"/>
-                    <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"/>
-                    <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"/>
-                    <Button Content="🚪 BÀN GIAO" Command="{Binding BanGiaoCommand}" Background="#DC2626" Width="100"/>
+                    <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="🚪 BÀN GIAO" Command="{Binding BanGiaoCommand}" Background="#DC2626" Width="100"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
 
                 <!-- S3-02: Trường pháp y -->

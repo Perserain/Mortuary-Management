@@ -75,8 +75,10 @@ namespace DoAn.ViewModel
         public ICommand TimTheoNgayCommand { get; set; }
         public ICommand TaiLaiDanhSachCommand { get; set; }
 
-        // ── Phân quyền Admin ──
+        // ── Phân quyền ──
         public bool IsAdmin => DBConnect.IsAdmin;
+        // Admin và Staff mới được chỉnh sửa thi hài — Bác sĩ chỉ được xem
+        public bool CanEditThiHai => DBConnect.IsAdmin || DBConnect.IsStaff;
 
         public ThiHaiViewModel()
         {

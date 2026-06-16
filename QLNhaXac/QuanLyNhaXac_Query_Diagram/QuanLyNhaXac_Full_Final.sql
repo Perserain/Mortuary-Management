@@ -2260,3 +2260,59 @@ BEGIN
     WHERE MATH = @MATH
 END
 GO
+
+-- ============================================================
+-- PATCH SQL: Thêm role Doctor vào stored procedure SP_KiemTraQuyenHan
+-- (Nếu SP đang trả về 'Admin' / 'Staff' / 'ReadOnly')
+--
+-- Mở SP_KiemTraQuyenHan và thêm điều kiện Doctor, ví dụ:
+-- ============================================================
+
+ALTER PROCEDURE SP_KiemTraQuyenHan
+AS
+BEGIN
+    -- Lấy tên role của login hiện tại
+    DECLARE @role NVARCHAR(50);
+
+    SELECT @role = r.name
+    FROM sys.database_role_members rm
+    JOIN sys.database_principals r ON r.principal_id = rm.role_principal_id
+    JOIN sys.database_principals u ON u.principal_id = rm.member_principal_id
+    WHERE u.name = USER_NAME()
+    ORDER BY r.name;
+
+    -- Map role SQL → role ứng dụng
+    SELECT CASE
+        WHEN @role = 'db_owner'     THEN 'Admin'
+        WHEN @role = 'StaffRole'    THEN 'Staff'
+        WHEN @role = 'DoctorRole'   THEN 'Doctor'   -- <-- Thêm dòng này
+        ELSE 'ReadOnly'
+    END AS QuyenHan;
+END
+
+-- ============================================================
+-- Tạo SQL login + user + role cho bác sĩ:
+-- ============================================================
+
+-- 1. Tạo login
+CREATE LOGIN bacsi01 WITH PASSWORD = 'BacSi@2025';
+
+-- 2. Tạo user trong database
+USE QuanLyNhaXac;
+CREATE USER bacsi01 FOR LOGIN bacsi01;
+
+-- 3. Tạo role DoctorRole (nếu chưa có)
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'DoctorRole' AND type = 'R')
+    CREATE ROLE DoctorRole;
+
+-- 4. Gán user vào role
+ALTER ROLE DoctorRole ADD MEMBER bacsi01;
+
+-- 5. Cấp quyền theo đặc tả:
+--    BacSi: SELECT ThiHai, SELECT CanhBao, INSERT+UPDATE HoSoKhamBenh
+
+GRANT SELECT ON ThiHai        TO DoctorRole;
+GRANT SELECT ON CanhBao        TO DoctorRole;
+GRANT SELECT, INSERT, UPDATE   ON HoSoKhamBenh TO DoctorRole;
+
+-- (Không cấp DELETE trên HoSoKhamBenh cho DoctorRole)

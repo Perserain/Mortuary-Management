@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using DoAn.Views.Doctor;
 
 namespace DoAn.ViewModel
 {
@@ -75,6 +76,14 @@ namespace DoAn.ViewModel
                 {
                     StaffWindow staff = new StaffWindow();
                     staff.Show();
+                    window.Close();
+                    return;
+                }
+
+                if (DBConnect.IsDoctor)
+                {
+                    DoctorWindow doctor = new DoctorWindow();
+                    doctor.Show();
                     window.Close();
                     return;
                 }

@@ -8,6 +8,9 @@
              d:DesignHeight="650" d:DesignWidth="850">
 
     <Grid Margin="20">
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -79,7 +82,8 @@
                     </StackPanel.Resources>
                     <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"/>
                     <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"/>
-                    <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"/>
+                    <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
             </Grid>
         </Border>
