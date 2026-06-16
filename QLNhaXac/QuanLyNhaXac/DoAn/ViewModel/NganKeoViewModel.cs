@@ -92,8 +92,7 @@ namespace DoAn.ViewModel
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
-            CapNhatTrangThaiCommand = new RelayCommand(p => CapNhatTrangThai(), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan));
-            LocNganKeoTrongCommand = new RelayCommand(p => LocNganKeoTrong());
+            CapNhatTrangThaiCommand = new RelayCommand(p => CapNhatTrangThai(true), p => NewNganKeo != null && !string.IsNullOrEmpty(NewNganKeo.MaNgan)); LocNganKeoTrongCommand = new RelayCommand(p => LocNganKeoTrong());
             // S3-03
             GhiNhanBaoTriCommand = new RelayCommand(
                 p => GhiNhanBaoTri(),
@@ -146,6 +145,9 @@ namespace DoAn.ViewModel
                     NhietDo = row["NHIETDO"] != DBNull.Value ? Convert.ToDouble(row["NHIETDO"]) : 0,
                     MaTH = row["MATH"].ToString(),
                     // S2-04: load ngưỡng cảnh báo (nullable — ngăn chưa cài để null)
+
+                    HoTenTH = row.Table.Columns.Contains("HOTEN_TH") && row["HOTEN_TH"] != DBNull.Value ? row["HOTEN_TH"].ToString() : null,
+
                     NhietDoCanhBao = row.Table.Columns.Contains("NHIETDO_CANH_BAO") && row["NHIETDO_CANH_BAO"] != DBNull.Value
                         ? Convert.ToDouble(row["NHIETDO_CANH_BAO"])
                         : (double?)null,
@@ -302,7 +304,7 @@ namespace DoAn.ViewModel
             }
         }
 
-        private void CapNhatTrangThai()
+        private void CapNhatTrangThai(bool isFromButton = false)
         {
             if (string.IsNullOrWhiteSpace(NewNganKeo?.MaNgan))
             {
@@ -326,6 +328,13 @@ namespace DoAn.ViewModel
                         cmd.Parameters.AddWithValue("@mangan", NewNganKeo.MaNgan);
                         object result = cmd.ExecuteScalar();
                         TrangThaiNganKeo = result?.ToString() ?? "Chưa rõ";
+
+                        // Thêm dòng này: Chỉ hiện thông báo nếu người dùng tự bấm nút
+                        if (isFromButton)
+                        {
+                            MessageBox.Show($"Trạng thái hiện tại của ngăn [{NewNganKeo.MaNgan}]:\n{TrangThaiNganKeo}",
+                                            "Kiểm tra trạng thái", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
                     }
                 }
             }

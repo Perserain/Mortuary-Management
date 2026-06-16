@@ -322,11 +322,19 @@ namespace DoAn.ViewModel
                     // Revoke các user được check
                     foreach (var u in DanhSachUserTrongRole.Where(x => x.IsSelected))
                     {
+                        // Lệnh cũ: Xóa user khỏi Role
                         var cmd = new SqlCommand("SP_RevokeUserKhoiRole", conn)
                         { CommandType = CommandType.StoredProcedure };
                         cmd.Parameters.AddWithValue("@TenUser", u.TenUser);
                         cmd.Parameters.AddWithValue("@TenRole", SelectedRole.TenRole);
                         cmd.ExecuteNonQuery();
+
+                        // Dọn sạch mọi quyền trực tiếp đã từng cấp riêng cho user này
+                        var cmdClear = new SqlCommand("SP_XoaQuyenTrucTiepCuaUser", conn)
+                        { CommandType = CommandType.StoredProcedure };
+                        cmdClear.Parameters.AddWithValue("@TenUser", u.TenUser);
+                        cmdClear.ExecuteNonQuery();
+
                         dem++;
                     }
                     MessageBox.Show($"Đã revoke {dem} user khỏi nhóm [{SelectedRole.TenRole}]!", "Thành công");

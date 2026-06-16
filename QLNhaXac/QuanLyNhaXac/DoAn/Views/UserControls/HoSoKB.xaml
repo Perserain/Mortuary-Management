@@ -94,7 +94,10 @@
             </Border.Effect>
             <TabControl Background="White" BorderThickness="0">
                 <TabItem Header="Danh sách hồ sơ">
-                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" 
+                              RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                              IsReadOnly="True"
                               ItemsSource="{Binding DanhSachHoSo}" SelectedItem="{Binding SelectedHoSo}">
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
@@ -123,91 +126,131 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
-                <TabItem Header="Tra cứu">
+                <TabItem Header="Tra cứu (Real-time)">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="20"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+                        <!-- PHẦN 1: TRA CỨU THEO BÁC SĨ -->
                         <Grid Grid.Row="0" Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="300"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Mã Bác Sĩ:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
-                            <TextBox Text="{Binding MaBSTraCuu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
-                            <Button Content="TRA CỨU" Command="{Binding TraCuuTheoBacSiCommand}" Grid.Column="2" Background="#0EA5E9" Foreground="White" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                            <Button Content="LÀM MỚI" Command="{Binding LamMoiTraCuuCommand}" Grid.Column="3" Background="#64748B" Foreground="White" FontWeight="SemiBold"/>
+                            <TextBlock Text="🔍 Tìm Bác sĩ (Gõ Tên/Mã):" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
+                            <TextBox Text="{Binding TuKhoaBacSi, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                            <!-- Nút Làm Mới nằm ở góc phải -->
+                            <Button Content="LÀM MỚI TẤT CẢ" Command="{Binding LamMoiTraCuuCommand}" Grid.Column="3" Background="#64748B" Foreground="White" FontWeight="SemiBold" Padding="15,0"/>
                         </Grid>
 
-                        <DataGrid Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
-                                  ItemsSource="{Binding DanhSachKhamNghiemTheoBacSi}">
-                            <DataGrid.Resources>
-                                <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="Background" Value="#F1F5F9"/>
-                                    <Setter Property="Foreground" Value="#475569"/>
-                                    <Setter Property="FontWeight" Value="Bold"/>
-                                    <Setter Property="Padding" Value="10,10"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    <Setter Property="BorderBrush" Value="#CBD5E1"/>
-                                </Style>
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="Padding" Value="10,8"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                </Style>
-                            </DataGrid.Resources>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Mã Thi Hài" Binding="{Binding MaTH}" Width="100"/>
-                                <DataGridTextColumn Header="Họ Tên" Binding="{Binding HoTenTH}" Width="*"/>
-                                <DataGridTextColumn Header="Giới Tính" Binding="{Binding GioiTinh}" Width="100"/>
-                                <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="120"/>
-                                <DataGridTextColumn Header="Kết Luận" Binding="{Binding KetLuan}" Width="200"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <Grid Grid.Row="2" Margin="0,12,0,10">
+                            <!-- Lưới 1A: Danh sách Bác Sĩ (để chọn) -->
+                            <DataGrid Grid.Column="0" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column"
+                                      IsReadOnly="True" SelectionMode="Single"
+                                      ItemsSource="{Binding DanhSachBacSiLoc}" SelectedItem="{Binding BacSiTraCuuDangChon}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#F1F5F9"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã BS" Binding="{Binding MaBS}" Width="65"/>
+                                    <DataGridTextColumn Header="Tên Bác Sĩ" Binding="{Binding HoTenBS}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Lưới 1B: Kết quả khám của Bác Sĩ -->
+                            <DataGrid Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column" IsReadOnly="True"
+                                      ItemsSource="{Binding DanhSachKhamNghiemTheoBacSi}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#E0F2FE"/>
+                                        <Setter Property="Foreground" Value="#0369A1"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã TH" Binding="{Binding MaTH}" Width="65"/>
+                                    <DataGridTextColumn Header="Tên Thi Hài" Binding="{Binding HoTenTH}" Width="150"/>
+                                    <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="90"/>
+                                    <DataGridTextColumn Header="Kết Luận" Binding="{Binding KetLuan}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
+                        <Separator Grid.Row="2" Background="#CBD5E1" Margin="0,10"/>
+
+                        <!-- PHẦN 2: TRA CỨU THEO THI HÀI -->
+                        <Grid Grid.Row="3" Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="300"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="Mã Thi Hài:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
-                            <TextBox Text="{Binding MaTHTraCuu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
-                            <Button Content="TRA CỨU" Command="{Binding TraCuuTheoTuThiCommand}" Grid.Column="2" Background="#0EA5E9" Foreground="White" FontWeight="SemiBold"/>
+                            <TextBlock Text="🔍 Tìm Thi hài (Gõ Tên/Mã):" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
+                            <TextBox Text="{Binding TuKhoaThiHai, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
                         </Grid>
 
-                        <DataGrid Grid.Row="3" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
-                                  ItemsSource="{Binding DanhSachKhamNghiemTheoTuThi}">
-                            <DataGrid.Resources>
-                                <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="Background" Value="#F1F5F9"/>
-                                    <Setter Property="Foreground" Value="#475569"/>
-                                    <Setter Property="FontWeight" Value="Bold"/>
-                                    <Setter Property="Padding" Value="10,10"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    <Setter Property="BorderBrush" Value="#CBD5E1"/>
-                                </Style>
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="Padding" Value="10,8"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                </Style>
-                            </DataGrid.Resources>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Mã HS" Binding="{Binding MaHS}" Width="100"/>
-                                <DataGridTextColumn Header="Mã Thi Hài" Binding="{Binding MaTH}" Width="100"/>
-                                <DataGridTextColumn Header="Mã Bác Sĩ" Binding="{Binding MaBS}" Width="100"/>
-                                <DataGridTextColumn Header="Bác Sĩ" Binding="{Binding HoTenBS}" Width="*"/>
-                                <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="120"/>
-                                <DataGridTextColumn Header="Kết Luận" Binding="{Binding KetLuan}" Width="200"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Grid Grid.Row="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Lưới 2A: Danh sách Thi Hài (để chọn) -->
+                            <DataGrid Grid.Column="0" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column"
+                                      IsReadOnly="True" SelectionMode="Single"
+                                      ItemsSource="{Binding DanhSachThiHaiLoc}" SelectedItem="{Binding ThiHaiTraCuuDangChon}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#F1F5F9"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã TH" Binding="{Binding MaTH}" Width="65"/>
+                                    <DataGridTextColumn Header="Tên Thi Hài" Binding="{Binding HoTenTH}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Lưới 2B: Kết quả khám của Thi Hài -->
+                            <DataGrid Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column" IsReadOnly="True"
+                                      ItemsSource="{Binding DanhSachKhamNghiemTheoTuThi}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#FEF08A"/>
+                                        <Setter Property="Foreground" Value="#A16207"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã HS" Binding="{Binding MaHS}" Width="65"/>
+                                    <DataGridTextColumn Header="Bác Sĩ Khám" Binding="{Binding HoTenBS}" Width="150"/>
+                                    <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="90"/>
+                                    <DataGridTextColumn Header="Kết Luận" Binding="{Binding KetLuan}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
                     </Grid>
                 </TabItem>
             </TabControl>

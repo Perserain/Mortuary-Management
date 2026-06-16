@@ -95,7 +95,7 @@ namespace DoAn.ViewModel
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
             TimSotCommand = new RelayCommand(p => TimSot());
-            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => NewThiHai != null && !string.IsNullOrEmpty(NewThiHai.MaTH));
+            XemChiTietCommand = new RelayCommand(p => XemChiTiet(), p => SelectedThiHai != null && !string.IsNullOrEmpty(SelectedThiHai.MaTH));
             ThanhLyCommand = new RelayCommand(p => ThanhLyThiHaiHangLoat());
             TimTheoNgayCommand = new RelayCommand(p => TimTheoNgay());
             TaiLaiDanhSachCommand = new RelayCommand(p => TaiLaiDanhSach());
@@ -152,7 +152,7 @@ namespace DoAn.ViewModel
 
         private void XemChiTiet()
         {
-            DetailWindow f = new DetailWindow(NewThiHai, "CHI TIẾT THI HÀI");
+            DetailWindow f = new DetailWindow(SelectedThiHai, "CHI TIẾT THI HÀI");
             f.ShowDialog();
         }
 

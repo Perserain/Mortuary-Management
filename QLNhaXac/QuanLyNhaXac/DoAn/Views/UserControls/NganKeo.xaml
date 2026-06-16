@@ -125,7 +125,10 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
             </Border.Effect>
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" 
+                      RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" 
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                      IsReadOnly="True"
                       ItemsSource="{Binding DanhSachNganKeo}" SelectedItem="{Binding SelectedNganKeo}">
                 <!-- S2-04: Tô đỏ hàng khi nhiệt độ vượt ngưỡng cảnh báo -->
                 <DataGrid.RowStyle>
@@ -174,7 +177,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Mã Thi Hài (Người đang nằm)" Binding="{Binding MaTH}" Width="*"/>
+                    <DataGridTextColumn Header="Mã Thi Hài (Người đang nằm)" Binding="{Binding MaTH}" Width="120"/>
+                    <DataGridTextColumn Header="Tên Người Nằm" Binding="{Binding HoTenTH, TargetNullValue='—'}" Width="*"/>
                     <!-- S3-03: Cột ngày bảo trì -->
                     <DataGridTextColumn Header="Ngày Bảo Trì" Binding="{Binding NgayBaoTri, StringFormat=dd/MM/yyyy, TargetNullValue='Chưa đặt'}" Width="110">
                         <DataGridTextColumn.ElementStyle>
@@ -214,7 +218,7 @@
             <Button Content="🔧 Ghi Nhận Bảo Trì" Command="{Binding GhiNhanBaoTriCommand}" Background="#D97706"/>
             <Button Content="NGĂN TRỐNG" Command="{Binding LocNganKeoTrongCommand}" Background="#F97316"/>
             <Button Content="TẤT CẢ" Command="{Binding LoadCommand}" Background="#64748B"/>
-            <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
+            <Button Content="NHẬP FILE (TXT/CSV)" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
             <Button Content="XUẤT EXCEL" Command="{Binding XuatExcelCommand}" Background="#3B82F6"/>
         </StackPanel>
     </Grid>

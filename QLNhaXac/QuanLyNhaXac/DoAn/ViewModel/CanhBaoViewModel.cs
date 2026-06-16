@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace DoAn.ViewModel
 {
@@ -14,9 +13,6 @@ namespace DoAn.ViewModel
     {
         // ===================== COLLECTIONS =====================
         public ObservableCollection<CanhBaoModel> DanhSachCanhBao { get; set; }
-
-        // ===================== TIMER =====================
-        private DispatcherTimer _timer;
 
         // ===================== SELECTED =====================
         private CanhBaoModel _selectedCanhBao;
@@ -63,30 +59,25 @@ namespace DoAn.ViewModel
         }
 
         // ===================== COMMANDS =====================
-        public ICommand QuetMoiCommand     { get; set; }
-        public ICommand DocTatCaCommand    { get; set; }
-        public ICommand DocMotCommand      { get; set; }
-        public ICommand LamMoiCommand      { get; set; }
-        public ICommand XemThiHaiCommand   { get; set; }
+        public ICommand QuetMoiCommand { get; set; }
+        public ICommand DocTatCaCommand { get; set; }
+        public ICommand DocMotCommand { get; set; }
+        public ICommand LamMoiCommand { get; set; }
+        public ICommand XemThiHaiCommand { get; set; }
 
         // ===================== CONSTRUCTOR =====================
         public CanhBaoViewModel()
         {
             DanhSachCanhBao = new ObservableCollection<CanhBaoModel>();
 
-            QuetMoiCommand   = new RelayCommand(p => ExecuteQuetMoi());
-            DocTatCaCommand  = new RelayCommand(p => ExecuteDocTatCa());
-            DocMotCommand    = new RelayCommand(p => ExecuteDocMot(), p => SelectedCanhBao != null);
-            LamMoiCommand    = new RelayCommand(p => LoadData());
+            QuetMoiCommand = new RelayCommand(p => ExecuteQuetMoi());
+            DocTatCaCommand = new RelayCommand(p => ExecuteDocTatCa());
+            DocMotCommand = new RelayCommand(p => ExecuteDocMot(), p => SelectedCanhBao != null);
+            LamMoiCommand = new RelayCommand(p => LoadData());
             XemThiHaiCommand = new RelayCommand(p => ExecuteXemThiHai(), p => SelectedCanhBao != null && !string.IsNullOrEmpty(SelectedCanhBao.MATH));
 
-            // Quét mới rồi load lần đầu
+            // Chỉ quét mới và tải dữ liệu đúng 1 lần duy nhất khi mở màn hình này
             ExecuteQuetMoi();
-
-            // Timer tự động quét mỗi 3 phút
-            _timer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(3) };
-            _timer.Tick += (s, e) => ExecuteQuetMoi();
-            _timer.Start();
         }
 
         // ===================== LOAD DATA =====================
@@ -95,8 +86,6 @@ namespace DoAn.ViewModel
             if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
             DanhSachCanhBao.Clear();
 
-            // SP_DSCanhBao lấy từ VIEW_CanhBaoChuaDoc (chỉ chưa đọc)
-            // Nếu người dùng muốn xem tất cả, query thêm cột DAOC
             string query = ChiHienChuaDoc
                 ? "EXEC SP_DSCanhBao"
                 : "SELECT cb.MACB, cb.THOIGIAN, cb.LOAICB, cb.MATH, cb.MANGAN, cb.NOIDUNG, cb.DAOC, th.HOTEN_TH, " +
@@ -113,18 +102,18 @@ namespace DoAn.ViewModel
                 bool daoc = dt.Columns.Contains("DAOC") && row["DAOC"] != DBNull.Value ? Convert.ToBoolean(row["DAOC"]) : false;
                 var cb = new CanhBaoModel
                 {
-                    MACB          = Convert.ToInt32(row["MACB"]),
-                    THOIGIAN      = row["THOIGIAN"] != DBNull.Value
+                    MACB = Convert.ToInt32(row["MACB"]),
+                    THOIGIAN = row["THOIGIAN"] != DBNull.Value
                                     ? Convert.ToDateTime(row["THOIGIAN"]).ToString("dd/MM/yyyy HH:mm")
                                     : "",
-                    LOAICB        = row["LOAICB"].ToString(),
-                    MATH          = row["MATH"]?.ToString() ?? "",
-                    MANGAN        = row["MANGAN"]?.ToString() ?? "",
-                    NOIDUNG       = row["NOIDUNG"].ToString(),
-                    DAOC          = daoc,
-                    HOTEN_TH      = row["HOTEN_TH"]?.ToString() ?? "",
-                    MUC_DO_UU_TIEN   = uuTien,
-                    MUC_DO_HIEN_THI  = row["MUC_DO_HIEN_THI"].ToString()
+                    LOAICB = row["LOAICB"].ToString(),
+                    MATH = row["MATH"]?.ToString() ?? "",
+                    MANGAN = row["MANGAN"]?.ToString() ?? "",
+                    NOIDUNG = row["NOIDUNG"].ToString(),
+                    DAOC = daoc,
+                    HOTEN_TH = row["HOTEN_TH"]?.ToString() ?? "",
+                    MUC_DO_UU_TIEN = uuTien,
+                    MUC_DO_HIEN_THI = row["MUC_DO_HIEN_THI"].ToString()
                 };
 
                 DanhSachCanhBao.Add(cb);
@@ -137,8 +126,8 @@ namespace DoAn.ViewModel
             }
 
             TongChuaDoc = khan + canXuLy;
-            SoKhanCap   = khan;
-            SoCanXuLy   = canXuLy;
+            SoKhanCap = khan;
+            SoCanXuLy = canXuLy;
         }
 
         // ===================== QUÉT MỚI =====================
@@ -231,17 +220,15 @@ namespace DoAn.ViewModel
         {
             if (SelectedCanhBao == null || string.IsNullOrEmpty(SelectedCanhBao.MATH)) return;
 
-            // Navigate sang ThiHaiViewModel và truyền MATH để filter
-            // (Thực hiện qua MainViewModel nếu cần; hiện tại thông báo tạm)
             MessageBox.Show(
                 $"Mã thi hài: {SelectedCanhBao.MATH}\nHọ tên: {SelectedCanhBao.TenThiHaiHienThi}\n\nVui lòng chuyển sang tab Quản Lý Thi Hài để xem chi tiết.",
                 "Thi Hài Liên Quan", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        // Dừng timer khi ViewModel bị hủy
+        // Giữ lại hàm rỗng này để tránh báo lỗi nếu bạn có gọi nó ở MainViewModel.cs
         public void Cleanup()
         {
-            _timer?.Stop();
+            // Không cần làm gì vì timer đã bị xóa
         }
     }
 }

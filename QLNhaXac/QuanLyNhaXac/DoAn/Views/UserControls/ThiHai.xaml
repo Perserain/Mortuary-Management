@@ -107,7 +107,11 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
             </Border.Effect>
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" 
+                      Background="White" RowBackground="White" 
+                      AlternatingRowBackground="#F8FAFC" BorderThickness="0" 
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                      IsReadOnly="True"
                       ItemsSource="{Binding DanhSachThiHai}" SelectedItem="{Binding SelectedThiHai}">
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">

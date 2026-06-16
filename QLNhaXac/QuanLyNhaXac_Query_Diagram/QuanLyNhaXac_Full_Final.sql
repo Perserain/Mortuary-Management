@@ -2379,3 +2379,76 @@ GO
 --
 -- ============================================================
 
+-- Kiểm tra nếu thủ tục đã tồn tại thì xóa đi
+IF OBJECT_ID('SP_CapNhat_NgayBaoTri', 'P') IS NOT NULL
+BEGIN
+    DROP PROCEDURE SP_CapNhat_NgayBaoTri;
+END
+GO
+
+-- Tạo lại thủ tục mới
+CREATE PROCEDURE SP_CapNhat_NgayBaoTri
+    @maNgan VARCHAR(15),
+    @ngay   DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Kiểm tra mã ngăn có tồn tại không
+    IF NOT EXISTS (SELECT 1 FROM NGANKEO WHERE MANGAN = @maNgan)
+    BEGIN
+        RAISERROR(N'Mã ngăn không tồn tại!', 16, 1);
+        RETURN;
+    END
+    
+    -- Thực hiện cập nhật ngày bảo trì
+    UPDATE NGANKEO 
+    SET NGAY_BAO_TRI = @ngay 
+    WHERE MANGAN = @maNgan
+END
+GO
+
+-- Cấp quyền cho Admin sử dụng thủ tục này
+GRANT EXECUTE ON SP_CapNhat_NgayBaoTri TO [QL_ADMIN]
+GO
+
+-- Kiểm tra nếu có thì xóa để tạo lại
+IF OBJECT_ID('SP_XoaQuyenTrucTiepCuaUser', 'P') IS NOT NULL
+BEGIN
+    DROP PROCEDURE SP_XoaQuyenTrucTiepCuaUser;
+END
+GO
+
+CREATE PROCEDURE SP_XoaQuyenTrucTiepCuaUser 
+    @TenUser NVARCHAR(128) 
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX) = N'';
+    DECLARE @bang NVARCHAR(128);
+    
+    -- Quét qua 10 bảng dữ liệu chính của hệ thống
+    DECLARE cur CURSOR FOR
+        SELECT name FROM sys.tables
+        WHERE name IN ('THIHAI','DICHVU','SUDUNG','NGANKEO','HOSOKHAMBENH','NHANVIEN','BACSI','THAN_NHAN','HOADON','CANH_BAO');
+        
+    OPEN cur;
+    FETCH NEXT FROM cur INTO @bang;
+    
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Thu hồi toàn bộ quyền thao tác (CRUD) cấp trực tiếp cho User trên bảng này
+        SET @sql += N'REVOKE SELECT, INSERT, UPDATE, DELETE ON [' + @bang + N'] FROM [' + @TenUser + N']; ';
+        FETCH NEXT FROM cur INTO @bang;
+    END
+    
+    CLOSE cur; 
+    DEALLOCATE cur;
+    
+    -- Thực thi chuỗi lệnh dọn dẹp
+    EXEC sp_executesql @sql;
+END
+GO
+
+-- Cấp quyền cho Admin sử dụng SP này
+GRANT EXECUTE ON SP_XoaQuyenTrucTiepCuaUser TO [QL_ADMIN];
+GO

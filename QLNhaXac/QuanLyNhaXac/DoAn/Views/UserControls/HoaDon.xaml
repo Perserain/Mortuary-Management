@@ -257,15 +257,20 @@
                     <!-- 1. Tạo hóa đơn mới -->
                     <TextBlock Text="Tạo hóa đơn mới" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
 
-                    <TextBlock Text="Chọn thi hài:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Chọn thi hài (theo mã):" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
                     <ComboBox ItemsSource="{Binding DSThiHai}"
                               SelectedItem="{Binding SelectedThiHaiMoi, Mode=TwoWay}"
-                              DisplayMemberPath="HoTenTH"
-                              Height="30" Margin="0,0,0,8"/>
+                              DisplayMemberPath="MaTH"
+                              Height="30" Margin="0,0,0,4"/>
+
+                    <TextBlock Text="{Binding SelectedThiHaiMoi.HoTenTH, StringFormat='Tên: {0}', TargetNullValue='(Vui lòng chọn mã thi hài)'}"
+                               Foreground="#0F766E" FontStyle="Italic" FontWeight="SemiBold" Margin="0,0,0,16"/>
 
                     <!-- 2. BẢNG PREVIEW DỊCH VỤ (Thay thế cho cái ComboBox cũ bị lỗi) -->
-                    <TextBlock Text="Danh sách dịch vụ sẽ được tính tiền:"
-                               Foreground="#0F766E" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Danh sách dịch vụ sẽ được tính tiền:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,4"/>
+
+                    <TextBlock Text="* Lưu ý: Nếu lưới trống, vui lòng sang tab 'Dịch Vụ Đã Mua' để đăng ký dịch vụ cho thi hài này trước khi tạo hóa đơn." 
+                               Foreground="#D97706" FontStyle="Italic" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,8"/>
                     <DataGrid AutoGenerateColumns="False" CanUserAddRows="False"
                               Background="White" BorderThickness="1" BorderBrush="#D1FAE5"
                               HeadersVisibility="Column" GridLinesVisibility="Horizontal"

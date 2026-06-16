@@ -219,6 +219,13 @@ namespace DoAn.ViewModel
             }
         }
 
+        private string TinhPhanKhuc(decimal gia)
+        {
+            if (gia < 500000) return "Bình dân";
+            if (gia < 2000000) return "Trung bình";
+            return "Cao cấp";
+        }
+
         // --- HÀM XUẤT EXCEL
         private void XuatExcel()
         {
@@ -267,6 +274,7 @@ namespace DoAn.ViewModel
                             worksheet.Cell(row, 3).Value = dv.GiaTien;
                             worksheet.Cell(row, 3).Style.NumberFormat.Format = "#,##0";
 
+                            worksheet.Cell(row, 4).Value = TinhPhanKhuc(dv.GiaTien);
                             row++;
                         }
 

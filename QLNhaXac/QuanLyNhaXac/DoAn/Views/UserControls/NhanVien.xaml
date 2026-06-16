@@ -184,6 +184,7 @@
                       HorizontalGridLinesBrush="#E2E8F0"
                       SelectionMode="Single"
                       RowHeight="44"
+                      IsReadOnly="True"
                       ItemsSource="{Binding DanhSachNhanVien}"
                       SelectedItem="{Binding SelectedNhanVien}">
 
