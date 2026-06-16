@@ -72,7 +72,8 @@ namespace DoAn.ViewModel
                 {
                     PhuongThucThanhToan = string.IsNullOrEmpty(_selected.PHUONGTHUCTT)
                         ? "Tiền mặt" : _selected.PHUONGTHUCTT;
-                    LoadDichVuDaDung(_selected.MATH);
+                    // Load dịch vụ thuộc đúng hóa đơn này (theo MAHD, không phải MATH)
+                    LoadDichVuTheoHoaDon(_selected.MAHD);
                 }
                 else
                 {
@@ -88,7 +89,16 @@ namespace DoAn.ViewModel
         public ThiHaiModel SelectedThiHaiMoi
         {
             get => _selectedThiHaiMoi;
-            set { _selectedThiHaiMoi = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedThiHaiMoi = value;
+                OnPropertyChanged();
+                // Preview dịch vụ chưa lập HĐ khi chọn thi hài để tạo mới
+                if (_selectedThiHaiMoi != null)
+                    LoadDichVuChuaLapHD(_selectedThiHaiMoi.MaTH);
+                else
+                    DSDichVuChuaLap.Clear();
+            }
         }
 
         private DateTime _ngayLapMoi = DateTime.Now;
@@ -283,33 +293,84 @@ namespace DoAn.ViewModel
         // ──────────────────────────────────────────────
         //  Load dịch vụ đã dùng của thi hài (cho panel chi tiết)
         // ──────────────────────────────────────────────
-        private void LoadDichVuDaDung(string maTH)
+        // Dịch vụ thuộc hóa đơn đang chọn (theo MAHD)
+        private void LoadDichVuTheoHoaDon(string maHD)
         {
             DSDichVuDaDung.Clear();
-            if (string.IsNullOrEmpty(maTH) || string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+            if (string.IsNullOrEmpty(maHD) || string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
 
             try
             {
-                DataTable dt = DBConnect.GetData("EXEC SP_DSDichVuSuDung");
+                using var conn = new SqlConnection(DBConnect.ConnectionString);
+                conn.Open();
+                using var cmd = new SqlCommand("SP_DichVuTheoHoaDon", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@MAHD", maHD);
+                using var da = new SqlDataAdapter(cmd);
+                var dt = new DataTable();
+                da.Fill(dt);
+
                 foreach (DataRow row in dt.Rows)
                 {
-                    if (row["MATH"].ToString() != maTH) continue;
-
                     DSDichVuDaDung.Add(new SuDungModel
                     {
-                        MaTH = row["MATH"].ToString(),
-                        TenTH = row["HOTEN_TH"].ToString(),
-                        MaDV = row["MADV"].ToString(),
-                        TenDV = row["TENDV"].ToString(),
+                        MaTH    = row["MATH"].ToString(),
+                        TenTH   = row["HOTEN_TH"].ToString(),
+                        MaDV    = row["MADV"].ToString(),
+                        TenDV   = row["TENDV"].ToString(),
                         GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
-                        NgaySD = row["NGAYSUDUNG"] != DBNull.Value ? Convert.ToDateTime(row["NGAYSUDUNG"]) : (DateTime?)null,
-                        GhiChu = row["GHICHU"]?.ToString()
+                        NgaySD  = row["NGAYSUDUNG"] != DBNull.Value ? Convert.ToDateTime(row["NGAYSUDUNG"]) : (DateTime?)null,
+                        GhiChu  = row["GHICHU"]?.ToString(),
+                        MaHD    = row["MAHD"]?.ToString()
                     });
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dịch vụ đã dùng: " + ex.Message, "Lỗi");
+                MessageBox.Show("Lỗi tải dịch vụ hóa đơn: " + ex.Message, "Lỗi");
+            }
+        }
+
+        // Dịch vụ CHƯA lập HĐ của thi hài đang chọn để tạo (preview trước khi tạo HĐ)
+        public ObservableCollection<SuDungModel> DSDichVuChuaLap { get; set; } = new();
+
+        private void LoadDichVuChuaLapHD(string maTH)
+        {
+            DSDichVuChuaLap.Clear();
+            if (string.IsNullOrEmpty(maTH) || string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+
+            try
+            {
+                using var conn = new SqlConnection(DBConnect.ConnectionString);
+                conn.Open();
+                using var cmd = new SqlCommand("SP_DichVuChuaLapHD", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@MATH", maTH);
+                using var da = new SqlDataAdapter(cmd);
+                var dt = new DataTable();
+                da.Fill(dt);
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    DSDichVuChuaLap.Add(new SuDungModel
+                    {
+                        MaTH    = row["MATH"].ToString(),
+                        TenTH   = row["HOTEN_TH"].ToString(),
+                        MaDV    = row["MADV"].ToString(),
+                        TenDV   = row["TENDV"].ToString(),
+                        GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
+                        NgaySD  = row["NGAYSUDUNG"] != DBNull.Value ? Convert.ToDateTime(row["NGAYSUDUNG"]) : (DateTime?)null,
+                        GhiChu  = row["GHICHU"]?.ToString()
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("LoadDichVuChuaLapHD: " + ex.Message);
             }
         }
 

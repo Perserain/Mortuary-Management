@@ -223,7 +223,7 @@
 
                 <!-- Bên trái: Dịch vụ đã dùng của hóa đơn đang chọn -->
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Dịch vụ đã sử dụng (hóa đơn đang chọn)"
+                    <TextBlock Text="Dịch vụ thuộc hóa đơn đang chọn"
                                FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
                     <DataGrid AutoGenerateColumns="False"
                               CanUserAddRows="False"
@@ -260,6 +260,20 @@
                               SelectedItem="{Binding SelectedThiHaiMoi, Mode=TwoWay}"
                               DisplayMemberPath="HoTenTH"
                               Height="30" Margin="0,0,0,8"/>
+
+                    <!-- Preview dịch vụ chưa lập HĐ -->
+                    <TextBlock Text="Dịch vụ sẽ được lập hóa đơn:"
+                               Foreground="#0F766E" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="False"
+                              Background="White" BorderThickness="1" BorderBrush="#D1FAE5"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E2E8F0" MaxHeight="90"
+                              ItemsSource="{Binding DSDichVuChuaLap}" Margin="0,0,0,8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Dịch vụ" Binding="{Binding TenDV}" Width="*"/>
+                            <DataGridTextColumn Header="Giá tiền" Binding="{Binding GiaTien, StringFormat=N0}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
                     <TextBlock Text="Ngày lập:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
                     <DatePicker SelectedDate="{Binding NgayLapMoi, Mode=TwoWay}" Height="30" Margin="0,0,0,8"/>

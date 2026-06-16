@@ -119,8 +119,7 @@ namespace DoAn.ViewModel
                     cmd.Parameters.AddWithValue("@math", NewSuDung.MaTH);
                     cmd.Parameters.AddWithValue("@madv", NewSuDung.MaDV);
                     cmd.Parameters.AddWithValue("@ngaysudung", NewSuDung.NgaySD);
-                    cmd.Parameters.AddWithValue("@ghichu", NewSuDung.GhiChu);
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@ghichu",string.IsNullOrEmpty(NewSuDung.GhiChu) ? (object)DBNull.Value : NewSuDung.GhiChu); cmd.ExecuteNonQuery();
 
                     MessageBox.Show("Đã thêm/đăng ký dịch vụ thành công!", "Thành công");
                     LoadData();
