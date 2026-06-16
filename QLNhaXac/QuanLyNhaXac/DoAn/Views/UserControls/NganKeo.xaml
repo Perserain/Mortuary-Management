@@ -40,18 +40,31 @@
                 <TextBox Text="{Binding NewNganKeo.MaNgan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
          IsReadOnly="True" Background="#E2E8F0" Foreground="#475569" 
          Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+
                 <TextBlock Text="Vị Trí:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
                 <TextBox Text="{Binding NewNganKeo.ViTri, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Nhiệt Độ (°C):" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
-                <TextBox Text="{Binding NewNganKeo.NhietDo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
+                <TextBox Text="{Binding NewNganKeo.NhietDo, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Grid.Row="1" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
 
                 <TextBlock Text="Mã Thi Hài Nằm:" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
-                <TextBox Text="{Binding NewNganKeo.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
+                <ComboBox ItemsSource="{Binding DanhSachThiHai}" 
+                          SelectedValue="{Binding NewNganKeo.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                          SelectedValuePath="MaTH"
+                          Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding MaTH}" FontWeight="Bold" Foreground="#0EA5E9"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding HoTenTH}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
-                <!-- S2-04: Ngưỡng nhiệt độ cảnh báo -->
                 <TextBlock Text="Ngưỡng Cảnh Báo (°C):" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#D97706" Margin="0,10,10,0"/>
-                <TextBox Text="{Binding NewNganKeo.NhietDoCanhBao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                <TextBox Text="{Binding NewNganKeo.NhietDoCanhBao, Mode=TwoWay, UpdateSourceTrigger=LostFocus, TargetNullValue=''}"
                          Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,10,0,0"
                          ToolTip="Nhập ngưỡng nhiệt độ cảnh báo (°C). Để trống nếu không cần cảnh báo."/>
                 <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">

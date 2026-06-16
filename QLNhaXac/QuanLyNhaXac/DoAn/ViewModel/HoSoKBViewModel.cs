@@ -202,12 +202,14 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    var cmd = new SqlCommand("EXEC SP_ThemHoSoKhamBenh @ma, @ngay, @kl, @math, @mabs", conn);
-                    cmd.Parameters.AddWithValue("@ma", NewHoSo.MaHS);
-                    cmd.Parameters.AddWithValue("@kl", NewHoSo.KetLuan ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@math", NewHoSo.MaTH);
-                    cmd.Parameters.AddWithValue("@mabs", NewHoSo.MaBS);
-                    cmd.Parameters.AddWithValue("@ngay", NewHoSo.TgKham ?? (object)DBNull.Value);
+                    // Dùng CommandType.StoredProcedure để tránh mọi lỗi cú pháp SQL
+                    var cmd = new SqlCommand("SP_ThemHoSoKhamBenh_V2", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@MAHS", NewHoSo.MaHS);
+                    cmd.Parameters.AddWithValue("@THOIGIANKHAM", NewHoSo.TgKham ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@KETLUAN", string.IsNullOrWhiteSpace(NewHoSo.KetLuan) ? DBNull.Value : (object)NewHoSo.KetLuan);
+                    cmd.Parameters.AddWithValue("@MATH", NewHoSo.MaTH);
+                    cmd.Parameters.AddWithValue("@MABS", NewHoSo.MaBS);
 
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Lập hồ sơ thành công!");
@@ -218,7 +220,7 @@ namespace DoAn.ViewModel
             catch (SqlException ex)
             {
                 if (ex.Number == 547) MessageBox.Show("Mã Thi Hài hoặc Mã Bác Sĩ không tồn tại!");
-                else MessageBox.Show("Lỗi: " + ex.Message);
+                else MessageBox.Show("Lỗi CSDL: " + ex.Message);
             }
         }
 
@@ -230,12 +232,13 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    var cmdUpdate = new SqlCommand("EXEC SP_SuaHoSoKhamBenh @ma, @tg, @kl, @math, @mabs", conn);
-                    cmdUpdate.Parameters.AddWithValue("@ma", NewHoSo.MaHS);
-                    cmdUpdate.Parameters.AddWithValue("@kl", string.IsNullOrWhiteSpace(NewHoSo.KetLuan) ? DBNull.Value : (object)NewHoSo.KetLuan);
-                    cmdUpdate.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewHoSo.MaTH) ? DBNull.Value : (object)NewHoSo.MaTH);
-                    cmdUpdate.Parameters.AddWithValue("@mabs", string.IsNullOrWhiteSpace(NewHoSo.MaBS) ? DBNull.Value : (object)NewHoSo.MaBS);
-                    cmdUpdate.Parameters.AddWithValue("@tg", NewHoSo.TgKham ?? (object)DBNull.Value);
+                    var cmdUpdate = new SqlCommand("SP_SuaHoSoKhamBenh_V2", conn);
+                    cmdUpdate.CommandType = CommandType.StoredProcedure;
+                    cmdUpdate.Parameters.AddWithValue("@MAHS", NewHoSo.MaHS);
+                    cmdUpdate.Parameters.AddWithValue("@THOIGIANKHAM", NewHoSo.TgKham ?? (object)DBNull.Value);
+                    cmdUpdate.Parameters.AddWithValue("@KETLUAN", string.IsNullOrWhiteSpace(NewHoSo.KetLuan) ? DBNull.Value : (object)NewHoSo.KetLuan);
+                    cmdUpdate.Parameters.AddWithValue("@MATH", string.IsNullOrWhiteSpace(NewHoSo.MaTH) ? DBNull.Value : (object)NewHoSo.MaTH);
+                    cmdUpdate.Parameters.AddWithValue("@MABS", string.IsNullOrWhiteSpace(NewHoSo.MaBS) ? DBNull.Value : (object)NewHoSo.MaBS);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {

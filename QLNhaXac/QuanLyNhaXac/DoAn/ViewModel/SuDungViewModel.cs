@@ -40,6 +40,7 @@ namespace DoAn.ViewModel
                         TenDV = _selectedSuDung.TenDV,
                         GiaTien = _selectedSuDung.GiaTien,
                         NgaySD = _selectedSuDung.NgaySD,
+                        SoLuong = _selectedSuDung.SoLuong,    // ← MỚI
                         GhiChu = _selectedSuDung.GhiChu
                     };
                 }
@@ -67,12 +68,21 @@ namespace DoAn.ViewModel
             LichSuDichVuTheoThiHai = new ObservableCollection<SuDungModel>();
 
             LoadCommand = new RelayCommand(p => LoadData());
-            ThemCommand = new RelayCommand(p => ThemSuDung(), p => NewSuDung != null && !string.IsNullOrWhiteSpace(NewSuDung.MaTH) && !string.IsNullOrWhiteSpace(NewSuDung.MaDV));
-            XoaCommand = new RelayCommand(p => XoaSuDung(), p => NewSuDung != null && !string.IsNullOrWhiteSpace(NewSuDung.MaTH) && !string.IsNullOrWhiteSpace(NewSuDung.MaDV) && NewSuDung.NgaySD != null);
+            ThemCommand = new RelayCommand(p => ThemSuDung(),
+                                        p => NewSuDung != null
+                                          && !string.IsNullOrWhiteSpace(NewSuDung.MaTH)
+                                          && !string.IsNullOrWhiteSpace(NewSuDung.MaDV));
+            XoaCommand = new RelayCommand(p => XoaSuDung(),
+                                        p => NewSuDung != null
+                                          && !string.IsNullOrWhiteSpace(NewSuDung.MaTH)
+                                          && !string.IsNullOrWhiteSpace(NewSuDung.MaDV)
+                                          && NewSuDung.NgaySD != null);
             XuatExcelCommand = new RelayCommand(p => XuatExcel());
             NhapTuFileCommand = new RelayCommand(p => NhapTuFile());
-            TinhTongTienCommand = new RelayCommand(p => TinhTongTien(), p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
-            TraCuuLichSuDichVuCommand = new RelayCommand(p => TraCuuLichSuDichVu(), p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
+            TinhTongTienCommand = new RelayCommand(p => TinhTongTien(),
+                                        p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
+            TraCuuLichSuDichVuCommand = new RelayCommand(p => TraCuuLichSuDichVu(),
+                                        p => NewSuDung != null && !string.IsNullOrEmpty(NewSuDung.MaTH));
 
             LoadData();
             ResetForm();
@@ -80,7 +90,8 @@ namespace DoAn.ViewModel
 
         private void ResetForm()
         {
-            NewSuDung = new SuDungModel() { NgaySD = DateTime.Now };
+            // ← MỚI: khởi tạo SoLuong = 1
+            NewSuDung = new SuDungModel() { NgaySD = DateTime.Now, SoLuong = 1 };
         }
 
         private void LoadData()
@@ -100,8 +111,12 @@ namespace DoAn.ViewModel
                     MaDV = row["MADV"].ToString(),
                     TenDV = row["TENDV"].ToString(),
                     GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
+                    SoLuong = row["SOLUONG"] != DBNull.Value ? Convert.ToInt32(row["SOLUONG"]) : 1,  // ← MỚI
                     NgaySD = row["NGAYSUDUNG"] != DBNull.Value ? (DateTime?)row["NGAYSUDUNG"] : null,
-                    GhiChu = row["GHICHU"].ToString()
+                    GhiChu = row["GHICHU"] != DBNull.Value ? row["GHICHU"].ToString() : "",
+                    MaHD = row["MAHD"] != DBNull.Value ? row["MAHD"].ToString() : null,
+                    TrangThaiHD = row.Table.Columns.Contains("TRANGTHAI_HD")
+                                    ? row["TRANGTHAI_HD"].ToString() : ""
                 });
             }
         }
@@ -109,35 +124,51 @@ namespace DoAn.ViewModel
         private void ThemSuDung()
         {
             if (!DBConnect.RequireStaffOrAdmin("Đăng ký dịch vụ")) return;
+
+            // Validate số lượng
+            if (NewSuDung.SoLuong < 1)
+            {
+                MessageBox.Show("Số lượng phải lớn hơn hoặc bằng 1!", "Cảnh báo");
+                return;
+            }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    string sql = "EXEC SP_ThemDichVuSuDung @math, @madv, @ngaysudung, @ghichu";
+                    // ← MỚI: thêm @soluong; ← FIX: dùng DBNull.Value khi GhiChu null
+                    string sql = "EXEC SP_ThemDichVuSuDung @math, @madv, @ngaysudung, @ghichu, @soluong";
                     var cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@math", NewSuDung.MaTH);
                     cmd.Parameters.AddWithValue("@madv", NewSuDung.MaDV);
                     cmd.Parameters.AddWithValue("@ngaysudung", NewSuDung.NgaySD);
-                    cmd.Parameters.AddWithValue("@ghichu",string.IsNullOrEmpty(NewSuDung.GhiChu) ? (object)DBNull.Value : NewSuDung.GhiChu); cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@ghichu", (object)NewSuDung.GhiChu ?? DBNull.Value);  // ← FIX bug null
+                    cmd.Parameters.AddWithValue("@soluong", NewSuDung.SoLuong);                          // ← MỚI
+                    cmd.ExecuteNonQuery();
 
-                    MessageBox.Show("Đã thêm/đăng ký dịch vụ thành công!", "Thành công");
+                    string msg = NewSuDung.SoLuong > 1
+                        ? $"Đã đăng ký dịch vụ thành công! (Số lượng: {NewSuDung.SoLuong})"
+                        : "Đã thêm/đăng ký dịch vụ thành công!";
+                    MessageBox.Show(msg, "Thành công");
                     LoadData();
                     ResetForm();
                 }
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 547) MessageBox.Show("Mã Thi Hài hoặc Mã Dịch Vụ không tồn tại trong hệ thống!");
-                else if (ex.Number == 2627) MessageBox.Show("Thi hài này đã đăng ký dịch vụ này vào cùng ngày rồi!");
-                else MessageBox.Show("Lỗi CSDL: " + ex.Message);
+                if (ex.Number == 547)
+                    MessageBox.Show("Mã Thi Hài hoặc Mã Dịch Vụ không tồn tại trong hệ thống!");
+                else
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message);
             }
         }
 
         private void XoaSuDung()
         {
             if (!DBConnect.RequireStaffOrAdmin("Hủy dịch vụ")) return;
-            if (MessageBox.Show($"Bạn có chắc muốn hủy dịch vụ {NewSuDung.MaDV} của thi hài {NewSuDung.MaTH}?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (MessageBox.Show($"Bạn có chắc muốn hủy dịch vụ {NewSuDung.MaDV} của thi hài {NewSuDung.MaTH}?",
+                "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
                 {
@@ -163,7 +194,7 @@ namespace DoAn.ViewModel
         private void TinhTongTien()
         {
             if (!DBConnect.RequireStaffOrAdmin("Tính tổng tiền dịch vụ")) return;
-            string maTH = NewSuDung.MaTH; // Lấy từ form input đang gõ
+            string maTH = NewSuDung.MaTH;
             try
             {
                 using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
@@ -173,9 +204,9 @@ namespace DoAn.ViewModel
                     {
                         cmd.Parameters.AddWithValue("@MaTH", maTH);
                         object result = cmd.ExecuteScalar();
-                        decimal tongTien = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
-                        TongTien = $"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ";
-                        MessageBox.Show($"Tổng tiền của thi hài {maTH} là: {tongTien:N0} VNĐ", "Thông báo chi phí");
+                        decimal total = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                        TongTien = $"Tổng tiền của thi hài {maTH} là: {total:N0} VNĐ";
+                        MessageBox.Show($"Tổng tiền của thi hài {maTH} là: {total:N0} VNĐ", "Thông báo chi phí");
                     }
                 }
             }
@@ -211,31 +242,29 @@ namespace DoAn.ViewModel
                                 {
                                     TenDV = row["TENDV"].ToString(),
                                     GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
+                                    SoLuong = row["SOLUONG"] != DBNull.Value ? Convert.ToInt32(row["SOLUONG"]) : 1,  // ← MỚI
                                     NgaySD = row["NGAYSUDUNG"] != DBNull.Value ? (DateTime?)row["NGAYSUDUNG"] : null,
-                                    GhiChu = row["GHICHU"].ToString()
+                                    GhiChu = row["GHICHU"] != DBNull.Value ? row["GHICHU"].ToString() : ""
                                 });
                             }
 
                             if (dt.Rows.Count == 0)
-                            {
                                 MessageBox.Show("Không có lịch sử dịch vụ cho thi hài này.");
-                            }
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tra cứu: " + ex.Message);
-            }
+            catch (Exception ex) { MessageBox.Show("Lỗi tra cứu: " + ex.Message); }
         }
+
         private void XuatExcel()
         {
             if (!DBConnect.RequireStaffOrAdmin("Xuất Excel dịch vụ đã mua")) return;
-
             if (DanhSachSuDung == null || DanhSachSuDung.Count == 0) return;
 
-            Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog() { Filter = "Excel Files|*.xlsx", FileName = "ThongKe_SuDungDichVu.xlsx" };
+            Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog()
+            { Filter = "Excel Files|*.xlsx", FileName = "ThongKe_SuDungDichVu.xlsx" };
+
             if (sfd.ShowDialog() == true)
             {
                 try
@@ -244,16 +273,18 @@ namespace DoAn.ViewModel
                     {
                         var ws = wb.Worksheets.Add("Dịch Vụ Đã Sử Dụng");
 
-                        // Tiêu đề
+                        // ← MỚI: thêm cột Số Lượng và Thành Tiền
                         ws.Cell(1, 1).Value = "Mã TH";
                         ws.Cell(1, 2).Value = "Tên Thi Hài";
                         ws.Cell(1, 3).Value = "Mã DV";
                         ws.Cell(1, 4).Value = "Tên Dịch Vụ";
-                        ws.Cell(1, 5).Value = "Giá Tiền";
-                        ws.Cell(1, 6).Value = "Ngày Sử Dụng";
-                        ws.Cell(1, 7).Value = "Ghi Chú";
+                        ws.Cell(1, 5).Value = "Đơn Giá";
+                        ws.Cell(1, 6).Value = "Số Lượng";    // ← MỚI
+                        ws.Cell(1, 7).Value = "Thành Tiền";  // ← MỚI
+                        ws.Cell(1, 8).Value = "Ngày Sử Dụng";
+                        ws.Cell(1, 9).Value = "Ghi Chú";
 
-                        var header = ws.Range("A1:G1");
+                        var header = ws.Range("A1:I1");
                         header.Style.Font.Bold = true;
                         header.Style.Fill.BackgroundColor = XLColor.Yellow;
                         header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -265,13 +296,14 @@ namespace DoAn.ViewModel
                             ws.Cell(r, 2).Value = item.TenTH;
                             ws.Cell(r, 3).Value = item.MaDV;
                             ws.Cell(r, 4).Value = item.TenDV;
-
-                            // Xuất giá tiền có định dạng dấu phẩy
                             ws.Cell(r, 5).Value = item.GiaTien;
                             ws.Cell(r, 5).Style.NumberFormat.Format = "#,##0";
-
-                            if (item.NgaySD.HasValue) ws.Cell(r, 6).Value = item.NgaySD.Value.ToString("dd/MM/yyyy");
-                            ws.Cell(r, 7).Value = item.GhiChu;
+                            ws.Cell(r, 6).Value = item.SoLuong;        // ← MỚI
+                            ws.Cell(r, 7).Value = item.ThanhTien;      // ← MỚI
+                            ws.Cell(r, 7).Style.NumberFormat.Format = "#,##0";
+                            if (item.NgaySD.HasValue)
+                                ws.Cell(r, 8).Value = item.NgaySD.Value.ToString("dd/MM/yyyy");
+                            ws.Cell(r, 9).Value = item.GhiChu;
                             r++;
                         }
 
@@ -283,7 +315,7 @@ namespace DoAn.ViewModel
                 catch (Exception ex) { MessageBox.Show("Lỗi xuất Excel: " + ex.Message); }
             }
         }
-        // HÀM NHẬP TỪ FILE
+
         private void NhapTuFile()
         {
             if (!DBConnect.RequireStaffOrAdmin("Nhập Excel dịch vụ đã mua")) return;
@@ -301,6 +333,7 @@ namespace DoAn.ViewModel
                     dt.Columns.Add("MADV", typeof(string));
                     dt.Columns.Add("NGAYSD", typeof(DateTime));
                     dt.Columns.Add("GHICHU", typeof(string));
+                    dt.Columns.Add("SOLUONG", typeof(int));    // ← MỚI
 
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
@@ -310,26 +343,26 @@ namespace DoAn.ViewModel
                         bool isFirstRow = true;
                         foreach (var row in rows)
                         {
-                            if (isFirstRow) // Bỏ qua dòng tiêu đề
-                            {
-                                isFirstRow = false;
-                                continue;
-                            }
+                            if (isFirstRow) { isFirstRow = false; continue; }
 
                             string maTH = row.Cell(1).GetString().Trim();
                             string maDV = row.Cell(2).GetString().Trim();
 
-                            // Xử lý ngày tháng an toàn
                             string ngaySDStr = row.Cell(3).GetString().Trim();
-                            object ngaySD = DateTime.TryParse(ngaySDStr, out DateTime ns) ? (object)ns : DBNull.Value;
+                            object ngaySD = DateTime.TryParse(ngaySDStr, out DateTime ns)
+                                          ? (object)ns : DBNull.Value;
 
                             string ghiChu = row.Cell(4).GetString().Trim();
 
-                            // Thêm vào DataTable
+                            // ← MỚI: đọc cột Số Lượng (cột 5), mặc định 1 nếu không có
+                            int soLuong = 1;
+                            if (!int.TryParse(row.Cell(5).GetString().Trim(), out soLuong) || soLuong < 1)
+                                soLuong = 1;
+
                             if (!string.IsNullOrEmpty(maTH) && !string.IsNullOrEmpty(maDV))
-                            {
-                                dt.Rows.Add(maTH, maDV, ngaySD, ghiChu);
-                            }
+                                dt.Rows.Add(maTH, maDV, ngaySD,
+                                            string.IsNullOrEmpty(ghiChu) ? (object)DBNull.Value : ghiChu,
+                                            soLuong);
                         }
                     }
 
@@ -345,25 +378,25 @@ namespace DoAn.ViewModel
                         using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn))
                         {
                             bulkCopy.DestinationTableName = "SUDUNG";
-
                             bulkCopy.ColumnMappings.Add("MATH", "MATH");
                             bulkCopy.ColumnMappings.Add("MADV", "MADV");
-                            bulkCopy.ColumnMappings.Add("NGAYSUDUNG", "NGAYSUDUNG");
+                            bulkCopy.ColumnMappings.Add("NGAYSD", "NGAYSUDUNG");
                             bulkCopy.ColumnMappings.Add("GHICHU", "GHICHU");
-
+                            bulkCopy.ColumnMappings.Add("SOLUONG", "SOLUONG");  // ← MỚI
                             bulkCopy.WriteToServer(dt);
                             MessageBox.Show($"Đã thêm thành công {dt.Rows.Count} lượt sử dụng dịch vụ từ file Excel!", "Thành công");
-
-                            LoadData(); // Load lại Grid
-
+                            LoadData();
                         }
                     }
                 }
                 catch (SqlException ex)
                 {
-                    if (ex.Number == 2627) MessageBox.Show("Lỗi: Dữ liệu bị trùng (1 thi hài dùng 1 dịch vụ 2 lần trong cùng 1 ngày)!");
-                    else if (ex.Number == 547) MessageBox.Show("Lỗi: Mã Thi Hài hoặc Mã Dịch Vụ trong file không tồn tại trong hệ thống!");
-                    else MessageBox.Show("Lỗi CSDL: " + ex.Message);
+                    if (ex.Number == 2627)
+                        MessageBox.Show("Lỗi: Dữ liệu bị trùng (1 thi hài dùng 1 dịch vụ 2 lần trong cùng 1 ngày)!");
+                    else if (ex.Number == 547)
+                        MessageBox.Show("Lỗi: Mã Thi Hài hoặc Mã Dịch Vụ trong file không tồn tại trong hệ thống!");
+                    else
+                        MessageBox.Show("Lỗi CSDL: " + ex.Message);
                 }
                 catch (Exception ex)
                 {

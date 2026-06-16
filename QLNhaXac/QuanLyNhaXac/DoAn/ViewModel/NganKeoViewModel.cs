@@ -15,6 +15,7 @@ namespace DoAn.ViewModel
     public class NganKeoViewModel : BaseViewModel
     {
         public ObservableCollection<NganKeoModel> DanhSachNganKeo { get; set; }
+        public ObservableCollection<ThiHaiModel> DanhSachThiHai { get; set; }
 
         private string _trangThaiNganKeo = "Chưa chọn ngăn";
         public string TrangThaiNganKeo
@@ -82,6 +83,7 @@ namespace DoAn.ViewModel
         public NganKeoViewModel()
         {
             DanhSachNganKeo = new ObservableCollection<NganKeoModel>();
+            DanhSachThiHai = new ObservableCollection<ThiHaiModel>();
 
             LoadCommand = new RelayCommand(p => LoadData());
             ThemCommand = new RelayCommand(p => ThemNgan(), p => NewNganKeo != null && !string.IsNullOrWhiteSpace(NewNganKeo.MaNgan));
@@ -98,8 +100,34 @@ namespace DoAn.ViewModel
                 p => SelectedNganKeo != null && !string.IsNullOrEmpty(SelectedNganKeo.MaNgan)
             );
 
+            LoadDanhSachThiHai();
             LoadData();
             ResetForm();
+        }
+
+        private void LoadDanhSachThiHai()
+        {
+            if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+            DanhSachThiHai.Clear();
+            try
+            {
+                // Lấy các thi hài chưa bàn giao/mai táng để xếp vào ngăn
+                string sql = "SELECT MATH, HOTEN_TH FROM THIHAI WHERE TRANGTHAI NOT IN (N'Đã bàn giao', N'Đã mai táng')";
+                DataTable dt = DBConnect.GetData(sql);
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    DanhSachThiHai.Add(new ThiHaiModel
+                    {
+                        MaTH = row["MATH"].ToString(),
+                        HoTenTH = row["HOTEN_TH"].ToString()
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi tải danh sách thi hài cho ComboBox: " + ex.Message);
+            }
         }
 
         private void LoadData()

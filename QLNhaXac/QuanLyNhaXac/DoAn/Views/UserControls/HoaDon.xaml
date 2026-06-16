@@ -253,28 +253,37 @@
 
                 <!-- Bên phải: Tạo hóa đơn mới + Thanh toán -->
                 <StackPanel Grid.Column="2">
-                    <!-- Tạo hóa đơn mới -->
+
+                    <!-- 1. Tạo hóa đơn mới -->
                     <TextBlock Text="Tạo hóa đơn mới" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
+
                     <TextBlock Text="Chọn thi hài:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
                     <ComboBox ItemsSource="{Binding DSThiHai}"
                               SelectedItem="{Binding SelectedThiHaiMoi, Mode=TwoWay}"
                               DisplayMemberPath="HoTenTH"
                               Height="30" Margin="0,0,0,8"/>
 
-                    <!-- Preview dịch vụ chưa lập HĐ -->
-                    <TextBlock Text="Dịch vụ sẽ được lập hóa đơn:"
+                    <!-- 2. BẢNG PREVIEW DỊCH VỤ (Thay thế cho cái ComboBox cũ bị lỗi) -->
+                    <TextBlock Text="Danh sách dịch vụ sẽ được tính tiền:"
                                Foreground="#0F766E" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
                     <DataGrid AutoGenerateColumns="False" CanUserAddRows="False"
                               Background="White" BorderThickness="1" BorderBrush="#D1FAE5"
                               HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#E2E8F0" MaxHeight="90"
+                              HorizontalGridLinesBrush="#E2E8F0" MaxHeight="100"
                               ItemsSource="{Binding DSDichVuChuaLap}" Margin="0,0,0,8">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Dịch vụ" Binding="{Binding TenDV}" Width="*"/>
-                            <DataGridTextColumn Header="Giá tiền" Binding="{Binding GiaTien, StringFormat=N0}" Width="90"/>
+                            <DataGridTextColumn Header="Giá tiền" Binding="{Binding GiaTien, StringFormat=N0}" Width="90">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 
+                    <!-- 3. Các trường thông tin còn lại -->
                     <TextBlock Text="Ngày lập:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
                     <DatePicker SelectedDate="{Binding NgayLapMoi, Mode=TwoWay}" Height="30" Margin="0,0,0,8"/>
 
@@ -292,7 +301,7 @@
                             Background="#10B981" HorizontalAlignment="Stretch"
                             Command="{Binding TaoHoaDonCommand}" Margin="0,0,0,16"/>
 
-                    <!-- Thanh toán -->
+                    <!-- 4. Khu vực Thanh toán -->
                     <Border BorderThickness="1,0,0,0" BorderBrush="#E2E8F0" Padding="0,12,0,0">
                         <StackPanel>
                             <TextBlock Text="Thanh toán hóa đơn đang chọn" FontWeight="Bold"
@@ -310,6 +319,7 @@
                                     Command="{Binding InHoaDonCommand}"/>
                         </StackPanel>
                     </Border>
+
                 </StackPanel>
             </Grid>
         </Border>

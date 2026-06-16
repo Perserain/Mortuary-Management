@@ -11,8 +11,9 @@ namespace DoAn.Model
         private string _tenDV;
         private DateTime? _ngaySD;
         private decimal _giaTien;
+        private int _soLuong = 1;       // ← MỚI: số lượng/kỳ sử dụng
         private string _ghiChu;
-        private string _maHD;       // NULL = chưa lập HĐ
+        private string _maHD;
         private string _trangThaiHD;
 
         public string MaTH
@@ -48,8 +49,23 @@ namespace DoAn.Model
         public decimal GiaTien
         {
             get => _giaTien;
-            set { _giaTien = value; OnPropertyChanged(); }
+            set { _giaTien = value; OnPropertyChanged(); OnPropertyChanged(nameof(ThanhTien)); }
         }
+
+        // ← MỚI: số lượng (VD: bảo quản lạnh 3 ngày → SoLuong = 3)
+        public int SoLuong
+        {
+            get => _soLuong;
+            set
+            {
+                _soLuong = value < 1 ? 1 : value;  // tối thiểu 1
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ThanhTien));
+            }
+        }
+
+        // ← MỚI: thành tiền = đơn giá × số lượng (computed, không lưu DB)
+        public decimal ThanhTien => GiaTien * SoLuong;
 
         public string GhiChu
         {
@@ -64,14 +80,12 @@ namespace DoAn.Model
             set { _maHD = value; OnPropertyChanged(); OnPropertyChanged(nameof(DaLapHoaDon)); }
         }
 
-        // Trạng thái hiển thị
         public string TrangThaiHD
         {
             get => _trangThaiHD;
             set { _trangThaiHD = value; OnPropertyChanged(); }
         }
 
-        // Computed: đã lập hóa đơn chưa
         public bool DaLapHoaDon => !string.IsNullOrEmpty(MaHD);
     }
 }

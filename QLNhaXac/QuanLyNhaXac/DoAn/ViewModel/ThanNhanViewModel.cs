@@ -244,22 +244,32 @@ namespace DoAn.ViewModel
             GenerateMATN();
         }
 
-        // Tự sinh mã MATN theo pattern TN001, TN002 …
+        // Tự sinh mã MATN theo pattern TN001, TN002 … bằng cách truy vấn DB
         private void GenerateMATN()
         {
-            if (DSThanNhan == null || DSThanNhan.Count == 0)
+            try
             {
-                MATN = "TN001";
-                return;
+                if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+
+                // Lấy số lớn nhất từ đuôi của mã TN (cắt từ ký tự thứ 3 trở đi)
+                string query = "SELECT ISNULL(MAX(CAST(SUBSTRING(MATN, 3, 10) AS INT)), 0) FROM THAN_NHAN WHERE MATN LIKE 'TN%'";
+                DataTable dt = DBConnect.GetData(query);
+
+                if (dt.Rows.Count > 0)
+                {
+                    int max = Convert.ToInt32(dt.Rows[0][0]);
+                    MATN = $"TN{(max + 1):D3}";
+                }
+                else
+                {
+                    MATN = "TN001";
+                }
             }
-            int max = DSThanNhan
-                .Select(t => {
-                    if (t.MATN != null && t.MATN.StartsWith("TN") &&
-                        int.TryParse(t.MATN.Substring(2), out int n)) return n;
-                    return 0;
-                })
-                .DefaultIfEmpty(0).Max();
-            MATN = $"TN{(max + 1):D3}";
+            catch
+            {
+                // Fallback nếu có lỗi
+                MATN = "TN001";
+            }
         }
 
         // ──────────────────────────────────────────────
