@@ -36,71 +36,55 @@ namespace DoAn.Views.UserControls
             }
         }
 
-        // ── Biểu đồ cột: Thi hài theo tháng ───────────────────────────────
         private void DrawThiHaiChart(DashboardViewModel vm)
         {
             CanvasThiHai.Children.Clear();
             var data = vm.ThiHaiTheoThang;
-            if (data == null || data.Count == 0)
-            {
-                AddEmptyLabel(CanvasThiHai, "Chưa có dữ liệu");
-                return;
-            }
+            if (data == null || data.Count == 0) return;
 
             CanvasThiHai.UpdateLayout();
-            double canvasW = Math.Max(CanvasThiHai.ActualWidth, 300);
-            double canvasH = Math.Max(CanvasThiHai.ActualHeight, 120);
-            double barMaxH = canvasH - 30;
-            double barW = Math.Max((canvasW - 20) / data.Count - 4, 8);
-            double startX = 10;
-            var barColor = new SolidColorBrush(Color.FromRgb(16, 185, 129)); // #10B981
+            double canvasH = CanvasThiHai.ActualHeight - 20;
+            double barW = Math.Max((CanvasThiHai.ActualWidth / data.Count) - 10, 10);
 
             for (int i = 0; i < data.Count; i++)
             {
-                var item = data[i];
-                double barH = Math.Max(item.ChieuCaoChuanHoa * barMaxH, 2);
-                double x = startX + i * (barW + 4);
-                double y = canvasH - barH - 20;
+                double barH = data[i].ChieuCaoChuanHoa * canvasH;
 
                 var rect = new Rectangle
                 {
                     Width = barW,
-                    Height = barH,
-                    Fill = barColor,
-                    RadiusX = 3,
-                    RadiusY = 3
+                    Height = Math.Max(barH, 2),
+                    Fill = new SolidColorBrush(Color.FromRgb(16, 185, 129)),
+                    ToolTip = $"Tháng: {data[i].Thang}\nSố lượng: {data[i].SoLuong} thi hài"
                 };
-                Canvas.SetLeft(rect, x);
-                Canvas.SetTop(rect, y);
+
+                Canvas.SetLeft(rect, i * (barW + 5) + 5);
+                Canvas.SetTop(rect, canvasH - barH);
                 CanvasThiHai.Children.Add(rect);
 
-                // Số lượng trên cột
-                if (item.SoLuong > 0)
+                var valueLabel = new TextBlock
                 {
-                    var lblVal = new TextBlock
-                    {
-                        Text = item.SoLuong.ToString(),
-                        FontSize = 9,
-                        Foreground = new SolidColorBrush(Color.FromRgb(30, 41, 59)),
-                        FontWeight = FontWeights.SemiBold
-                    };
-                    Canvas.SetLeft(lblVal, x + barW / 2 - 6);
-                    Canvas.SetTop(lblVal, y - 14);
-                    CanvasThiHai.Children.Add(lblVal);
-                }
-
-                // Label tháng
-                var lbl = new TextBlock
-                {
-                    Text = item.Thang,
-                    FontSize = 9,
-                    Foreground = new SolidColorBrush(Color.FromRgb(100, 116, 139)),
-                    Width = barW + 4,
-                    TextAlignment = TextAlignment.Center
+                    Text = data[i].SoLuong.ToString(),
+                    Foreground = Brushes.Black,
+                    FontSize = 10,
+                    TextAlignment = TextAlignment.Center,
+                    Width = barW
                 };
-                Canvas.SetLeft(lbl, x - 2);
-                Canvas.SetTop(lbl, canvasH - 18);
-                CanvasThiHai.Children.Add(lbl);
+                Canvas.SetLeft(valueLabel, i * (barW + 5) + 5);
+                Canvas.SetTop(valueLabel, Math.Max(canvasH - barH - 15, 0));
+                CanvasThiHai.Children.Add(valueLabel);
+
+                var monthLabel = new TextBlock
+                {
+                    Text = data[i].Thang,
+                    Foreground = Brushes.Gray,
+                    FontSize = 10,
+                    TextAlignment = TextAlignment.Center,
+                    Width = barW
+                };
+                Canvas.SetLeft(monthLabel, i * (barW + 5) + 5);
+                Canvas.SetTop(monthLabel, canvasH + 2);
+                CanvasThiHai.Children.Add(monthLabel);
             }
         }
 
@@ -109,68 +93,55 @@ namespace DoAn.Views.UserControls
         {
             CanvasDoanhThu.Children.Clear();
             var data = vm.DoanhThuTheoThang;
-            if (data == null || data.Count == 0)
-            {
-                AddEmptyLabel(CanvasDoanhThu, "Chưa có dữ liệu");
-                return;
-            }
+            if (data == null || data.Count == 0) return;
 
             CanvasDoanhThu.UpdateLayout();
-            double canvasW = Math.Max(CanvasDoanhThu.ActualWidth, 300);
-            double canvasH = Math.Max(CanvasDoanhThu.ActualHeight, 120);
-            double barMaxH = canvasH - 30;
-            double barW = Math.Max((canvasW - 20) / data.Count - 4, 8);
-            double startX = 10;
-            var barColor = new SolidColorBrush(Color.FromRgb(59, 130, 246)); // #3B82F6
+            double canvasH = CanvasDoanhThu.ActualHeight - 20;
+            double barW = Math.Max((CanvasDoanhThu.ActualWidth / data.Count) - 10, 10);
 
             for (int i = 0; i < data.Count; i++)
             {
-                var item = data[i];
-                double barH = Math.Max(item.ChieuCaoChuanHoa * barMaxH, 2);
-                double x = startX + i * (barW + 4);
-                double y = canvasH - barH - 20;
+                double barH = data[i].ChieuCaoChuanHoa * canvasH;
 
                 var rect = new Rectangle
                 {
                     Width = barW,
-                    Height = barH,
-                    Fill = barColor,
-                    RadiusX = 3,
-                    RadiusY = 3
+                    Height = Math.Max(barH, 2),
+                    Fill = new SolidColorBrush(Color.FromRgb(59, 130, 246)),
+                    ToolTip = $"Tháng: {data[i].Thang}\nDoanh thu: {data[i].DoanhThu:N0}đ"
                 };
-                Canvas.SetLeft(rect, x);
-                Canvas.SetTop(rect, y);
+
+                Canvas.SetLeft(rect, i * (barW + 5) + 5);
+                Canvas.SetTop(rect, canvasH - barH);
                 CanvasDoanhThu.Children.Add(rect);
 
-                // Số tiền rút gọn (triệu)
-                if (item.DoanhThu > 0)
-                {
-                    string valLabel = item.DoanhThu >= 1_000_000
-                        ? (item.DoanhThu / 1_000_000m).ToString("0.#") + "M"
-                        : item.DoanhThu.ToString("N0");
-                    var lblVal = new TextBlock
-                    {
-                        Text = valLabel,
-                        FontSize = 8,
-                        Foreground = new SolidColorBrush(Color.FromRgb(30, 41, 59)),
-                        FontWeight = FontWeights.SemiBold
-                    };
-                    Canvas.SetLeft(lblVal, x + barW / 2 - 10);
-                    Canvas.SetTop(lblVal, y - 14);
-                    CanvasDoanhThu.Children.Add(lblVal);
-                }
+                string formattedValue = data[i].DoanhThu >= 1000000
+                    ? (data[i].DoanhThu / 1000000m).ToString("0.#") + "M"
+                    : (data[i].DoanhThu / 1000m).ToString("0.#") + "K";
 
-                var lbl = new TextBlock
+                var valueLabel = new TextBlock
                 {
-                    Text = item.Thang,
-                    FontSize = 9,
-                    Foreground = new SolidColorBrush(Color.FromRgb(100, 116, 139)),
-                    Width = barW + 4,
-                    TextAlignment = TextAlignment.Center
+                    Text = formattedValue,
+                    Foreground = Brushes.Black,
+                    FontSize = 10,
+                    TextAlignment = TextAlignment.Center,
+                    Width = barW
                 };
-                Canvas.SetLeft(lbl, x - 2);
-                Canvas.SetTop(lbl, canvasH - 18);
-                CanvasDoanhThu.Children.Add(lbl);
+                Canvas.SetLeft(valueLabel, i * (barW + 5) + 5);
+                Canvas.SetTop(valueLabel, Math.Max(canvasH - barH - 15, 0));
+                CanvasDoanhThu.Children.Add(valueLabel);
+
+                var monthLabel = new TextBlock
+                {
+                    Text = data[i].Thang,
+                    Foreground = Brushes.Gray,
+                    FontSize = 10,
+                    TextAlignment = TextAlignment.Center,
+                    Width = barW
+                };
+                Canvas.SetLeft(monthLabel, i * (barW + 5) + 5);
+                Canvas.SetTop(monthLabel, canvasH + 2);
+                CanvasDoanhThu.Children.Add(monthLabel);
             }
         }
 

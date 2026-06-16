@@ -319,68 +319,125 @@ namespace DoAn.ViewModel
             OnPropertyChanged(nameof(SelectedBacSi));
         }
 
+        /// <summary>Kiểm tra dữ liệu form Hồ Sơ trước khi INSERT/UPDATE.</summary>
+        private string? KiemTraHoSo(HoSoKBModel hs)
+        {
+            if (!Validator.IsNotEmpty(hs.MaHS))
+                return "Vui lòng nhập Mã Hồ Sơ.";
+            if (!Validator.IsNotEmpty(hs.MaTH))
+                return "Vui lòng nhập hoặc chọn Mã Thi Hài cần khám nghiệm.";
+            if (!Validator.IsNotEmpty(hs.MaBS))
+                return "Vui lòng chọn Bác Sĩ thực hiện khám.";
+
+            // Lưu ý: Việc kiểm tra "Ngày khám >= Ngày mất" sẽ do Trigger TRG_KiemTraNgayKham dưới SQL đảm nhiệm.
+            return null; // Hợp lệ
+        }
+
         private void ThemHoSo()
         {
-            if (!DBConnect.RequireDoctorOrAdmin("Thêm hồ sơ khám")) return;
-            if (string.IsNullOrWhiteSpace(NewHoSo.MaTH) || string.IsNullOrWhiteSpace(NewHoSo.MaBS))
+            if (!DBConnect.RequireStaffOrAdmin("Thêm hồ sơ khám")) return;
+
+            // === KIỂM TRA VALIDATION ===
+            string? loi = KiemTraHoSo(NewHoSo);
+            if (loi != null)
             {
-                MessageBox.Show("Nhập thiếu Mã HS, Mã Thi Hài hoặc Mã Bác Sĩ!"); return;
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    var cmd = new SqlCommand("SP_ThemHoSoKhamBenh_V2", conn) { CommandType = CommandType.StoredProcedure };
+                    var cmd = new SqlCommand("SP_ThemHoSoKhamBenh_V2", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@MAHS", NewHoSo.MaHS);
                     cmd.Parameters.AddWithValue("@THOIGIANKHAM", NewHoSo.TgKham ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@KETLUAN", string.IsNullOrWhiteSpace(NewHoSo.KetLuan) ? DBNull.Value : (object)NewHoSo.KetLuan);
                     cmd.Parameters.AddWithValue("@MATH", NewHoSo.MaTH);
                     cmd.Parameters.AddWithValue("@MABS", NewHoSo.MaBS);
+
                     cmd.ExecuteNonQuery();
-                    MessageBox.Show("Lập hồ sơ thành công!");
-                    LoadData(); ResetForm();
+                    MessageBox.Show("Lập hồ sơ thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadData();
+                    ResetForm();
                 }
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 547) MessageBox.Show("Mã Thi Hài hoặc Mã Bác Sĩ không tồn tại!");
-                else MessageBox.Show("Lỗi CSDL: " + ex.Message);
+                // Bắt lỗi Trùng mã, Lỗi Khóa ngoại, và các lỗi từ Trigger
+                if (ex.Number == 2627 || ex.Number == 2601)
+                    MessageBox.Show("Mã Hồ Sơ đã tồn tại trong hệ thống!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Number == 547)
+                    MessageBox.Show("Mã Thi Hài hoặc Mã Bác Sĩ không tồn tại!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("Ngày khám không được trước"))
+                    MessageBox.Show("Ngày khám không được trước ngày mất của thi hài!", "Sai logic thời gian", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("quá 3 ca"))
+                    MessageBox.Show("Bác sĩ này đã đạt giới hạn 3 ca khám trong ngày!", "Vượt giới hạn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi không xác định: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SuaHoSo()
         {
-            if (!DBConnect.RequireDoctorOrAdmin("Sửa hồ sơ khám")) return;
+            if (!DBConnect.RequireStaffOrAdmin("Sửa hồ sơ khám")) return;
+
+            // === KIỂM TRA VALIDATION ===
+            string? loi = KiemTraHoSo(NewHoSo);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    var cmdUpdate = new SqlCommand("SP_SuaHoSoKhamBenh_V2", conn) { CommandType = CommandType.StoredProcedure };
+                    var cmdUpdate = new SqlCommand("SP_SuaHoSoKhamBenh_V2", conn);
+                    cmdUpdate.CommandType = CommandType.StoredProcedure;
                     cmdUpdate.Parameters.AddWithValue("@MAHS", NewHoSo.MaHS);
                     cmdUpdate.Parameters.AddWithValue("@THOIGIANKHAM", NewHoSo.TgKham ?? (object)DBNull.Value);
                     cmdUpdate.Parameters.AddWithValue("@KETLUAN", string.IsNullOrWhiteSpace(NewHoSo.KetLuan) ? DBNull.Value : (object)NewHoSo.KetLuan);
                     cmdUpdate.Parameters.AddWithValue("@MATH", string.IsNullOrWhiteSpace(NewHoSo.MaTH) ? DBNull.Value : (object)NewHoSo.MaTH);
                     cmdUpdate.Parameters.AddWithValue("@MABS", string.IsNullOrWhiteSpace(NewHoSo.MaBS) ? DBNull.Value : (object)NewHoSo.MaBS);
+
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
-                        MessageBox.Show("Cập nhật hồ sơ thành công!");
-                        LoadData(); ResetForm();
+                        MessageBox.Show("Cập nhật hồ sơ thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LoadData();
+                        ResetForm();
                     }
                 }
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 547) MessageBox.Show("Mã Thi Hài hoặc Mã Bác Sĩ không tồn tại!");
-                else MessageBox.Show("Lỗi SQL: " + ex.Message);
+                if (ex.Number == 547)
+                    MessageBox.Show("Mã Thi Hài hoặc Mã Bác Sĩ không tồn tại!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("Ngày khám không được trước"))
+                    MessageBox.Show("Ngày khám không được trước ngày mất của thi hài!", "Sai logic thời gian", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("quá 3 ca"))
+                    MessageBox.Show("Bác sĩ này đã đạt giới hạn 3 ca khám trong ngày!", "Vượt giới hạn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi không xác định: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void XoaHoSo()
         {
-            if (!DBConnect.RequireAdmin("Xóa hồ sơ khám")) return;
-            if (MessageBox.Show("Xóa hồ sơ này?", "Xác nhận", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (!DBConnect.RequireStaffOrAdmin("Xóa hồ sơ khám")) return;
+            if (MessageBox.Show("Bạn có chắc muốn xóa hồ sơ này?", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
                 {
@@ -390,11 +447,24 @@ namespace DoAn.ViewModel
                         var cmd = new SqlCommand("EXEC SP_XoaHoSoKhamBenh @ma", conn);
                         cmd.Parameters.AddWithValue("@ma", NewHoSo.MaHS);
                         cmd.ExecuteNonQuery();
-                        MessageBox.Show("Đã xóa hồ sơ!");
-                        LoadData(); ResetForm();
+
+                        MessageBox.Show("Đã xóa hồ sơ thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LoadData();
+                        ResetForm();
                     }
                 }
-                catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+                catch (SqlException ex)
+                {
+                    // Bắt lỗi trigger cấm xóa hồ sơ pháp y
+                    if (ex.Message.Contains("Hồ sơ pháp y không được phép xóa"))
+                        MessageBox.Show("Hồ sơ pháp y đã lưu không thể bị xóa! Đây là dữ liệu được bảo vệ.", "Bảo vệ dữ liệu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    else
+                        MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi không xác định: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

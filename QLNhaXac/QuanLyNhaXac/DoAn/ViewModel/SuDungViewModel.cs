@@ -121,14 +121,50 @@ namespace DoAn.ViewModel
             }
         }
 
+        /// <summary>Truy xuất ngày mất của thi hài từ DB để so sánh logic thời gian.</summary>
+        private DateTime? LayNgayMatThiHai(string maTH)
+        {
+            if (string.IsNullOrWhiteSpace(maTH) || string.IsNullOrEmpty(DBConnect.ConnectionString)) return null;
+            try
+            {
+                string sql = $"SELECT NGAYMAT FROM THIHAI WHERE MATH = '{maTH}'";
+                var dt = DBConnect.GetData(sql);
+                if (dt != null && dt.Rows.Count > 0 && dt.Rows[0]["NGAYMAT"] != DBNull.Value)
+                {
+                    return Convert.ToDateTime(dt.Rows[0]["NGAYMAT"]);
+                }
+            }
+            catch { /* Bỏ qua lỗi query, trả về null để SQL Trigger lo */ }
+            return null;
+        }
+
+        /// <summary>Kiểm tra dữ liệu form Sử Dụng Dịch Vụ trước khi INSERT.</summary>
+        private string? KiemTraSuDung(SuDungModel sd, DateTime? ngayMatThiHai)
+        {
+            if (!Validator.IsNotEmpty(sd.MaTH))
+                return "Vui lòng chọn Thi Hài.";
+            if (!Validator.IsNotEmpty(sd.MaDV))
+                return "Vui lòng chọn Dịch Vụ.";
+            if (!Validator.IsSoLuongHopLe(sd.SoLuong))
+                return "Số lượng phải là số nguyên dương (>= 1).";
+
+            if (sd.NgaySD.HasValue && ngayMatThiHai.HasValue)
+            {
+                if (!Validator.IsNgayDichVuHopLe(sd.NgaySD, ngayMatThiHai))
+                    return $"Ngày sử dụng dịch vụ ({sd.NgaySD.Value:dd/MM/yyyy}) không được trước ngày mất thi hài ({ngayMatThiHai.Value:dd/MM/yyyy}).";
+            }
+            return null;
+        }
         private void ThemSuDung()
         {
             if (!DBConnect.RequireStaffOrAdmin("Đăng ký dịch vụ")) return;
 
-            // Validate số lượng
-            if (NewSuDung.SoLuong < 1)
+            // === KIỂM TRA VALIDATION ===
+            DateTime? ngayMat = LayNgayMatThiHai(NewSuDung.MaTH);
+            string? loi = KiemTraSuDung(NewSuDung, ngayMat);
+            if (loi != null)
             {
-                MessageBox.Show("Số lượng phải lớn hơn hoặc bằng 1!", "Cảnh báo");
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -137,30 +173,40 @@ namespace DoAn.ViewModel
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
                 {
                     conn.Open();
-                    // ← MỚI: thêm @soluong; ← FIX: dùng DBNull.Value khi GhiChu null
                     string sql = "EXEC SP_ThemDichVuSuDung @math, @madv, @ngaysudung, @ghichu, @soluong";
                     var cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@math", NewSuDung.MaTH);
                     cmd.Parameters.AddWithValue("@madv", NewSuDung.MaDV);
                     cmd.Parameters.AddWithValue("@ngaysudung", NewSuDung.NgaySD);
-                    cmd.Parameters.AddWithValue("@ghichu", (object)NewSuDung.GhiChu ?? DBNull.Value);  // ← FIX bug null
-                    cmd.Parameters.AddWithValue("@soluong", NewSuDung.SoLuong);                          // ← MỚI
+                    cmd.Parameters.AddWithValue("@ghichu", string.IsNullOrWhiteSpace(NewSuDung.GhiChu) ? DBNull.Value : (object)NewSuDung.GhiChu);
+                    cmd.Parameters.AddWithValue("@soluong", NewSuDung.SoLuong);
+
                     cmd.ExecuteNonQuery();
 
                     string msg = NewSuDung.SoLuong > 1
                         ? $"Đã đăng ký dịch vụ thành công! (Số lượng: {NewSuDung.SoLuong})"
                         : "Đã thêm/đăng ký dịch vụ thành công!";
-                    MessageBox.Show(msg, "Thành công");
+                    MessageBox.Show(msg, "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+
                     LoadData();
                     ResetForm();
                 }
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 547)
-                    MessageBox.Show("Mã Thi Hài hoặc Mã Dịch Vụ không tồn tại trong hệ thống!");
+                // Bắt lỗi theo mã từ SQL
+                if (ex.Number == 2627 || ex.Number == 2601)
+                    MessageBox.Show("Dịch vụ này đã được đăng ký cho thi hài trong cùng một ngày! Vui lòng chọn sửa số lượng thay vì đăng ký mới.", "Trùng lặp", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Number == 547)
+                    MessageBox.Show("Mã Thi Hài hoặc Mã Dịch Vụ không tồn tại trong hệ thống!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("sớm hơn ngày mất")) // Bắt lỗi từ TRG_KiemTraNgayDichVu
+                    MessageBox.Show("Ngày sử dụng dịch vụ không được sớm hơn ngày mất của thi hài!", "Sai logic thời gian", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else
-                    MessageBox.Show("Lỗi CSDL: " + ex.Message);
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

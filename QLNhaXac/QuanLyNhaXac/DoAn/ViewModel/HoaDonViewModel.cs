@@ -377,12 +377,23 @@ namespace DoAn.ViewModel
         // ──────────────────────────────────────────────
         //  TẠO HÓA ĐƠN MỚI
         // ──────────────────────────────────────────────
+        // ──────────────────────────────────────────────
+        //  TẠO HÓA ĐƠN MỚI
+        // ──────────────────────────────────────────────
         private void ExecuteTaoHoaDon()
         {
             if (!DBConnect.RequireStaffOrAdmin("Tạo hóa đơn")) return;
-            if (SelectedThiHaiMoi == null)
+
+            // === KIỂM TRA VALIDATION ===
+            if (SelectedThiHaiMoi == null || !Validator.IsNotEmpty(SelectedThiHaiMoi.MaTH))
             {
-                MessageBox.Show("Vui lòng chọn thi hài để tạo hóa đơn.", "Thiếu thông tin");
+                MessageBox.Show("Vui lòng chọn thi hài để tạo hóa đơn!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (DSDichVuChuaLap.Count == 0)
+            {
+                MessageBox.Show("Thi hài này không có dịch vụ nào cần thanh toán!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -399,23 +410,30 @@ namespace DoAn.ViewModel
                 cmd.Parameters.AddWithValue("@MAHD", maHD);
                 cmd.Parameters.AddWithValue("@MATH", SelectedThiHaiMoi.MaTH);
                 cmd.Parameters.AddWithValue("@NGAYLAP", NgayLapMoi.Date);
-                cmd.Parameters.AddWithValue("@PHUONGTHUCTT", (object?)PhuongThucMoi ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@GHICHU", (object?)GhiChuMoi ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PHUONGTHUCTT", string.IsNullOrWhiteSpace(PhuongThucMoi) ? DBNull.Value : PhuongThucMoi);
+                cmd.Parameters.AddWithValue("@GHICHU", string.IsNullOrWhiteSpace(GhiChuMoi) ? DBNull.Value : GhiChuMoi);
 
                 cmd.ExecuteNonQuery();
-                MessageBox.Show($"Tạo hóa đơn '{maHD}' thành công!", "Thành công",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Tạo hóa đơn '{maHD}' thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
+                // Dọn dẹp form sau khi thành công
                 GhiChuMoi = string.Empty;
+                SelectedThiHaiMoi = null;
+                DSDichVuChuaLap.Clear();
                 LoadData();
             }
-            catch (SqlException ex) when (ex.Number == 2627)
+            catch (SqlException ex)
             {
-                MessageBox.Show($"Mã hóa đơn '{maHD}' đã tồn tại. Vui lòng thử lại.", "Trùng mã");
+                if (ex.Number == 2627 || ex.Number == 2601)
+                    MessageBox.Show($"Mã hóa đơn '{maHD}' đã tồn tại. Vui lòng thử lại.", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Number == 547)
+                    MessageBox.Show("Mã Thi Hài không tồn tại trong hệ thống!", "Lỗi dữ liệu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tạo hóa đơn: " + ex.Message, "Lỗi");
+                MessageBox.Show("Lỗi tạo hóa đơn: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -436,16 +454,38 @@ namespace DoAn.ViewModel
         // ──────────────────────────────────────────────
         //  THANH TOÁN HÓA ĐƠN
         // ──────────────────────────────────────────────
+        // ──────────────────────────────────────────────
+        //  THANH TOÁN HÓA ĐƠN
+        // ──────────────────────────────────────────────
         private void ExecuteThanhToan()
         {
             if (!DBConnect.RequireStaffOrAdmin("Thanh toán hóa đơn")) return;
-            if (Selected == null) return;
+
+            // === KIỂM TRA VALIDATION ===
+            if (Selected == null || !Validator.IsNotEmpty(Selected.MAHD))
+            {
+                MessageBox.Show("Vui lòng chọn một hóa đơn từ danh sách để thanh toán.", "Chưa chọn hóa đơn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (Selected.TRANGTHAITT == "Đã thanh toán" || Selected.TRANGTHAITT == "Miễn phí")
+            {
+                MessageBox.Show("Hóa đơn này đã được xử lý (Đã thanh toán / Miễn phí) rồi!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PhuongThucThanhToan))
+            {
+                MessageBox.Show("Vui lòng chọn Phương thức thanh toán!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             var confirm = MessageBox.Show(
                 $"Xác nhận đã thu tiền hóa đơn '{Selected.MAHD}'\n" +
                 $"Số tiền: {Selected.TONGTIEN:N0} đ\n" +
                 $"Phương thức: {PhuongThucThanhToan}?",
                 "Xác nhận thanh toán", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
             if (confirm != MessageBoxResult.Yes) return;
 
             try
@@ -458,15 +498,19 @@ namespace DoAn.ViewModel
                 };
                 cmd.Parameters.AddWithValue("@MAHD", Selected.MAHD);
                 cmd.Parameters.AddWithValue("@PHUONGTHUCTT", PhuongThucThanhToan);
+
                 cmd.ExecuteNonQuery();
 
-                MessageBox.Show("Thanh toán thành công!", "Thành công",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Thanh toán thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Lỗi");
+                MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         // ──────────────────────────────────────────────

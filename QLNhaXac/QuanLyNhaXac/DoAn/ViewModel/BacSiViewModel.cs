@@ -142,9 +142,37 @@ namespace DoAn.ViewModel
                                !string.IsNullOrWhiteSpace(NewBacSi.HoTenBS);
         }
 
+        /// <summary>Kiểm tra dữ liệu form Bác Sĩ trước khi INSERT/UPDATE.</summary>
+        /// <returns>null nếu hợp lệ; chuỗi thông báo lỗi nếu không hợp lệ.</returns>
+        private string? KiemTraBacSi(BacSiModel bs)
+        {
+            if (!Validator.IsNotEmpty(bs.MaBS))
+                return "Vui lòng nhập Mã Bác Sĩ.";
+            if (!Validator.IsValidMaCode(bs.MaBS, "BS"))
+                return "Mã Bác Sĩ phải bắt đầu bằng 'BS' (ví dụ: BS001).";
+            if (!Validator.IsNotEmpty(bs.HoTenBS))
+                return "Vui lòng nhập Họ Tên bác sĩ.";
+            if (!Validator.IsNamKinhNghiemHopLe(bs.NamKinhNghiem))
+                return "Năm kinh nghiệm phải là số nguyên không âm (>= 0).";
+            if (!string.IsNullOrWhiteSpace(bs.MaBS) && !string.IsNullOrWhiteSpace(bs.MaTruongKhoa))
+            {
+                if (bs.MaBS.Trim().Equals(bs.MaTruongKhoa.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return "Bác sĩ không thể tự là trưởng khoa của chính mình.";
+            }
+            return null; // Hợp lệ
+        }
+
         private void ThemBacSi()
         {
             if (!DBConnect.RequireAdmin("Thêm bác sĩ")) return;
+
+            // BẬT KHIÊN BẢO VỆ
+            string? loi = KiemTraBacSi(NewBacSi);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
@@ -157,21 +185,62 @@ namespace DoAn.ViewModel
                     cmd.Parameters.AddWithValue("@ten", NewBacSi.HoTenBS);
                     cmd.Parameters.AddWithValue("@ck", NewBacSi.ChuyenKhoa);
                     cmd.Parameters.AddWithValue("@kn", NewBacSi.NamKinhNghiem);
-                    if (string.IsNullOrEmpty(NewBacSi.MaTruongKhoa))
-                        cmd.Parameters.AddWithValue("@sep", DBNull.Value);
-                    else
-                        cmd.Parameters.AddWithValue("@sep", NewBacSi.MaTruongKhoa);
+                    cmd.Parameters.AddWithValue("@sep", string.IsNullOrWhiteSpace(NewBacSi.MaTruongKhoa) ? DBNull.Value : NewBacSi.MaTruongKhoa);
 
                     cmd.ExecuteNonQuery();
-                    MessageBox.Show("Thêm bác sĩ thành công!");
-                    LoadData(); // Tải lại danh sách
-                    NewBacSi = new BacSiModel(); // Xóa trắng form
+                    MessageBox.Show("Thêm bác sĩ thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadData();
+                    ResetForm();
                 }
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message);
+                if (ex.Number == 2627 || ex.Number == 2601) MessageBox.Show("Mã Bác Sĩ đã tồn tại!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Number == 547) MessageBox.Show("Mã Trưởng khoa không tồn tại!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (Exception ex) { MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        private void SuaBacSi()
+        {
+            if (!DBConnect.RequireAdmin("Sửa bác sĩ")) return;
+
+            // BẬT KHIÊN BẢO VỆ
+            string? loi = KiemTraBacSi(NewBacSi);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    string sqlUpdate = @"EXEC SP_SuaBacSi @ma, @ten, @ck, @kn, @sep";
+                    var cmdUpdate = new SqlCommand(sqlUpdate, conn);
+                    cmdUpdate.Parameters.AddWithValue("@ma", NewBacSi.MaBS);
+                    cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(NewBacSi.HoTenBS) ? DBNull.Value : NewBacSi.HoTenBS);
+                    cmdUpdate.Parameters.AddWithValue("@ck", string.IsNullOrWhiteSpace(NewBacSi.ChuyenKhoa) ? DBNull.Value : NewBacSi.ChuyenKhoa);
+                    cmdUpdate.Parameters.AddWithValue("@kn", NewBacSi.NamKinhNghiem);
+                    cmdUpdate.Parameters.AddWithValue("@sep", string.IsNullOrWhiteSpace(NewBacSi.MaTruongKhoa) ? DBNull.Value : NewBacSi.MaTruongKhoa);
+
+                    if (cmdUpdate.ExecuteNonQuery() > 0)
+                    {
+                        MessageBox.Show($"Đã cập nhật thông tin cho bác sĩ {NewBacSi.MaBS}!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LoadData();
+                        ResetForm();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547) MessageBox.Show("Mã Trưởng khoa không tồn tại!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex) { MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
         private void XoaBacSi()
@@ -201,65 +270,7 @@ namespace DoAn.ViewModel
                 }
             }
         }
-        private void SuaBacSi()
-        {
-            if (!DBConnect.RequireAdmin("Sửa bác sĩ")) return;
-
-            try
-            {
-                using (var conn = new SqlConnection(DBConnect.ConnectionString))
-                {
-                    conn.Open();
-
-                    // Câu lệnh Update đơn giản, sử dụng luôn dữ liệu từ NewBacSi
-                    string sqlUpdate = @"EXEC SP_SuaBacSi @ma, @ten, @ck, @kn, @sep";
-
-                    var cmdUpdate = new SqlCommand(sqlUpdate, conn);
-
-                    cmdUpdate.Parameters.AddWithValue("@ma", NewBacSi.MaBS);
-
-                    // Xử lý các trường có thể null hoặc rỗng
-                    cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(NewBacSi.HoTenBS) ? (object)DBNull.Value : NewBacSi.HoTenBS);
-                    cmdUpdate.Parameters.AddWithValue("@ck", string.IsNullOrWhiteSpace(NewBacSi.ChuyenKhoa) ? (object)DBNull.Value : NewBacSi.ChuyenKhoa);
-                    cmdUpdate.Parameters.AddWithValue("@kn", NewBacSi.NamKinhNghiem);
-                    if (string.IsNullOrWhiteSpace(NewBacSi.MaTruongKhoa))
-                        cmdUpdate.Parameters.AddWithValue("@sep", DBNull.Value);
-                    else
-                        cmdUpdate.Parameters.AddWithValue("@sep", NewBacSi.MaTruongKhoa);
-
-                    int rowsAffected = cmdUpdate.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        MessageBox.Show($"Đã cập nhật thông tin cho bác sĩ {NewBacSi.MaBS}!");
-                        LoadData(); // Load lại để làm mới lưới dữ liệu
-                        NewBacSi = new BacSiModel(); // Reset form nhập liệu
-                    }
-                    else
-                    {
-                        MessageBox.Show("Không tìm thấy Bác sĩ có mã này để sửa!");
-                    }
-                }
-            }
-            catch (SqlException ex)
-            {
-                if (ex.Number == 547)
-                {
-                    if (ex.Message.Contains("CK_BACSI_NAMKN"))
-                        MessageBox.Show("Nếu sửa Kinh nghiệm, số năm phải > 1!", "Vi phạm điều kiện");
-                    else
-                        MessageBox.Show("Mã Trưởng khoa mới nhập không tồn tại!", "Lỗi tham chiếu");
-                }
-                else
-                {
-                    MessageBox.Show("Lỗi CSDL: " + ex.Message);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi hệ thống: " + ex.Message);
-            }
-        }
+        
         // --- HÀM XUẤT EXCEL ---
         private void XuatExcel()
         {

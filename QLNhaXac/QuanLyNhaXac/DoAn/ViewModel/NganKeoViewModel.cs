@@ -188,9 +188,36 @@ namespace DoAn.ViewModel
             TrangThaiNganKeo = "Chưa chọn ngăn";
         }
 
+        /// <summary>Kiểm tra dữ liệu form Ngăn kéo trước khi INSERT/UPDATE.</summary>
+        private string? KiemTraNganKeo(NganKeoModel nk)
+        {
+            if (!Validator.IsNotEmpty(nk.MaNgan))
+                return "Vui lòng nhập Mã Ngăn Kéo.";
+            if (!Validator.IsValidMaCode(nk.MaNgan, "NK"))
+                return "Mã Ngăn Kéo phải bắt đầu bằng 'NK' (ví dụ: NK001).";
+            if (!Validator.IsNotEmpty(nk.ViTri))
+                return "Vui lòng nhập Vị Trí ngăn kéo.";
+
+            // Ép kiểu sang double? để dùng chung hàm Validator
+            double? nhietDo = nk.NhietDo;
+            if (nhietDo.HasValue && !Validator.IsNhietDoNganKeoHopLe(nhietDo))
+                return $"Nhiệt độ ({nk.NhietDo}°C) phải nhỏ hơn 10°C. Ngăn kéo bảo quản thi hài cần nhiệt độ âm.";
+
+            return null;
+        }
+
         private void ThemNgan()
         {
             if (!DBConnect.RequireAdmin("Thêm ngăn kéo")) return;
+
+            // === KIỂM TRA VALIDATION ===
+            string? loi = KiemTraNganKeo(NewNganKeo);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -200,28 +227,45 @@ namespace DoAn.ViewModel
                     var cmd = new SqlCommand(sql, conn);
 
                     cmd.Parameters.AddWithValue("@ma", NewNganKeo.MaNgan);
-                    cmd.Parameters.AddWithValue("@vt", NewNganKeo.ViTri ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@vt", string.IsNullOrWhiteSpace(NewNganKeo.ViTri) ? DBNull.Value : (object)NewNganKeo.ViTri);
                     cmd.Parameters.AddWithValue("@nd", NewNganKeo.NhietDo);
                     cmd.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewNganKeo.MaTH) ? DBNull.Value : (object)NewNganKeo.MaTH);
 
                     cmd.ExecuteNonQuery();
-                    MessageBox.Show("Thêm ngăn kéo thành công!");
+                    MessageBox.Show("Thêm ngăn kéo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadData();
                     ResetForm();
                 }
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 2627) MessageBox.Show("Trùng mã ngăn!");
-                else if (ex.Number == 2601) MessageBox.Show("Mã thi hài này đã nằm ở ngăn khác rồi!");
-                else if (ex.Number == 547) MessageBox.Show("Mã thi hài không tồn tại!");
-                else MessageBox.Show("Lỗi SQL: " + ex.Message);
+                if (ex.Number == 2627 || ex.Number == 2601)
+                    MessageBox.Show("Mã Ngăn Kéo đã tồn tại!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Number == 547)
+                    MessageBox.Show("Mã thi hài không tồn tại trong hệ thống!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("Cảnh báo nghiêm trọng") || ex.Message.Contains("Nhiệt độ > 0"))
+                    MessageBox.Show("Nhiệt độ vượt ngưỡng cho phép (> 0°C)! Hệ thống đã chặn thao tác để bảo vệ thi hài.", "Cảnh báo nhiệt độ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void SuaNgan()
         {
             if (!DBConnect.RequireAdmin("Sửa ngăn kéo")) return;
+
+            // === KIỂM TRA VALIDATION ===
+            string? loi = KiemTraNganKeo(NewNganKeo);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -238,7 +282,7 @@ namespace DoAn.ViewModel
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
-                        MessageBox.Show("Cập nhật ngăn kéo thành công!");
+                        MessageBox.Show("Cập nhật ngăn kéo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                         LoadData();
                         ResetForm();
                     }
@@ -246,8 +290,18 @@ namespace DoAn.ViewModel
             }
             catch (SqlException ex)
             {
-                if (ex.Number == 547) MessageBox.Show("Mã Thi Hài không tồn tại!");
-                else MessageBox.Show("Lỗi SQL: " + ex.Message);
+                if (ex.Number == 2627 || ex.Number == 2601)
+                    MessageBox.Show("Mã Ngăn Kéo bị trùng lặp!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Number == 547)
+                    MessageBox.Show("Mã Thi Hài không tồn tại trong hệ thống!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else if (ex.Message.Contains("Cảnh báo nghiêm trọng") || ex.Message.Contains("Nhiệt độ > 0"))
+                    MessageBox.Show("Nhiệt độ vượt ngưỡng cho phép (> 0°C)! Hệ thống đã chặn thao tác để bảo vệ thi hài.", "Cảnh báo nhiệt độ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

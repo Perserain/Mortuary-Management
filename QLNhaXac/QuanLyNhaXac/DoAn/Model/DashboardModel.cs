@@ -35,6 +35,8 @@ namespace DoAn.Model
         public string Thang { get; set; }   // "T1", "T2", ...
         public int SoLuong { get; set; }
         public double ChieuCaoChuanHoa { get; set; } // 0.0 – 1.0, tính trong VM
+
+        public string ThangDisplay => $"Th. {Thang}";
     }
 
     /// <summary>Mỗi tháng trong biểu đồ doanh thu</summary>

@@ -54,8 +54,23 @@
                           Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Mã Thi Hài:" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
-                <TextBox Text="{Binding NewHoSo.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
 
+                <ComboBox ItemsSource="{Binding DanhSachThiHaiGoc}"
+                          SelectedValue="{Binding NewHoSo.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedValuePath="MaTH"
+                          IsEditable="True"
+                          TextSearch.TextPath="MaTH"
+                          Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding MaTH}" FontWeight="Bold" Foreground="#0EA5E9"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding HoTenTH}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <TextBlock Text="Kết Luận:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
                 <TextBox Text="{Binding NewHoSo.KetLuan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
                 

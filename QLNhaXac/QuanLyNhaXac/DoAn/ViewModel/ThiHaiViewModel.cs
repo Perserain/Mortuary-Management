@@ -156,9 +156,36 @@ namespace DoAn.ViewModel
             f.ShowDialog();
         }
 
+        /// <summary>Kiểm tra dữ liệu form Thi Hài trước khi INSERT/UPDATE.</summary>
+        /// <returns>null nếu hợp lệ; chuỗi thông báo lỗi nếu không hợp lệ.</returns>
+        private string? KiemTraThiHai(ThiHaiModel th)
+        {
+            if (!Validator.IsNotEmpty(th.MaTH))
+                return "Vui lòng nhập Mã Thi Hài.";
+            if (!Validator.IsValidMaCode(th.MaTH, "TH"))
+                return "Mã Thi Hài phải bắt đầu bằng 'TH' (ví dụ: TH001).";
+            if (!Validator.IsNotEmpty(th.HoTenTH))
+                return "Vui lòng nhập Họ Tên thi hài.";
+            if (!Validator.IsNgayMatHopLe(th.NgaySinh, th.NgayMat))
+                return "Ngày mất phải lớn hơn hoặc bằng ngày sinh.";
+            if (th.NgayMat.HasValue && th.NgayMat.Value > DateTime.Today)
+                return "Ngày mất không được là ngày trong tương lai.";
+            if (!string.IsNullOrWhiteSpace(th.GioiTinh) && !Validator.IsGioiTinhHopLe(th.GioiTinh))
+                return "Giới tính chỉ chấp nhận: Nam, Nữ, Chưa rõ hoặc Không xác định.";
+            return null; // Hợp lệ
+        }
+
         private void ThemThiHai()
         {
             if (!DBConnect.RequireStaffOrAdmin("Thêm thi hài")) return;
+
+            string? loi = KiemTraThiHai(NewThiHai);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -166,28 +193,37 @@ namespace DoAn.ViewModel
                     conn.Open();
                     string sql = "EXEC SP_ThemThiHai @ma, @ten, @ns, @nm, @gt, @noiTimThay, @coCuaNhan";
                     var cmd = new SqlCommand(sql, conn);
-
                     cmd.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
                     cmd.Parameters.AddWithValue("@ten", NewThiHai.HoTenTH ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@gt", NewThiHai.GioiTinh ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@ns", NewThiHai.NgaySinh ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@nm", NewThiHai.NgayMat ?? (object)DBNull.Value);
-                    // S3-02
                     cmd.Parameters.AddWithValue("@noiTimThay", string.IsNullOrWhiteSpace(NewThiHai.NoiTimThay) ? DBNull.Value : (object)NewThiHai.NoiTimThay);
                     cmd.Parameters.AddWithValue("@coCuaNhan", string.IsNullOrWhiteSpace(NewThiHai.CoCuaNhan) ? DBNull.Value : (object)NewThiHai.CoCuaNhan);
 
                     cmd.ExecuteNonQuery();
-                    MessageBox.Show("Thêm thành công!");
-                    LoadData();
-                    ResetForm();
+                    MessageBox.Show("Thêm thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadData(); ResetForm();
                 }
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2627 || ex.Number == 2601) MessageBox.Show("Mã Thi Hài đã tồn tại!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SuaThiHai()
         {
             if (!DBConnect.RequireStaffOrAdmin("Sửa thi hài")) return;
+
+            string? loi = KiemTraThiHai(NewThiHai);
+            if (loi != null)
+            {
+                MessageBox.Show(loi, "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 using (var conn = new SqlConnection(DBConnect.ConnectionString))
@@ -195,25 +231,26 @@ namespace DoAn.ViewModel
                     conn.Open();
                     string sqlUpdate = "EXEC SP_SuaThiHai @ma, @ten, @ns, @nm, @gt, @noiTimThay, @coCuaNhan";
                     var cmdUpdate = new SqlCommand(sqlUpdate, conn);
-
                     cmdUpdate.Parameters.AddWithValue("@ma", NewThiHai.MaTH);
                     cmdUpdate.Parameters.AddWithValue("@ten", string.IsNullOrWhiteSpace(NewThiHai.HoTenTH) ? DBNull.Value : (object)NewThiHai.HoTenTH);
                     cmdUpdate.Parameters.AddWithValue("@gt", string.IsNullOrWhiteSpace(NewThiHai.GioiTinh) ? DBNull.Value : (object)NewThiHai.GioiTinh);
                     cmdUpdate.Parameters.AddWithValue("@ns", NewThiHai.NgaySinh ?? (object)DBNull.Value);
                     cmdUpdate.Parameters.AddWithValue("@nm", NewThiHai.NgayMat ?? (object)DBNull.Value);
-                    // S3-02
                     cmdUpdate.Parameters.AddWithValue("@noiTimThay", string.IsNullOrWhiteSpace(NewThiHai.NoiTimThay) ? DBNull.Value : (object)NewThiHai.NoiTimThay);
                     cmdUpdate.Parameters.AddWithValue("@coCuaNhan", string.IsNullOrWhiteSpace(NewThiHai.CoCuaNhan) ? DBNull.Value : (object)NewThiHai.CoCuaNhan);
 
                     if (cmdUpdate.ExecuteNonQuery() > 0)
                     {
-                        MessageBox.Show("Cập nhật thành công!");
-                        LoadData();
-                        ResetForm();
+                        MessageBox.Show("Cập nhật thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LoadData(); ResetForm();
                     }
                 }
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+            catch (SqlException ex)
+            {
+                if (ex.Number >= 50000 && ex.Message.Contains("không thể thay đổi")) MessageBox.Show("Không thể thay đổi thông tin thi hài đã mai táng!", "Lỗi nghiệp vụ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else MessageBox.Show("Lỗi CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void XoaThiHai()

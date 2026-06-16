@@ -182,83 +182,56 @@ namespace DoAn.ViewModel
             }
         }
 
-        // ── Biểu đồ thi hài theo tháng ───────────────────────────────────────
+        // ── Biểu đồ thi hài theo tháng ──
         private void LoadThiHaiThang()
         {
             ThiHaiTheoThang.Clear();
             try
             {
-                using var conn = new SqlConnection(DBConnect.ConnectionString);
-                conn.Open();
-                using var cmd = new SqlCommand("SP_BaoCao_ThiHaiTheoThang", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-                cmd.Parameters.AddWithValue("@Nam", DateTime.Now.Year);
-                using var reader = cmd.ExecuteReader();
-
+                var dt = DBConnect.GetData("EXEC SP_BaoCao_ThiHaiTheoThang");
                 var list = new System.Collections.Generic.List<ThiHaiTheoThangModel>();
-                while (reader.Read())
+
+                int max = 1;
+                foreach (DataRow row in dt.Rows)
                 {
-                    list.Add(new ThiHaiTheoThangModel
-                    {
-                        Thang = "T" + reader["Thang"].ToString(),
-                        SoLuong = GetInt(reader, "SoLuong")
-                    });
+                    int sl = Convert.ToInt32(row["SoLuongThiHai"]);
+                    if (sl > max) max = sl;
+                    list.Add(new ThiHaiTheoThangModel { Thang = "T" + row["Thang"], SoLuong = sl });
                 }
 
-                // Chuẩn hoá chiều cao 0–1
-                int max = 1;
-                foreach (var item in list) if (item.SoLuong > max) max = item.SoLuong;
                 foreach (var item in list)
                 {
                     item.ChieuCaoChuanHoa = (double)item.SoLuong / max;
                     ThiHaiTheoThang.Add(item);
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LoadThiHaiThang error: " + ex.Message);
-            }
+            catch { }
         }
 
-        // ── Biểu đồ doanh thu theo tháng ─────────────────────────────────────
+        // ── Biểu đồ doanh thu theo tháng ──
         private void LoadDoanhThuThang()
         {
             DoanhThuTheoThang.Clear();
             try
             {
-                using var conn = new SqlConnection(DBConnect.ConnectionString);
-                conn.Open();
-                using var cmd = new SqlCommand("SP_BaoCao_DoanhThuTheoThang", conn)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-                cmd.Parameters.AddWithValue("@Nam", DateTime.Now.Year);
-                using var reader = cmd.ExecuteReader();
-
+                var dt = DBConnect.GetData("EXEC SP_BaoCao_DoanhThuTheoThang");
                 var list = new System.Collections.Generic.List<DoanhThuTheoThangModel>();
-                while (reader.Read())
-                {
-                    list.Add(new DoanhThuTheoThangModel
-                    {
-                        Thang = "T" + reader["Thang"].ToString(),
-                        DoanhThu = GetDecimal(reader, "TongDoanhThu")
-                    });
-                }
 
                 decimal max = 1;
-                foreach (var item in list) if (item.DoanhThu > max) max = item.DoanhThu;
+                foreach (DataRow row in dt.Rows)
+                {
+                    decimal dtVal = Convert.ToDecimal(row["TongDoanhThu"]);
+                    if (dtVal > max) max = dtVal;
+                    list.Add(new DoanhThuTheoThangModel { Thang = "T" + row["Thang"], DoanhThu = dtVal });
+                }
+
                 foreach (var item in list)
                 {
                     item.ChieuCaoChuanHoa = (double)(item.DoanhThu / max);
                     DoanhThuTheoThang.Add(item);
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("LoadDoanhThuThang error: " + ex.Message);
-            }
+            catch { }
         }
 
         // ── Nguyên nhân tử vong (pie) ─────────────────────────────────────────
