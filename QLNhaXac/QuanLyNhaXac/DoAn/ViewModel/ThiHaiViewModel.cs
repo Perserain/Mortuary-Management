@@ -349,8 +349,6 @@ namespace DoAn.ViewModel
 
         private void XuatExcel()
         {
-            if (!DBConnect.RequireStaffOrAdmin("Xuất Excel thi hài")) return;
-
             if (DanhSachThiHai == null || DanhSachThiHai.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo");

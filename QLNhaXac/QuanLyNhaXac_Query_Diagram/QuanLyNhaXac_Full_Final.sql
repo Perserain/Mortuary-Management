@@ -1360,14 +1360,18 @@ END
 GO
 
 -- ── 5.N PHÂN QUYỀN ĐỘNG ─────────────────────────────────────
-CREATE PROC SP_KiemTraQuyenHan AS BEGIN
-    IF (IS_ROLEMEMBER('QL_ADMIN')=1 OR IS_ROLEMEMBER('db_owner')=1)
-        SELECT 'Admin' AS QuyenHan
-    ELSE IF (IS_ROLEMEMBER('QL_BACSI')=1 OR IS_ROLEMEMBER('QL_NHANVIEN')=1)
-        SELECT 'Staff' AS QuyenHan
-    ELSE SELECT 'ReadOnly' AS QuyenHan
+CREATE PROCEDURE SP_KiemTraQuyenHan
+AS
+BEGIN
+    SELECT CASE
+        WHEN IS_MEMBER('db_owner') = 1    THEN 'Admin'
+        WHEN IS_MEMBER('QL_NHANVIEN') = 1 THEN 'Staff'
+        WHEN IS_MEMBER('QL_BACSI') = 1    THEN 'Doctor'   
+        ELSE 'ReadOnly'
+    END AS QuyenHan;
 END
 GO
+
 
 CREATE PROCEDURE SP_DanhSachUser AS BEGIN
     SELECT dp.name AS TenUser, dp.type_desc AS LoaiUser,
@@ -1407,6 +1411,112 @@ GO
 CREATE PROCEDURE SP_RevokeUserKhoiRole @TenUser NVARCHAR(128), @TenRole NVARCHAR(128) AS BEGIN
     DECLARE @sql NVARCHAR(MAX)=N'ALTER ROLE ['+@TenRole+N'] DROP MEMBER ['+@TenUser+N']'
     EXEC sp_executesql @sql
+END
+GO
+
+CREATE PROCEDURE SP_TatCaQuyenCuaUser 
+    @TenUser NVARCHAR(128)
+AS 
+BEGIN
+    -- Kiểm tra xem User có tồn tại không
+    IF USER_ID(@TenUser) IS NULL
+    BEGIN
+        PRINT N'User không tồn tại trong Database này!'
+        RETURN
+    END
+
+    SELECT 
+        ISNULL(o.name, 'DATABASE LEVEL') AS TenBang,
+        ISNULL(o.type_desc, 'DATABASE') AS LoaiDoiTuong,
+        dp.permission_name AS TenQuyen,
+        dp.state_desc AS TrangThai,
+        USER_NAME(dp.grantee_principal_id) AS NguonCapQuyen -- Cho biết quyền này đến từ User hay kế thừa từ Role
+    FROM sys.database_permissions dp
+    LEFT JOIN sys.objects o ON dp.major_id = o.object_id
+    WHERE 
+        -- 1. Quyền được cấp trực tiếp cho User
+        dp.grantee_principal_id = USER_ID(@TenUser)
+        -- 2. Quyền được cấp thông qua các Role mà User này là thành viên
+        OR dp.grantee_principal_id IN (
+            SELECT role_principal_id
+            FROM sys.database_role_members
+            WHERE member_principal_id = USER_ID(@TenUser)
+        )
+    ORDER BY LoaiDoiTuong, TenBang, TenQuyen
+END
+GO
+
+CREATE PROCEDURE SP_CapNhatQuyenChoUser
+    @TenUser NVARCHAR(128),
+    @TenBang NVARCHAR(128),
+    @CoSelect BIT,
+    @CoInsert BIT,
+    @CoUpdate BIT,
+    @CoDelete BIT,
+    @WithGrant BIT = 0,
+    @Cascade BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @sql NVARCHAR(MAX) = N'';
+    
+    -- Xử lý chuỗi Option bổ sung
+    DECLARE @optGrant NVARCHAR(50) = IIF(@WithGrant = 1, N' WITH GRANT OPTION', N'');
+    DECLARE @optCascade NVARCHAR(50) = IIF(@Cascade = 1, N' CASCADE', N'');
+
+    -- 1. Quyền SELECT
+    IF @CoSelect = 1
+        SET @sql += N'GRANT SELECT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
+    ELSE
+        SET @sql += N'REVOKE SELECT ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @optCascade + N'; ';
+
+    -- 2. Quyền INSERT
+    IF @CoInsert = 1
+        SET @sql += N'GRANT INSERT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
+    ELSE
+        SET @sql += N'REVOKE INSERT ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @optCascade + N'; ';
+
+    -- 3. Quyền UPDATE
+    IF @CoUpdate = 1
+        SET @sql += N'GRANT UPDATE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
+    ELSE
+        SET @sql += N'REVOKE UPDATE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @optCascade + N'; ';
+
+    -- 4. Quyền DELETE
+    IF @CoDelete = 1
+        SET @sql += N'GRANT DELETE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
+    ELSE
+        SET @sql += N'REVOKE DELETE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @optCascade + N'; ';
+
+    -- Thực thi toàn bộ lệnh bằng Dynamic SQL
+    EXEC sp_executesql @sql;
+END
+GO
+
+CREATE PROCEDURE SP_UserChuaThuocRole 
+    @TenRole NVARCHAR(128) 
+AS 
+BEGIN
+    -- Kiểm tra xem Role có tồn tại không
+    IF USER_ID(@TenRole) IS NULL
+    BEGIN
+        PRINT N'Role không tồn tại trong Database này!'
+        RETURN
+    END
+
+    SELECT dp.name AS TenUser, dp.type_desc AS LoaiUser
+    FROM sys.database_principals dp
+    -- Lọc lấy các User thông thường (giống với logic SP_DanhSachUser của bạn)
+    WHERE dp.type IN ('S','U','G')
+      AND dp.name NOT IN ('dbo','guest','INFORMATION_SCHEMA','sys')
+      AND dp.name NOT LIKE '##%'
+      -- Loại trừ những người đã có trong Role
+      AND dp.principal_id NOT IN (
+          SELECT member_principal_id
+          FROM sys.database_role_members
+          WHERE role_principal_id = USER_ID(@TenRole)
+      )
+    ORDER BY dp.name
 END
 GO
 
@@ -2108,16 +2218,18 @@ GO
 
 -- ── 9.4 QL_BACSI ────────────────────────────────────────────
 GRANT SELECT,INSERT,UPDATE,DELETE ON THIHAI       TO [QL_BACSI]
-GRANT SELECT,INSERT,UPDATE,DELETE ON NGANKEO      TO [QL_BACSI]
-GRANT SELECT,INSERT,UPDATE,DELETE ON HOSOKHAMBENH TO [QL_BACSI]
-GRANT SELECT ON DICHVU                             TO [QL_BACSI]
-GRANT SELECT ON THAN_NHAN                          TO [QL_BACSI]
-GRANT SELECT ON HOADON                             TO [QL_BACSI]
+GRANT SELECT,INSERT,UPDATE ON HOSOKHAMBENH		  TO [QL_BACSI]
+GRANT SELECT ON dbo.fn_DanhSachKhamNghiemTheoBacSI TO [QL_BACSI]
+GRANT SELECT ON dbo.fn_DanhSachKhamNghiemTheoTuThi TO [QL_BACSI]
+GRANT SELECT ON dbo.fn_TimKiemThiHaiTheoNgay	  TO [QL_BACSI]
+GRANT SELECT ON BACSI							  TO [QL_BACSI]
 GRANT SELECT ON CANH_BAO                           TO [QL_BACSI]
+GRANT SELECT ON VIEW_ThongKe_LoaiCauTu			  TO [QL_BACSI]
 GO
 GRANT EXECUTE ON SP_DSThiHai             TO [QL_BACSI]
 GRANT EXECUTE ON SP_TimKiemThiHai        TO [QL_BACSI]
 GRANT EXECUTE ON SP_TimKiem_ThiHai       TO [QL_BACSI]
+GRANT EXECUTE ON SP_ThiHaiSot			 TO [QL_BACSI]
 GRANT EXECUTE ON SP_DSHoSoKhamNghiem     TO [QL_BACSI]
 GRANT EXECUTE ON SP_ThemHoSoKhamBenh_V2  TO [QL_BACSI]
 GRANT EXECUTE ON SP_SuaHoSoKhamBenh_V2   TO [QL_BACSI]
@@ -2126,7 +2238,9 @@ GRANT EXECUTE ON SP_DSNganKeo            TO [QL_BACSI]
 GRANT EXECUTE ON SP_DSThanNhan           TO [QL_BACSI]
 GRANT EXECUTE ON SP_HoaDonTheoThiHai     TO [QL_BACSI]
 GRANT EXECUTE ON SP_DSCanhBao            TO [QL_BACSI]
+GRANT EXECUTE ON SP_QuetCanhBao			 TO [QL_BACSI]
 GRANT EXECUTE ON SP_DocCanhBao           TO [QL_BACSI]
+GRANT EXECUTE ON SP_DocHetCanhBao		 TO [QL_BACSI]
 GRANT EXECUTE ON SP_Dashboard            TO [QL_BACSI]
 GRANT EXECUTE ON SP_KiemTraQuyenHan      TO [QL_BACSI]
 GO
@@ -2262,57 +2376,6 @@ END
 GO
 
 -- ============================================================
--- PATCH SQL: Thêm role Doctor vào stored procedure SP_KiemTraQuyenHan
--- (Nếu SP đang trả về 'Admin' / 'Staff' / 'ReadOnly')
 --
--- Mở SP_KiemTraQuyenHan và thêm điều kiện Doctor, ví dụ:
 -- ============================================================
 
-ALTER PROCEDURE SP_KiemTraQuyenHan
-AS
-BEGIN
-    -- Lấy tên role của login hiện tại
-    DECLARE @role NVARCHAR(50);
-
-    SELECT @role = r.name
-    FROM sys.database_role_members rm
-    JOIN sys.database_principals r ON r.principal_id = rm.role_principal_id
-    JOIN sys.database_principals u ON u.principal_id = rm.member_principal_id
-    WHERE u.name = USER_NAME()
-    ORDER BY r.name;
-
-    -- Map role SQL → role ứng dụng
-    SELECT CASE
-        WHEN @role = 'db_owner'     THEN 'Admin'
-        WHEN @role = 'StaffRole'    THEN 'Staff'
-        WHEN @role = 'DoctorRole'   THEN 'Doctor'   -- <-- Thêm dòng này
-        ELSE 'ReadOnly'
-    END AS QuyenHan;
-END
-
--- ============================================================
--- Tạo SQL login + user + role cho bác sĩ:
--- ============================================================
-
--- 1. Tạo login
-CREATE LOGIN bacsi01 WITH PASSWORD = 'BacSi@2025';
-
--- 2. Tạo user trong database
-USE QuanLyNhaXac;
-CREATE USER bacsi01 FOR LOGIN bacsi01;
-
--- 3. Tạo role DoctorRole (nếu chưa có)
-IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'DoctorRole' AND type = 'R')
-    CREATE ROLE DoctorRole;
-
--- 4. Gán user vào role
-ALTER ROLE DoctorRole ADD MEMBER bacsi01;
-
--- 5. Cấp quyền theo đặc tả:
---    BacSi: SELECT ThiHai, SELECT CanhBao, INSERT+UPDATE HoSoKhamBenh
-
-GRANT SELECT ON ThiHai        TO DoctorRole;
-GRANT SELECT ON CanhBao        TO DoctorRole;
-GRANT SELECT, INSERT, UPDATE   ON HoSoKhamBenh TO DoctorRole;
-
--- (Không cấp DELETE trên HoSoKhamBenh cho DoctorRole)

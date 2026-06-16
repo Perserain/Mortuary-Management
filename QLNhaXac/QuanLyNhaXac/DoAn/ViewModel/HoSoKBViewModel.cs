@@ -281,7 +281,6 @@ namespace DoAn.ViewModel
 
         private void XuatExcel()
         {
-            if (!DBConnect.RequireAdmin("Xuất Excel hồ sơ khám")) return;
 
             if (DanhSachHoSo == null || DanhSachHoSo.Count == 0)
             {
