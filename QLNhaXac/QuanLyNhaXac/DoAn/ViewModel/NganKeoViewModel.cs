@@ -110,8 +110,14 @@ namespace DoAn.ViewModel
             DanhSachThiHai.Clear();
             try
             {
-                // Lấy các thi hài chưa bàn giao/mai táng để xếp vào ngăn
-                string sql = "SELECT MATH, HOTEN_TH FROM THIHAI WHERE TRANGTHAI NOT IN (N'Đã bàn giao', N'Đã mai táng')";
+                // Thêm thông báo "Đang ở ngăn..." để người dùng không chọn nhầm thi hài đã có chỗ
+                string sql = @"
+                    SELECT th.MATH, 
+                           th.HOTEN_TH + CASE WHEN nk.MANGAN IS NOT NULL THEN N' (Đang ở ' + nk.MANGAN + N')' ELSE '' END AS HOTEN_TH
+                    FROM THIHAI th
+                    LEFT JOIN NGANKEO nk ON th.MATH = nk.MATH
+                    WHERE th.TRANGTHAI NOT IN (N'Đã bàn giao', N'Đã mai táng')";
+
                 DataTable dt = DBConnect.GetData(sql);
 
                 foreach (DataRow row in dt.Rows)
@@ -240,7 +246,13 @@ namespace DoAn.ViewModel
             catch (SqlException ex)
             {
                 if (ex.Number == 2627 || ex.Number == 2601)
-                    MessageBox.Show("Mã Ngăn Kéo đã tồn tại!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                {
+                    // Phân biệt rõ ràng là trùng Mã Ngăn hay trùng Mã Thi Hài
+                    if (ex.Message.Contains("UQ_NGANKEO_MATH"))
+                        MessageBox.Show("Thi hài này đã được xếp vào một ngăn kéo khác!\nMỗi thi hài chỉ được nằm 1 ngăn duy nhất.", "Trùng thi hài", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    else
+                        MessageBox.Show("Mã Ngăn Kéo đã tồn tại!", "Trùng mã ngăn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
                 else if (ex.Number == 547)
                     MessageBox.Show("Mã thi hài không tồn tại trong hệ thống!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else if (ex.Message.Contains("Cảnh báo nghiêm trọng") || ex.Message.Contains("Nhiệt độ > 0"))
@@ -280,20 +292,27 @@ namespace DoAn.ViewModel
                     cmdUpdate.Parameters.AddWithValue("@math", string.IsNullOrWhiteSpace(NewNganKeo.MaTH) ? DBNull.Value : (object)NewNganKeo.MaTH);
                     cmdUpdate.Parameters.AddWithValue("@canh_bao", NewNganKeo.NhietDoCanhBao.HasValue ? (object)NewNganKeo.NhietDoCanhBao.Value : DBNull.Value);
 
-                    if (cmdUpdate.ExecuteNonQuery() > 0)
-                    {
-                        MessageBox.Show("Cập nhật ngăn kéo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                        LoadData();
-                        ResetForm();
-                    }
+                    // Chỉ gọi ExecuteNonQuery() mà không cần dùng If
+                    cmdUpdate.ExecuteNonQuery();
+
+                    // Hiện thông báo và reset form ngay lập tức
+                    MessageBox.Show("Cập nhật ngăn kéo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadData();
+                    ResetForm();
                 }
             }
             catch (SqlException ex)
             {
                 if (ex.Number == 2627 || ex.Number == 2601)
-                    MessageBox.Show("Mã Ngăn Kéo bị trùng lặp!", "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
+                {
+                    // Phân biệt rõ ràng là trùng Mã Ngăn hay trùng Mã Thi Hài
+                    if (ex.Message.Contains("UQ_NGANKEO_MATH"))
+                        MessageBox.Show("Thi hài này đã được xếp vào một ngăn kéo khác!\nMỗi thi hài chỉ được nằm 1 ngăn duy nhất.", "Trùng thi hài", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    else
+                        MessageBox.Show("Mã Ngăn Kéo đã tồn tại!", "Trùng mã ngăn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
                 else if (ex.Number == 547)
-                    MessageBox.Show("Mã Thi Hài không tồn tại trong hệ thống!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Mã thi hài không tồn tại trong hệ thống!", "Lỗi tham chiếu", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else if (ex.Message.Contains("Cảnh báo nghiêm trọng") || ex.Message.Contains("Nhiệt độ > 0"))
                     MessageBox.Show("Nhiệt độ vượt ngưỡng cho phép (> 0°C)! Hệ thống đã chặn thao tác để bảo vệ thi hài.", "Cảnh báo nhiệt độ", MessageBoxButton.OK, MessageBoxImage.Warning);
                 else

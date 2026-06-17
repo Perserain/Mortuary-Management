@@ -30,7 +30,7 @@ namespace DoAn.ViewModel
     public class BackupRestoreViewModel : BaseViewModel
     {
         // ── Thư mục backup mặc định ─────────────────────────────────
-        private string _backupFolder = @"C:\QuanLyNhaXac_Backup";
+        private string _backupFolder = @"D:\QuanLyNhaXac_Backup";
         public string BackupFolder
         {
             get => _backupFolder;
@@ -267,9 +267,22 @@ namespace DoAn.ViewModel
             {
                 await action();
             }
+            catch (SqlException ex)
+            {
+                // Bắt lỗi Windows chặn quyền ghi file của SQL Server
+                if (ex.Message.Contains("Operating system error 5") || ex.Message.Contains("Access is denied") || ex.Message.Contains("terminating abnormally"))
+                {
+                    HienThongBao(false, "❌ Lỗi quyền ghi file: SQL Server bị Windows chặn không cho phép lưu file Backup vào thư mục này (đặc biệt là ổ C).\n\n👉 GIẢI PHÁP: Hãy chọn thư mục ở ổ đĩa khác (Ví dụ: Ổ D:\\).");
+                }
+                else
+                {
+                    HienThongBao(false, "Lỗi SQL Server: " + ex.Message);
+                }
+                IsBusy = false;
+            }
             catch (Exception ex)
             {
-                HienThongBao(false, "Lỗi không xác định: " + ex.Message);
+                HienThongBao(false, "Lỗi hệ thống: " + ex.Message);
                 IsBusy = false;
             }
         }

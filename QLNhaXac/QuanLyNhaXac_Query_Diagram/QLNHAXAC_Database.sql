@@ -1,6 +1,7 @@
 -- ============================================================
 -- HỆ THỐNG QUẢN LÝ NHÀ XÁC — QuanLyNhaXac
 -- FILE SQL DUY NHẤT — BÔI ĐEN VÀ EXECUTE TOÀN BỘ
+-- (Bản gộp hoàn chỉnh — đã loại bỏ trùng lặp, vá lỗi logic)
 -- Thứ tự:
 --   0. Tạo / Tái tạo Database
 --   1. Tạo Bảng + Ràng buộc (PK, FK, CHECK, DEFAULT, UNIQUE)
@@ -740,8 +741,8 @@ BEGIN
     SELECT @TongTien = ISNULL(SUM(dv.GIATIEN * sd.SOLUONG), 0)
     FROM SUDUNG sd
     JOIN DICHVU dv ON sd.MADV = dv.MADV
-    WHERE sd.MATH = @MATH 
-    
+    WHERE sd.MATH = @MATH AND sd.MAHD IS NULL
+
     RETURN @TongTien
 END
 GO
@@ -898,21 +899,52 @@ CREATE PROC SP_DSThiHai AS BEGIN SELECT * FROM VIEW_DanhSachThiHai END
 GO
 
 CREATE PROC SP_ThemThiHai
-    @MATH VARCHAR(15), @HOTEN_TH NVARCHAR(100), @NGAYSINH DATE,
-    @NGAYMAT DATE, @GIOITINH NVARCHAR(10)
-AS BEGIN
-    INSERT INTO THIHAI(MATH,HOTEN_TH,NGAYSINH,NGAYMAT,GIOITINH)
-    VALUES(@MATH,@HOTEN_TH,@NGAYSINH,@NGAYMAT,@GIOITINH)
+    @MATH VARCHAR(15),
+    @HOTEN_TH NVARCHAR(100),
+    @NGAYSINH DATE,
+    @NGAYMAT DATE,
+    @GIOITINH NVARCHAR(10),
+    @NOITIMTHAY NVARCHAR(200) = NULL,
+    @COCUANHAN NVARCHAR(100) = NULL
+AS
+BEGIN
+    -- Kiểm tra quyền INSERT trên bảng THIHAI trước khi thao tác
+    IF HAS_PERMS_BY_NAME('THIHAI', 'OBJECT', 'INSERT') = 0
+    BEGIN
+        RAISERROR(N'Bạn không có quyền THÊM (INSERT) dữ liệu vào bảng Thi Hài. Vui lòng liên hệ Admin!', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO THIHAI(MATH, HOTEN_TH, NGAYSINH, NGAYMAT, GIOITINH, NOITIMTHAY, COCUANHAN)
+    VALUES(@MATH, @HOTEN_TH, @NGAYSINH, @NGAYMAT, @GIOITINH, @NOITIMTHAY, @COCUANHAN)
 END
 GO
 
 CREATE PROC SP_SuaThiHai
-    @MATH VARCHAR(15), @HOTEN_TH NVARCHAR(100), @NGAYSINH DATE,
-    @NGAYMAT DATE, @GIOITINH NVARCHAR(10)
-AS BEGIN
-    UPDATE THIHAI SET HOTEN_TH=@HOTEN_TH, NGAYSINH=@NGAYSINH,
-        NGAYMAT=@NGAYMAT, GIOITINH=@GIOITINH
-    WHERE MATH=@MATH
+    @MATH VARCHAR(15),
+    @HOTEN_TH NVARCHAR(100),
+    @NGAYSINH DATE,
+    @NGAYMAT DATE,
+    @GIOITINH NVARCHAR(10),
+    @NOITIMTHAY NVARCHAR(200) = NULL,
+    @COCUANHAN NVARCHAR(100) = NULL
+AS
+BEGIN
+    -- Kiểm tra quyền UPDATE trên bảng THIHAI trước khi thao tác
+    IF HAS_PERMS_BY_NAME('THIHAI', 'OBJECT', 'UPDATE') = 0
+    BEGIN
+        RAISERROR(N'Bạn không có quyền SỬA (UPDATE) dữ liệu trên bảng Thi Hài!', 16, 1);
+        RETURN;
+    END
+
+    UPDATE THIHAI
+    SET HOTEN_TH = @HOTEN_TH,
+        NGAYSINH = @NGAYSINH,
+        NGAYMAT = @NGAYMAT,
+        GIOITINH = @GIOITINH,
+        NOITIMTHAY = @NOITIMTHAY,
+        COCUANHAN = @COCUANHAN
+    WHERE MATH = @MATH
 END
 GO
 
@@ -1032,6 +1064,27 @@ CREATE PROC SP_ThongKeNganKeo AS BEGIN
         CAST((SELECT COUNT(*) FROM NGANKEO WHERE MATH IS NOT NULL) * 100.0
              / NULLIF((SELECT COUNT(*) FROM NGANKEO),0) AS DECIMAL(5,2)) AS PhanTramLapDay,
         (SELECT AVG(NHIETDO) FROM NGANKEO WHERE MATH IS NOT NULL) AS NhietDoTB
+END
+GO
+
+CREATE PROCEDURE SP_CapNhat_NgayBaoTri
+    @maNgan VARCHAR(15),
+    @ngay   DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra mã ngăn có tồn tại không
+    IF NOT EXISTS (SELECT 1 FROM NGANKEO WHERE MANGAN = @maNgan)
+    BEGIN
+        RAISERROR(N'Mã ngăn không tồn tại!', 16, 1);
+        RETURN;
+    END
+
+    -- Thực hiện cập nhật ngày bảo trì
+    UPDATE NGANKEO
+    SET NGAY_BAO_TRI = @ngay
+    WHERE MANGAN = @maNgan
 END
 GO
 
@@ -1529,6 +1582,36 @@ BEGIN
           WHERE role_principal_id = USER_ID(@TenRole)
       )
     ORDER BY dp.name
+END
+GO
+
+CREATE PROCEDURE SP_XoaQuyenTrucTiepCuaUser 
+    @TenUser NVARCHAR(128) 
+AS
+BEGIN
+    DECLARE @sql NVARCHAR(MAX) = N'';
+    DECLARE @bang NVARCHAR(128);
+
+    -- Quét qua 10 bảng dữ liệu chính của hệ thống
+    DECLARE cur CURSOR FOR
+        SELECT name FROM sys.tables
+        WHERE name IN ('THIHAI','DICHVU','SUDUNG','NGANKEO','HOSOKHAMBENH','NHANVIEN','BACSI','THAN_NHAN','HOADON','CANH_BAO');
+
+    OPEN cur;
+    FETCH NEXT FROM cur INTO @bang;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Thu hồi toàn bộ quyền thao tác (CRUD) cấp trực tiếp cho User trên bảng này
+        SET @sql += N'REVOKE SELECT, INSERT, UPDATE, DELETE ON [' + @bang + N'] FROM [' + @TenUser + N']; ';
+        FETCH NEXT FROM cur INTO @bang;
+    END
+
+    CLOSE cur;
+    DEALLOCATE cur;
+
+    -- Thực thi chuỗi lệnh dọn dẹp
+    EXEC sp_executesql @sql;
 END
 GO
 
@@ -2209,6 +2292,11 @@ GRANT EXECUTE ON SP_UserTrongRole             TO [QL_ADMIN]
 GRANT EXECUTE ON SP_GrantUserVaoRole          TO [QL_ADMIN]
 GRANT EXECUTE ON SP_RevokeUserKhoiRole        TO [QL_ADMIN]
 GRANT EXECUTE ON SP_KiemTraQuyenHan           TO [QL_ADMIN]
+GRANT EXECUTE ON SP_TatCaQuyenCuaUser         TO [QL_ADMIN]
+GRANT EXECUTE ON SP_CapNhatQuyenChoUser       TO [QL_ADMIN]
+GRANT EXECUTE ON SP_UserChuaThuocRole         TO [QL_ADMIN]
+GRANT EXECUTE ON SP_XoaQuyenTrucTiepCuaUser   TO [QL_ADMIN]
+GRANT EXECUTE ON SP_CapNhat_NgayBaoTri        TO [QL_ADMIN]
 GRANT EXECUTE ON SP_BaoCao_TongHopThiHai      TO [QL_ADMIN]
 GRANT EXECUTE ON SP_GiaHanBaoQuan_TatCa       TO [QL_ADMIN]
 GRANT EXECUTE ON SP_KiemTraVaThongBaoQuaHan   TO [QL_ADMIN]
@@ -2350,160 +2438,247 @@ PRINT N''
 PRINT N'============================================================'
 PRINT N'QuanLyNhaXac — TRIỂN KHAI THÀNH CÔNG!'
 PRINT N'  11 Bảng | 22 View | 10 Function | 18 Trigger'
-PRINT N'  60+ Stored Procedure | 4 Cursor | 3 Role | 1 Login'
+PRINT N'  84 Stored Procedure | 4 Cursor | 3 Role | 1 Login'
 PRINT N'============================================================'
 GO
 
--- Cập nhật SP Thêm Thi Hài
-CREATE OR ALTER PROC SP_ThemThiHai
-    @MATH VARCHAR(15), 
-    @HOTEN_TH NVARCHAR(100), 
-    @NGAYSINH DATE,
-    @NGAYMAT DATE, 
-    @GIOITINH NVARCHAR(10),
-    @NOITIMTHAY NVARCHAR(200) = NULL,   -- Thêm mới
-    @COCUANHAN NVARCHAR(100) = NULL     -- Thêm mới
-AS 
-BEGIN
-    INSERT INTO THIHAI(MATH, HOTEN_TH, NGAYSINH, NGAYMAT, GIOITINH, NOITIMTHAY, COCUANHAN)
-    VALUES(@MATH, @HOTEN_TH, @NGAYSINH, @NGAYMAT, @GIOITINH, @NOITIMTHAY, @COCUANHAN)
-END
-GO
-
--- Cập nhật SP Sửa Thi Hài
-CREATE OR ALTER PROC SP_SuaThiHai
-    @MATH VARCHAR(15), 
-    @HOTEN_TH NVARCHAR(100), 
-    @NGAYSINH DATE,
-    @NGAYMAT DATE, 
-    @GIOITINH NVARCHAR(10),
-    @NOITIMTHAY NVARCHAR(200) = NULL,   -- Thêm mới
-    @COCUANHAN NVARCHAR(100) = NULL     -- Thêm mới
-AS 
-BEGIN
-    UPDATE THIHAI 
-    SET HOTEN_TH = @HOTEN_TH, 
-        NGAYSINH = @NGAYSINH,
-        NGAYMAT = @NGAYMAT, 
-        GIOITINH = @GIOITINH,
-        NOITIMTHAY = @NOITIMTHAY,
-        COCUANHAN = @COCUANHAN
-    WHERE MATH = @MATH
-END
-GO
-
--- Cập nhật SP Thêm Thi Hài
-CREATE OR ALTER PROC SP_ThemThiHai
-    @MATH VARCHAR(15), 
-    @HOTEN_TH NVARCHAR(100), 
-    @NGAYSINH DATE,
-    @NGAYMAT DATE, 
-    @GIOITINH NVARCHAR(10),
-    @NOITIMTHAY NVARCHAR(200) = NULL,   -- Thêm mới
-    @COCUANHAN NVARCHAR(100) = NULL     -- Thêm mới
-AS 
-BEGIN
-    INSERT INTO THIHAI(MATH, HOTEN_TH, NGAYSINH, NGAYMAT, GIOITINH, NOITIMTHAY, COCUANHAN)
-    VALUES(@MATH, @HOTEN_TH, @NGAYSINH, @NGAYMAT, @GIOITINH, @NOITIMTHAY, @COCUANHAN)
-END
-GO
-
--- Cập nhật SP Sửa Thi Hài
-CREATE OR ALTER PROC SP_SuaThiHai
-    @MATH VARCHAR(15), 
-    @HOTEN_TH NVARCHAR(100), 
-    @NGAYSINH DATE,
-    @NGAYMAT DATE, 
-    @GIOITINH NVARCHAR(10),
-    @NOITIMTHAY NVARCHAR(200) = NULL,   -- Thêm mới
-    @COCUANHAN NVARCHAR(100) = NULL     -- Thêm mới
-AS 
-BEGIN
-    UPDATE THIHAI 
-    SET HOTEN_TH = @HOTEN_TH, 
-        NGAYSINH = @NGAYSINH,
-        NGAYMAT = @NGAYMAT, 
-        GIOITINH = @GIOITINH,
-        NOITIMTHAY = @NOITIMTHAY,
-        COCUANHAN = @COCUANHAN
-    WHERE MATH = @MATH
-END
+-- ============================================================
+-- PATCH SQL — Vá 4 vấn đề tương thích với C# WPF
+-- Chạy trên database: QuanLyNhaXac
+-- ============================================================
+USE QuanLyNhaXac
 GO
 
 -- ============================================================
---
+-- FIX 1: Tạo SP_TaoRoleMoi (bị thiếu hoàn toàn)
+-- QuanLyNhomQuyenViewModel.cs:139 gọi SP này
 -- ============================================================
-
--- Kiểm tra nếu thủ tục đã tồn tại thì xóa đi
-IF OBJECT_ID('SP_CapNhat_NgayBaoTri', 'P') IS NOT NULL
-BEGIN
-    DROP PROCEDURE SP_CapNhat_NgayBaoTri;
-END
+IF OBJECT_ID('SP_TaoRoleMoi', 'P') IS NOT NULL
+    DROP PROCEDURE SP_TaoRoleMoi
 GO
 
--- Tạo lại thủ tục mới
-CREATE PROCEDURE SP_CapNhat_NgayBaoTri
-    @maNgan VARCHAR(15),
-    @ngay   DATE
+CREATE PROCEDURE SP_TaoRoleMoi
+    @TenRole NVARCHAR(128)
 AS
 BEGIN
-    SET NOCOUNT ON;
-    
-    -- Kiểm tra mã ngăn có tồn tại không
-    IF NOT EXISTS (SELECT 1 FROM NGANKEO WHERE MANGAN = @maNgan)
+    SET NOCOUNT ON
+
+    IF @TenRole IS NULL OR LTRIM(RTRIM(@TenRole)) = ''
     BEGIN
-        RAISERROR(N'Mã ngăn không tồn tại!', 16, 1);
-        RETURN;
+        RAISERROR(N'Tên nhóm quyền không được để trống!', 16, 1)
+        RETURN
     END
-    
-    -- Thực hiện cập nhật ngày bảo trì
-    UPDATE NGANKEO 
-    SET NGAY_BAO_TRI = @ngay 
-    WHERE MANGAN = @maNgan
+
+    -- Kiểm tra Role đã tồn tại chưa
+    IF EXISTS (
+        SELECT 1 FROM sys.database_principals
+        WHERE name = @TenRole AND type = 'R'
+    )
+    BEGIN
+        RAISERROR(N'Nhóm quyền "%s" đã tồn tại trong hệ thống!', 16, 1, @TenRole)
+        RETURN
+    END
+
+    DECLARE @sql NVARCHAR(MAX) = N'CREATE ROLE [' + @TenRole + N']'
+    EXEC sp_executesql @sql
+
+    PRINT N'Đã tạo nhóm quyền: ' + @TenRole
 END
 GO
 
--- Cấp quyền cho Admin sử dụng thủ tục này
-GRANT EXECUTE ON SP_CapNhat_NgayBaoTri TO [QL_ADMIN]
+-- Cấp quyền cho Admin
+GRANT EXECUTE ON SP_TaoRoleMoi TO [QL_ADMIN]
 GO
 
--- Kiểm tra nếu có thì xóa để tạo lại
-IF OBJECT_ID('SP_XoaQuyenTrucTiepCuaUser', 'P') IS NOT NULL
-BEGIN
-    DROP PROCEDURE SP_XoaQuyenTrucTiepCuaUser;
-END
+PRINT N'[FIX 1] SP_TaoRoleMoi đã được tạo.'
 GO
 
-CREATE PROCEDURE SP_XoaQuyenTrucTiepCuaUser 
-    @TenUser NVARCHAR(128) 
+-- ============================================================
+-- FIX 2: Sửa TRG_BaoVeHoSoPhapY
+-- Đổi PRINT → RAISERROR để C# bắt được qua SqlException.Message
+-- C# kiểm tra: ex.Message.Contains("Hồ sơ pháp y không được phép xóa")
+-- ============================================================
+ALTER TRIGGER TRG_BaoVeHoSoPhapY
+ON HOSOKHAMBENH FOR DELETE
 AS
 BEGIN
-    DECLARE @sql NVARCHAR(MAX) = N'';
-    DECLARE @bang NVARCHAR(128);
-    
-    -- Quét qua 10 bảng dữ liệu chính của hệ thống
-    DECLARE cur CURSOR FOR
-        SELECT name FROM sys.tables
-        WHERE name IN ('THIHAI','DICHVU','SUDUNG','NGANKEO','HOSOKHAMBENH','NHANVIEN','BACSI','THAN_NHAN','HOADON','CANH_BAO');
-        
-    OPEN cur;
-    FETCH NEXT FROM cur INTO @bang;
-    
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        -- Thu hồi toàn bộ quyền thao tác (CRUD) cấp trực tiếp cho User trên bảng này
-        SET @sql += N'REVOKE SELECT, INSERT, UPDATE, DELETE ON [' + @bang + N'] FROM [' + @TenUser + N']; ';
-        FETCH NEXT FROM cur INTO @bang;
-    END
-    
-    CLOSE cur; 
-    DEALLOCATE cur;
-    
-    -- Thực thi chuỗi lệnh dọn dẹp
-    EXEC sp_executesql @sql;
+    RAISERROR(N'Hồ sơ pháp y không được phép xóa!', 16, 1)
+    ROLLBACK TRANSACTION
 END
 GO
 
--- Cấp quyền cho Admin sử dụng SP này
-GRANT EXECUTE ON SP_XoaQuyenTrucTiepCuaUser TO [QL_ADMIN];
+PRINT N'[FIX 2] TRG_BaoVeHoSoPhapY đã đổi sang RAISERROR.'
+GO
+
+-- ============================================================
+-- FIX 3: Sửa SP_BanGiaoThiHai
+-- C# dùng InfoMessage để bắt PRINT, kiểm tra: serverMessage.Contains("Chưa thể")
+-- SP cũ dùng: PRINT 'Hóa đơn chưa thanh toán!' → không match
+-- Sửa thành PRINT chứa chuỗi "Chưa thể" để C# bắt được
+-- ============================================================
+ALTER PROC SP_BanGiaoThiHai @MATH VARCHAR(15) AS
+BEGIN
+    IF dbo.FN_KiemTraHoaDonDuocThanhToan(@MATH) = 0
+    BEGIN
+        PRINT N'Chưa thể bàn giao: Hóa đơn chưa được thanh toán!'
+        RETURN
+    END
+    EXEC SP_CapNhatTrangThaiThiHai @MATH, N'Đã bàn giao'
+    UPDATE NGANKEO SET MATH = NULL WHERE MATH = @MATH
+    PRINT N'Đã bàn giao thi hài ' + @MATH
+END
+GO
+
+PRINT N'[FIX 3] SP_BanGiaoThiHai đã sửa message chứa "Chưa thể".'
+GO
+
+-- ============================================================
+-- FIX 4: Sửa TRG_CanhBaoNhietDoNganKeo
+-- C# kiểm tra: ex.Message.Contains("Cảnh báo nghiêm trọng")
+-- Trigger cũ dùng PRINT 'Cảnh báo nghiêm trọng...' NHƯNG đồng thời
+-- ROLLBACK → SqlException message là lỗi generic, không phải chuỗi PRINT.
+-- Sửa: đổi PRINT + ROLLBACK → RAISERROR (chứa "Cảnh báo nghiêm trọng") + ROLLBACK
+-- ============================================================
+ALTER TRIGGER TRG_CanhBaoNhietDoNganKeo
+ON NGANKEO FOR UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON
+    IF UPDATE(NHIETDO)
+    BEGIN
+        -- Ghi cảnh báo vào bảng CANH_BAO
+        INSERT INTO CANH_BAO(LOAICB, MANGAN, NOIDUNG)
+        SELECT N'NhietDo', i.MANGAN,
+               N'Cảnh báo: Ngăn ' + i.MANGAN + N' nhiệt độ '
+               + CAST(i.NHIETDO AS NVARCHAR(10)) + N'°C vượt ngưỡng!'
+        FROM inserted i
+        WHERE i.MATH IS NOT NULL AND i.NHIETDO > 0
+
+        -- Nếu có ngăn đang dùng mà nhiệt độ > 0 → block + RAISERROR để C# catch được
+        IF EXISTS (SELECT 1 FROM inserted WHERE MATH IS NOT NULL AND NHIETDO > 0)
+        BEGIN
+            RAISERROR(N'Cảnh báo nghiêm trọng: Nhiệt độ > 0°C — thao tác bị chặn để bảo vệ thi hài!', 16, 1)
+            ROLLBACK TRANSACTION
+        END
+    END
+END
+GO
+
+PRINT N'[FIX 4] TRG_CanhBaoNhietDoNganKeo đã đổi sang RAISERROR.'
+GO
+
+-- ============================================================
+-- KIỂM TRA SAU KHI VÁ
+-- ============================================================
+SELECT
+    'SP_TaoRoleMoi'           AS DoiTuong,
+    CASE WHEN OBJECT_ID('SP_TaoRoleMoi','P') IS NOT NULL THEN N'OK' ELSE N'MISSING' END AS TrangThai
+UNION ALL SELECT
+    'TRG_BaoVeHoSoPhapY',
+    CASE WHEN OBJECT_ID('TRG_BaoVeHoSoPhapY','TR') IS NOT NULL THEN N'OK' ELSE N'MISSING' END
+UNION ALL SELECT
+    'SP_BanGiaoThiHai',
+    CASE WHEN OBJECT_ID('SP_BanGiaoThiHai','P') IS NOT NULL THEN N'OK' ELSE N'MISSING' END
+UNION ALL SELECT
+    'TRG_CanhBaoNhietDoNganKeo',
+    CASE WHEN OBJECT_ID('TRG_CanhBaoNhietDoNganKeo','TR') IS NOT NULL THEN N'OK' ELSE N'MISSING' END
+
+PRINT N''
+PRINT N'============================================'
+PRINT N'PATCH HOÀN TẤT — 4 vấn đề đã được vá.'
+PRINT N'============================================'
+GO
+
+--USE msdb;
+--GO
+
+---- 1. TẠO JOB FULL BACKUP (Chạy vào 00:00 mỗi ngày)
+--EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Full_Backup';
+--EXEC dbo.sp_add_jobstep 
+--    @job_name = N'NhaXac_Auto_Full_Backup', 
+--    @step_name = N'ThucHienFull', 
+--    @subsystem = N'TSQL',
+--    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Full.bak'' WITH INIT, FORMAT, COMPRESSION;';
+--EXEC dbo.sp_add_schedule 
+--    @schedule_name = N'Lich_MoiNgay_00h', 
+--    @freq_type = 4, @freq_interval = 1, @active_start_time = 000000;
+--EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Full_Backup', @schedule_name = N'Lich_MoiNgay_00h';
+--EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Full_Backup';
+--GO
+
+---- 2. TẠO JOB DIFFERENTIAL BACKUP (Chạy mỗi 6 tiếng)
+--EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Diff_Backup';
+--EXEC dbo.sp_add_jobstep 
+--    @job_name = N'NhaXac_Auto_Diff_Backup', 
+--    @step_name = N'ThucHienDiff', 
+--    @subsystem = N'TSQL',
+--    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Diff.bak'' WITH DIFFERENTIAL, INIT, FORMAT, COMPRESSION;';
+--EXEC dbo.sp_add_schedule 
+--    @schedule_name = N'Lich_Moi6Tieng', 
+--    @freq_type = 4, @freq_interval = 1, @freq_subday_type = 8, @freq_subday_interval = 6;
+--EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Diff_Backup', @schedule_name = N'Lich_Moi6Tieng';
+--EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Diff_Backup';
+--GO
+
+---- 3. TẠO JOB LOG BACKUP (Chạy mỗi 1 tiếng)
+--EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Log_Backup';
+--EXEC dbo.sp_add_jobstep 
+--    @job_name = N'NhaXac_Auto_Log_Backup', 
+--    @step_name = N'ThucHienLog', 
+--    @subsystem = N'TSQL',
+--    @command = N'BACKUP LOG QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Log.trn'' WITH INIT, FORMAT, COMPRESSION;';
+--EXEC dbo.sp_add_schedule 
+--    @schedule_name = N'Lich_Moi1Tieng', 
+--    @freq_type = 4, @freq_interval = 1, @freq_subday_type = 8, @freq_subday_interval = 1;
+--EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Log_Backup', @schedule_name = N'Lich_Moi1Tieng';
+--EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Log_Backup';
+--GO
+
+
+USE msdb;
+GO
+
+-- 1. TẠO JOB FULL BACKUP (Chạy mỗi 5 phút)
+EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Full_Backup';
+EXEC dbo.sp_add_jobstep 
+    @job_name = N'NhaXac_Auto_Full_Backup', 
+    @step_name = N'ThucHienFull', 
+    @subsystem = N'TSQL',
+    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Full.bak'' WITH INIT, FORMAT, COMPRESSION;';
+EXEC dbo.sp_add_schedule 
+    @schedule_name = N'Lich_Moi_5_Phut', 
+    @freq_type = 4, @freq_interval = 1, 
+    @freq_subday_type = 4, @freq_subday_interval = 5; -- 4 = Phút, 5 = 5 phút
+EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Full_Backup', @schedule_name = N'Lich_Moi_5_Phut';
+EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Full_Backup';
+GO
+
+-- 2. TẠO JOB DIFFERENTIAL BACKUP (Chạy mỗi 3 phút)
+EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Diff_Backup';
+EXEC dbo.sp_add_jobstep 
+    @job_name = N'NhaXac_Auto_Diff_Backup', 
+    @step_name = N'ThucHienDiff', 
+    @subsystem = N'TSQL',
+    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Diff.bak'' WITH DIFFERENTIAL, INIT, FORMAT, COMPRESSION;';
+EXEC dbo.sp_add_schedule 
+    @schedule_name = N'Lich_Moi_3_Phut', 
+    @freq_type = 4, @freq_interval = 1, 
+    @freq_subday_type = 4, @freq_subday_interval = 3; -- 4 = Phút, 3 = 3 phút
+EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Diff_Backup', @schedule_name = N'Lich_Moi_3_Phut';
+EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Diff_Backup';
+GO
+
+-- 3. TẠO JOB LOG BACKUP (Chạy mỗi 1 phút)
+EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Log_Backup';
+EXEC dbo.sp_add_jobstep 
+    @job_name = N'NhaXac_Auto_Log_Backup', 
+    @step_name = N'ThucHienLog', 
+    @subsystem = N'TSQL',
+    @command = N'BACKUP LOG QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Log.trn'' WITH INIT, FORMAT, COMPRESSION;';
+EXEC dbo.sp_add_schedule 
+    @schedule_name = N'Lich_Moi_1_Phut', 
+    @freq_type = 4, @freq_interval = 1, 
+    @freq_subday_type = 4, @freq_subday_interval = 1; -- 4 = Phút, 1 = 1 phút
+EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Log_Backup', @schedule_name = N'Lich_Moi_1_Phut';
+EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Log_Backup';
 GO
