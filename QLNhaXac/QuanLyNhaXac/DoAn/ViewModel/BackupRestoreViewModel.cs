@@ -161,11 +161,16 @@ namespace DoAn.ViewModel
                 return true;
 
             var normalized = dataSource.Trim();
+
+            // Lấy tên máy tính, cắt bỏ phần \SQLEXPRESS (nếu có)
+            var serverNameOnly = normalized.Split('\\')[0];
+
             return normalized.Equals(".", StringComparison.OrdinalIgnoreCase)
                 || normalized.Equals("(local)", StringComparison.OrdinalIgnoreCase)
                 || normalized.Equals("localhost", StringComparison.OrdinalIgnoreCase)
                 || normalized.StartsWith("(localdb)\\", StringComparison.OrdinalIgnoreCase)
-                || normalized.StartsWith("127.0.0.1", StringComparison.OrdinalIgnoreCase);
+                || normalized.StartsWith("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                || serverNameOnly.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase); // Thêm dòng này để nhận diện đúng tên máy
         }
 
         private bool CanSqlServerAccessPath(string path)
