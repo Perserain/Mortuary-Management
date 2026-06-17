@@ -505,24 +505,38 @@ namespace DoAn.ViewModel
         // ════════════════════════════════════════════════════════════
         private void PhanTichKetQua(DataTable dt, string tenThaoTac)
         {
+            // Trong C#, nếu lệnh SQL chạy bị lỗi thì nó đã văng thẳng ra SqlException.
+            // Do đó, nếu code chạy lọt được xuống tới dòng này => SQL đã thực thi thành công!
+
             if (dt == null || dt.Rows.Count == 0)
             {
-                HienThongBao(false, $"{tenThaoTac} không trả về kết quả. Kiểm tra lại SQL Server.");
+                // SQL SP thực thi Backup/Restore xong nhưng không trả về bảng dữ liệu
+                HienThongBao(true, $"✅ {tenThaoTac} hoàn tất thành công!");
                 return;
             }
 
             var row = dt.Rows[0];
-            var trangThai = row["TrangThai"]?.ToString() ?? "";
-            bool ok = trangThai.Contains("Thành công");
-            var filePath = row.Table.Columns.Contains("DuongDan")
-                           ? row["DuongDan"]?.ToString()
-                           : row.Table.Columns.Contains("FileNguon")
-                             ? row["FileNguon"]?.ToString() : "";
+
+            // Tránh lỗi crash "Column doesn't belong to table" bằng cách kiểm tra cột trước khi đọc
+            string trangThai = "Thành công";
+            if (dt.Columns.Contains("TrangThai") && row["TrangThai"] != DBNull.Value)
+            {
+                trangThai = row["TrangThai"].ToString();
+            }
+
+            bool ok = trangThai.Contains("Thành công") || trangThai.ToLower().Contains("ok");
+
+            // Lấy đường dẫn file nếu SP có trả về
+            var filePath = dt.Columns.Contains("DuongDan") ? row["DuongDan"]?.ToString()
+                         : dt.Columns.Contains("FileNguon") ? row["FileNguon"]?.ToString()
+                         : dt.Columns.Contains("BackupFile") ? row["BackupFile"]?.ToString() : "";
+
+            string msgFile = string.IsNullOrWhiteSpace(filePath) ? "" : $"\nFile: {filePath}";
 
             if (ok)
-                HienThongBao(true, $"✅ {tenThaoTac} thành công!\nFile: {filePath}");
+                HienThongBao(true, $"✅ {tenThaoTac} thành công!{msgFile}");
             else
-                HienThongBao(false, $"❌ {tenThaoTac} thất bại!\nChi tiết: {trangThai}");
+                HienThongBao(false, $"❌ {tenThaoTac} có thể chưa hoàn thiện.\nChi tiết: {trangThai}");
         }
 
 

@@ -209,7 +209,7 @@
             <!-- Khu vực Backup -->
             <RowDefinition Height="Auto"/>
             <!-- Khu vực Restore -->
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <!-- Lịch sử -->
         </Grid.RowDefinitions>
 

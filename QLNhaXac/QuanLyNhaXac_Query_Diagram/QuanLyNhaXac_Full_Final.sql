@@ -1447,7 +1447,13 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE SP_CapNhatQuyenChoUser
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'SP_CapNhatQuyenChoUser')
+BEGIN
+    DROP PROCEDURE SP_CapNhatQuyenChoUser;
+END
+GO
+
+CREATE PROCEDURE SP_CapNhatQuyenChoUser
     @TenUser NVARCHAR(128),
     @TenBang NVARCHAR(128),
     @CoSelect BIT,
@@ -1460,39 +1466,43 @@ AS
 BEGIN
     SET NOCOUNT ON;
     DECLARE @sql NVARCHAR(MAX) = N'';
-    DECLARE @optGrant NVARCHAR(50) = IIF(@WithGrant = 1, N' WITH GRANT OPTION', N'');
-    DECLARE @optCascade NVARCHAR(50) = IIF(@Cascade = 1, N' CASCADE', N'');
+    
+    DECLARE @optGrant NVARCHAR(50) = '';
+    IF @WithGrant = 1 SET @optGrant = N' WITH GRANT OPTION';
+    
+    DECLARE @optCascade NVARCHAR(50) = '';
+    IF @Cascade = 1 SET @optCascade = N' CASCADE';
 
-    -- Xóa sạch các quyền cấp lẻ cũ trước khi cập nhật
-    SET @sql += N'REVOKE SELECT, INSERT, UPDATE, DELETE ON [' + @TenBang + N'] FROM [' + @TenUser + N'] CASCADE; ';
+    -- Thu hồi quyền
+    SET @sql += N'REVOKE SELECT, INSERT, UPDATE, DELETE ON [' + @TenBang + N'] FROM [' + @TenUser + N']' + @optCascade + N'; ';
 
-    -- 1. Quyền SELECT
+    -- Cấp/Cấm quyền SELECT
     IF @CoSelect = 1
         SET @sql += N'GRANT SELECT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
     ELSE
-        SET @sql += N'DENY SELECT ON [' + @TenBang + N'] TO [' + @TenUser + N'] CASCADE; ';
+        SET @sql += N'DENY SELECT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optCascade + N'; ';
 
-    -- 2. Quyền INSERT
+    -- Cấp/Cấm quyền INSERT
     IF @CoInsert = 1
         SET @sql += N'GRANT INSERT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
     ELSE
-        SET @sql += N'DENY INSERT ON [' + @TenBang + N'] TO [' + @TenUser + N'] CASCADE; ';
+        SET @sql += N'DENY INSERT ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optCascade + N'; ';
 
-    -- 3. Quyền UPDATE
+    -- Cấp/Cấm quyền UPDATE
     IF @CoUpdate = 1
         SET @sql += N'GRANT UPDATE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
     ELSE
-        SET @sql += N'DENY UPDATE ON [' + @TenBang + N'] TO [' + @TenUser + N'] CASCADE; ';
+        SET @sql += N'DENY UPDATE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optCascade + N'; ';
 
-    -- 4. Quyền DELETE
+    -- Cấp/Cấm quyền DELETE
     IF @CoDelete = 1
         SET @sql += N'GRANT DELETE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optGrant + N'; ';
     ELSE
-        SET @sql += N'DENY DELETE ON [' + @TenBang + N'] TO [' + @TenUser + N'] CASCADE; ';
+        SET @sql += N'DENY DELETE ON [' + @TenBang + N'] TO [' + @TenUser + N']' + @optCascade + N'; ';
 
-    -- Thực thi toàn bộ lệnh
+    -- Thực thi chuỗi lệnh
     EXEC sp_executesql @sql;
-END
+END;
 GO
 
 CREATE PROCEDURE SP_UserChuaThuocRole 
@@ -2010,42 +2020,71 @@ AS BEGIN
     END
 GO
 
-CREATE OR ALTER PROCEDURE SP_RestoreDatabase @BackupFile NVARCHAR(600), @WithRecovery BIT=1
-AS BEGIN
-    SET NOCOUNT ON
-    IF IS_SRVROLEMEMBER('sysadmin')=0 AND IS_SRVROLEMEMBER('dbcreator')=0
-    BEGIN RAISERROR(N'Cần quyền sysadmin/dbcreator để Restore.',16,1); RETURN END
+USE master
+GO
+
+IF OBJECT_ID('SP_RestoreDatabase', 'P') IS NOT NULL
+    DROP PROCEDURE SP_RestoreDatabase;
+GO
+
+CREATE PROCEDURE SP_RestoreDatabase 
+    @BackupFile NVARCHAR(600), 
+    @WithRecovery BIT = 1
+AS 
+BEGIN
+    SET NOCOUNT ON;
     
-    DECLARE @FE INT=0
-    EXEC master.dbo.xp_fileexist @BackupFile,@FE OUTPUT
-    IF @FE=0 BEGIN RAISERROR(N'Không tìm thấy file: %s',16,1,@BackupFile); RETURN END
+    IF IS_SRVROLEMEMBER('sysadmin') = 0 AND IS_SRVROLEMEMBER('dbcreator') = 0
+    BEGIN 
+        RAISERROR(N'Cần quyền sysadmin/dbcreator để Restore.', 16, 1); 
+        RETURN; 
+    END
     
-    DECLARE @Opt NVARCHAR(20)=CASE WHEN @WithRecovery=1 THEN 'RECOVERY' ELSE 'NORECOVERY' END
-    DECLARE @Sql NVARCHAR(MAX)
+    DECLARE @FE INT = 0;
+    EXEC master.dbo.xp_fileexist @BackupFile, @FE OUTPUT;
+    IF @FE = 0 
+    BEGIN 
+        RAISERROR(N'Không tìm thấy file backup: %s', 16, 1, @BackupFile); 
+        RETURN; 
+    END
+    
+    DECLARE @Opt NVARCHAR(20);
+    IF @WithRecovery = 1 
+        SET @Opt = 'RECOVERY';
+    ELSE 
+        SET @Opt = 'NORECOVERY';
+
+    DECLARE @Sql NVARCHAR(MAX);
     
     BEGIN TRY
-        -- Ngắt mọi kết nối đang dùng database này để restore
-        EXEC sp_executesql N'ALTER DATABASE QuanLyNhaXac SET SINGLE_USER WITH ROLLBACK IMMEDIATE'
+        -- Đẩy user ra khỏi CSDL để có quyền ghi đè
+        EXEC sp_executesql N'ALTER DATABASE QuanLyNhaXac SET SINGLE_USER WITH ROLLBACK IMMEDIATE';
         
         IF @BackupFile LIKE N'%.trn'
-            SET @Sql=N'RESTORE LOG QuanLyNhaXac FROM DISK=N'''+@BackupFile+N''' WITH '+@Opt+N',CHECKSUM'
+            SET @Sql = N'RESTORE LOG QuanLyNhaXac FROM DISK = N''' + @BackupFile + N''' WITH ' + @Opt + N', CHECKSUM';
         ELSE
-            SET @Sql=N'RESTORE DATABASE QuanLyNhaXac FROM DISK=N'''+@BackupFile+N''' WITH '+@Opt+N',REPLACE,CHECKSUM'
+            SET @Sql = N'RESTORE DATABASE QuanLyNhaXac FROM DISK = N''' + @BackupFile + N''' WITH ' + @Opt + N', REPLACE, CHECKSUM';
             
-        EXEC sp_executesql @Sql
+        EXEC sp_executesql @Sql;
         
-        -- Mở lại kết nối sau khi phục hồi xong
-        IF @WithRecovery=1 EXEC sp_executesql N'ALTER DATABASE QuanLyNhaXac SET MULTI_USER'
-        PRINT N'RESTORE thành công từ: '+@BackupFile
+        IF @WithRecovery = 1 
+            EXEC sp_executesql N'ALTER DATABASE QuanLyNhaXac SET MULTI_USER';
+            
+        PRINT N'RESTORE thành công từ: ' + @BackupFile;
     END TRY
     BEGIN CATCH
-        -- Nếu bị lỗi giữa chừng, phải mở lại kết nối để không bị treo DB
-        EXEC sp_executesql N'ALTER DATABASE QuanLyNhaXac SET MULTI_USER'
+        -- Bị lỗi cũng phải mở lại CSDL
+        EXEC sp_executesql N'ALTER DATABASE QuanLyNhaXac SET MULTI_USER';
         DECLARE @ErrLog NVARCHAR(4000) = ERROR_MESSAGE();
-        RAISERROR(N'LỖI RESTORE: %s',16,1,@ErrLog) 
+        RAISERROR(N'LỖI RESTORE: %s', 16, 1, @ErrLog); 
     END CATCH   
 END
 GO
+
+-- TRẢ LẠI KẾT NỐI VỀ QUẢN LÝ NHÀ XÁC ĐỂ CHẠY CÁC HÀM BÊN DƯỚI
+USE QuanLyNhaXac
+GO
+
 
 CREATE PROCEDURE SP_KiemTraTinhToanVenBackup @BackupFile NVARCHAR(600) AS
 BEGIN
