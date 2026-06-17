@@ -284,56 +284,57 @@ namespace DoAn.ViewModel
             if (SelectedRole == null) return;
             if (!DBConnect.RequireAdmin("Phân quyền nhóm")) return;
 
+            // 1. Kiểm tra xem có user nào được chọn không
+            var danhSachCanXuLy = ShowGrantPanel ? DanhSachUserChuaThuoc.Where(x => x.IsSelected).ToList()
+                                                 : DanhSachUserTrongRole.Where(x => x.IsSelected).ToList();
+
+            if (danhSachCanXuLy.Count == 0)
+            {
+                MessageBox.Show("Bạn chưa chọn user nào để thực hiện thao tác!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 using var conn = new SqlConnection(DBConnect.ConnectionString);
                 conn.Open();
-
                 int dem = 0;
 
-                if (ShowGrantPanel)
+                foreach (var u in danhSachCanXuLy)
                 {
-                    foreach (var u in DanhSachUserChuaThuoc.Where(x => x.IsSelected))
+                    if (ShowGrantPanel)
                     {
-                        // 1. Grant nhóm quyền
-                        var cmd = new SqlCommand("SP_GrantUserVaoRole", conn)
-                        { CommandType = CommandType.StoredProcedure };
+                        // Cấp quyền
+                        var cmd = new SqlCommand("SP_GrantUserVaoRole", conn) { CommandType = CommandType.StoredProcedure };
                         cmd.Parameters.AddWithValue("@TenUser", u.TenUser);
                         cmd.Parameters.AddWithValue("@TenRole", SelectedRole.TenRole);
                         cmd.ExecuteNonQuery();
-
-                        // 2. DỌN SẠCH QUYỀN LẺ (Đảm bảo chỉ dùng quyền nhóm)
-                        CleanDirectPermissions(u.TenUser, conn);
-                        dem++;
                     }
-                    MessageBox.Show($"Đã grant {dem} user vào nhóm [{SelectedRole.TenRole}]!", "Thành công");
-                }
-                else if (ShowRevokePanel)
-                {
-                    foreach (var u in DanhSachUserTrongRole.Where(x => x.IsSelected))
+                    else // ShowRevokePanel
                     {
-                        // 1. Revoke nhóm quyền
-                        var cmd = new SqlCommand("SP_RevokeUserKhoiRole", conn)
-                        { CommandType = CommandType.StoredProcedure };
+                        // Thu hồi quyền
+                        var cmd = new SqlCommand("SP_RevokeUserKhoiRole", conn) { CommandType = CommandType.StoredProcedure };
                         cmd.Parameters.AddWithValue("@TenUser", u.TenUser);
                         cmd.Parameters.AddWithValue("@TenRole", SelectedRole.TenRole);
                         cmd.ExecuteNonQuery();
-
-                        // 2. DỌN SẠCH QUYỀN LẺ
-                        CleanDirectPermissions(u.TenUser, conn);
-                        dem++;
                     }
-                    MessageBox.Show($"Đã revoke {dem} user khỏi nhóm [{SelectedRole.TenRole}]!", "Thành công");
+
+                    // DỌN SẠCH QUYỀN LẺ (Quan trọng nhất)
+                    CleanDirectPermissions(u.TenUser, conn);
+                    dem++;
                 }
 
-                // Reload
+                string hanhDong = ShowGrantPanel ? "Grant" : "Revoke";
+                MessageBox.Show($"Đã thực hiện {hanhDong} cho {dem} user thành công!", "Thành công");
+
+                // Reload UI
                 LoadUsersInRole(SelectedRole.TenRole);
                 ShowGrantPanel = false;
                 ShowRevokePanel = false;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi cập nhật nhóm: " + ex.Message);
+                MessageBox.Show("Lỗi cập nhật nhóm: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
