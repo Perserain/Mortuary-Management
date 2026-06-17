@@ -24,5 +24,6 @@ namespace DoAn.Views.UserControls
         {
             InitializeComponent();
         }
+
     }
 }
