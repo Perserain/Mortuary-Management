@@ -234,7 +234,23 @@ namespace DoAn.ViewModel
             }
         }
 
-        private void LoadAllUsers() { }
+        private void LoadAllUsers()
+        {
+            if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
+
+            // Giả sử bạn có DanhSachUserToanBo trong ViewModel (nếu chưa có thì khai báo thêm nhé)
+            // DanhSachUserToanBo.Clear();
+
+            try
+            {
+                DataTable dt = DBConnect.GetData("EXEC SP_DanhSachUser"); // Dùng SP có sẵn của bạn
+                                                                          // Đổ dữ liệu từ dt vào collection DanhSachUserToanBo...
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi load danh sách user: " + ex.Message);
+            }
+        }
 
         private void ExecuteGrant()
         {
