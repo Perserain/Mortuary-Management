@@ -49,16 +49,13 @@ namespace DoAn.ViewModel
             set { _tenNhomMoi = value; OnPropertyChanged(); }
         }
 
-        // Danh sách bảng + quyền để chọn khi tạo nhóm
         public ObservableCollection<TablePermissionModel> DanhSachBangTaoNhom { get; set; } = new();
-
         public ICommand TaoNhomCommand { get; }
 
         // ═══════════════════════════════════════════════════════════════════════
         // TAB 2 – THÊM USER VÀO NHÓM
         // ═══════════════════════════════════════════════════════════════════════
 
-        // Bảng nhóm quyền bên trái
         public ObservableCollection<RoleModel> DanhSachRole { get; set; } = new();
 
         private RoleModel _selectedRole;
@@ -78,10 +75,7 @@ namespace DoAn.ViewModel
             }
         }
 
-        // Bảng user đang trong role (bên phải, trạng thái bình thường)
         public ObservableCollection<UserModel> DanhSachUserTrongRole { get; set; } = new();
-
-        // Bảng user CHƯA thuộc role (hiển thị khi nhấn Grant)
         public ObservableCollection<UserModel> DanhSachUserChuaThuoc { get; set; } = new();
 
         private bool _showGrantPanel;
@@ -98,7 +92,7 @@ namespace DoAn.ViewModel
             set { _showRevokePanel = value; OnPropertyChanged(); }
         }
 
-        public ICommand GrantCommand  { get; }
+        public ICommand GrantCommand { get; }
         public ICommand RevokeCommand { get; }
         public ICommand LuuUserCommand { get; }
         public ICommand HuyUserCommand { get; }
@@ -110,15 +104,24 @@ namespace DoAn.ViewModel
                 DanhSachBangTaoNhom.Add(new TablePermissionModel { TenBang = b });
 
             TaoNhomCommand = new RelayCommand(
-                _  => ExecuteTaoNhom(),
-                _  => !string.IsNullOrWhiteSpace(TenNhomMoi));
+                _ => ExecuteTaoNhom(),
+                _ => !string.IsNullOrWhiteSpace(TenNhomMoi));
 
-            GrantCommand   = new RelayCommand(_ => ExecuteGrant(),  _ => SelectedRole != null);
-            RevokeCommand  = new RelayCommand(_ => ExecuteRevoke(), _ => SelectedRole != null);
+            GrantCommand = new RelayCommand(_ => ExecuteGrant(), _ => SelectedRole != null);
+            RevokeCommand = new RelayCommand(_ => ExecuteRevoke(), _ => SelectedRole != null);
             LuuUserCommand = new RelayCommand(_ => ExecuteLuuUser(), _ => SelectedRole != null);
             HuyUserCommand = new RelayCommand(_ => ExecuteHuyUser());
 
             TabIndex = 0;
+        }
+
+        // ─── Helper: Dọn sạch quyền trực tiếp (dùng chung) ────────────────────
+        private void CleanDirectPermissions(string tenUser, SqlConnection conn)
+        {
+            using var cmdClear = new SqlCommand("SP_XoaQuyenTrucTiepCuaUser", conn)
+            { CommandType = CommandType.StoredProcedure };
+            cmdClear.Parameters.AddWithValue("@TenUser", tenUser);
+            cmdClear.ExecuteNonQuery();
         }
 
         // ─── Tab 1: Tạo nhóm quyền mới ───────────────────────────────────────
@@ -141,21 +144,18 @@ namespace DoAn.ViewModel
 
                 cmd.Parameters.AddWithValue("@TenRole", TenNhomMoi.Trim());
 
-                // Map quyền từng bảng
                 var bangMap = DanhSachBangTaoNhom.ToDictionary(b => b.TenBang);
-                AddBangParams(cmd, bangMap, "THIHAI",       "TH");
-                AddBangParams(cmd, bangMap, "DICHVU",       "DV");
-                AddBangParams(cmd, bangMap, "SUDUNG",       "SD");
-                AddBangParams(cmd, bangMap, "NGANKEO",      "NK");
+                AddBangParams(cmd, bangMap, "THIHAI", "TH");
+                AddBangParams(cmd, bangMap, "DICHVU", "DV");
+                AddBangParams(cmd, bangMap, "SUDUNG", "SD");
+                AddBangParams(cmd, bangMap, "NGANKEO", "NK");
                 AddBangParams(cmd, bangMap, "HOSOKHAMBENH", "HS");
-                AddBangParams(cmd, bangMap, "NHANVIEN",     "NV");
-                AddBangParams(cmd, bangMap, "BACSI",        "BS");
+                AddBangParams(cmd, bangMap, "NHANVIEN", "NV");
+                AddBangParams(cmd, bangMap, "BACSI", "BS");
 
                 cmd.ExecuteNonQuery();
-
                 MessageBox.Show($"Đã tạo nhóm quyền [{TenNhomMoi}] thành công!", "Thành công");
 
-                // Reset form
                 TenNhomMoi = string.Empty;
                 foreach (var b in DanhSachBangTaoNhom)
                     b.CoSelect = b.CoInsert = b.CoUpdate = b.CoDelete = false;
@@ -190,7 +190,7 @@ namespace DoAn.ViewModel
                 {
                     DanhSachRole.Add(new RoleModel
                     {
-                        TenRole  = row["TenRole"].ToString(),
+                        TenRole = row["TenRole"].ToString(),
                         LoaiRole = row["LoaiRole"].ToString()
                     });
                 }
@@ -201,12 +201,11 @@ namespace DoAn.ViewModel
             }
         }
 
-        // ─── Load user đang trong role được chọn ─────────────────────────────
         private void LoadUsersInRole(string tenRole)
         {
             DanhSachUserTrongRole.Clear();
             DanhSachUserChuaThuoc.Clear();
-            ShowGrantPanel  = false;
+            ShowGrantPanel = false;
             ShowRevokePanel = false;
 
             if (string.IsNullOrEmpty(DBConnect.ConnectionString)) return;
@@ -224,7 +223,7 @@ namespace DoAn.ViewModel
                 {
                     DanhSachUserTrongRole.Add(new UserModel
                     {
-                        TenUser  = reader["TenUser"].ToString(),
+                        TenUser = reader["TenUser"].ToString(),
                         LoaiUser = reader["LoaiUser"].ToString()
                     });
                 }
@@ -235,13 +234,8 @@ namespace DoAn.ViewModel
             }
         }
 
-        // ─── Load tất cả user (để hiển thị datagrid bên phải khi Revoke) ────
-        private void LoadAllUsers()
-        {
-            // Tái dụng SP_DanhSachUser; sẽ được gọi khi cần ở panel Revoke
-        }
+        private void LoadAllUsers() { }
 
-        // ─── Nút Grant: hiện bảng user CHƯA thuộc role ───────────────────────
         private void ExecuteGrant()
         {
             if (SelectedRole == null) return;
@@ -262,12 +256,11 @@ namespace DoAn.ViewModel
                 {
                     DanhSachUserChuaThuoc.Add(new UserModel
                     {
-                        TenUser  = reader["TenUser"].ToString(),
+                        TenUser = reader["TenUser"].ToString(),
                         LoaiUser = reader["LoaiUser"].ToString(),
                         IsSelected = false
                     });
                 }
-
                 ShowGrantPanel = true;
             }
             catch (Exception ex)
@@ -276,21 +269,16 @@ namespace DoAn.ViewModel
             }
         }
 
-        // ─── Nút Revoke: hiện bảng user ĐANG trong role ──────────────────────
         private void ExecuteRevoke()
         {
             if (SelectedRole == null) return;
             DanhSachUserChuaThuoc.Clear();
             ShowGrantPanel = false;
-
-            // Dùng lại DanhSachUserTrongRole, đặt IsSelected để user tick
             foreach (var u in DanhSachUserTrongRole)
                 u.IsSelected = false;
-
             ShowRevokePanel = true;
         }
 
-        // ─── Nút Lưu: thực hiện Grant hoặc Revoke tùy panel đang hiển thị ───
         private void ExecuteLuuUser()
         {
             if (SelectedRole == null) return;
@@ -305,36 +293,34 @@ namespace DoAn.ViewModel
 
                 if (ShowGrantPanel)
                 {
-                    // Grant các user được check
                     foreach (var u in DanhSachUserChuaThuoc.Where(x => x.IsSelected))
                     {
+                        // 1. Grant nhóm quyền
                         var cmd = new SqlCommand("SP_GrantUserVaoRole", conn)
                         { CommandType = CommandType.StoredProcedure };
                         cmd.Parameters.AddWithValue("@TenUser", u.TenUser);
                         cmd.Parameters.AddWithValue("@TenRole", SelectedRole.TenRole);
                         cmd.ExecuteNonQuery();
+
+                        // 2. DỌN SẠCH QUYỀN LẺ (Đảm bảo chỉ dùng quyền nhóm)
+                        CleanDirectPermissions(u.TenUser, conn);
                         dem++;
                     }
                     MessageBox.Show($"Đã grant {dem} user vào nhóm [{SelectedRole.TenRole}]!", "Thành công");
                 }
                 else if (ShowRevokePanel)
                 {
-                    // Revoke các user được check
                     foreach (var u in DanhSachUserTrongRole.Where(x => x.IsSelected))
                     {
-                        // Lệnh cũ: Xóa user khỏi Role
+                        // 1. Revoke nhóm quyền
                         var cmd = new SqlCommand("SP_RevokeUserKhoiRole", conn)
                         { CommandType = CommandType.StoredProcedure };
                         cmd.Parameters.AddWithValue("@TenUser", u.TenUser);
                         cmd.Parameters.AddWithValue("@TenRole", SelectedRole.TenRole);
                         cmd.ExecuteNonQuery();
 
-                        // Dọn sạch mọi quyền trực tiếp đã từng cấp riêng cho user này
-                        var cmdClear = new SqlCommand("SP_XoaQuyenTrucTiepCuaUser", conn)
-                        { CommandType = CommandType.StoredProcedure };
-                        cmdClear.Parameters.AddWithValue("@TenUser", u.TenUser);
-                        cmdClear.ExecuteNonQuery();
-
+                        // 2. DỌN SẠCH QUYỀN LẺ
+                        CleanDirectPermissions(u.TenUser, conn);
                         dem++;
                     }
                     MessageBox.Show($"Đã revoke {dem} user khỏi nhóm [{SelectedRole.TenRole}]!", "Thành công");
@@ -342,7 +328,7 @@ namespace DoAn.ViewModel
 
                 // Reload
                 LoadUsersInRole(SelectedRole.TenRole);
-                ShowGrantPanel  = false;
+                ShowGrantPanel = false;
                 ShowRevokePanel = false;
             }
             catch (Exception ex)
@@ -353,7 +339,7 @@ namespace DoAn.ViewModel
 
         private void ExecuteHuyUser()
         {
-            ShowGrantPanel  = false;
+            ShowGrantPanel = false;
             ShowRevokePanel = false;
             DanhSachUserChuaThuoc.Clear();
             foreach (var u in DanhSachUserTrongRole)
