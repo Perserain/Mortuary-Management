@@ -178,17 +178,12 @@ namespace DoAn.ViewModel
             if (string.IsNullOrWhiteSpace(path))
                 return false;
 
-            try
-            {
-                var builder = new SqlConnectionStringBuilder(DBConnect.ConnectionString);
-                if (IsLocalSqlServer(builder.DataSource))
-                    return true;
-            }
-            catch
-            {
+            // FIX: Nếu là đường dẫn ổ đĩa local (ví dụ D:\...) thì cho phép luôn, 
+            // không cần quan tâm SQL Server chạy ở đâu.
+            if (path.Length >= 2 && path[1] == ':')
                 return true;
-            }
 
+            // Chỉ kiểm tra UNC path (\\Server\Share) nếu cần thiết
             return path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase);
         }
 
