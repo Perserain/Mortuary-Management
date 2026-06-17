@@ -2629,50 +2629,50 @@ PRINT N'PATCH HOÀN TẤT — 4 vấn đề đã được vá.'
 PRINT N'============================================'
 GO
 
---USE msdb;
---GO
+USE msdb;
+GO
 
----- 1. TẠO JOB FULL BACKUP (Chạy vào 00:00 mỗi ngày)
---EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Full_Backup';
---EXEC dbo.sp_add_jobstep 
---    @job_name = N'NhaXac_Auto_Full_Backup', 
---    @step_name = N'ThucHienFull', 
---    @subsystem = N'TSQL',
---    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Full.bak'' WITH INIT, FORMAT, COMPRESSION;';
---EXEC dbo.sp_add_schedule 
---    @schedule_name = N'Lich_MoiNgay_00h', 
---    @freq_type = 4, @freq_interval = 1, @active_start_time = 000000;
---EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Full_Backup', @schedule_name = N'Lich_MoiNgay_00h';
---EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Full_Backup';
---GO
+-- 1. TẠO JOB FULL BACKUP (Chạy vào 00:00 mỗi ngày)
+EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Full_Backup';
+EXEC dbo.sp_add_jobstep 
+    @job_name = N'NhaXac_Auto_Full_Backup', 
+    @step_name = N'ThucHienFull', 
+    @subsystem = N'TSQL',
+    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Full.bak'' WITH INIT, FORMAT, COMPRESSION;';
+EXEC dbo.sp_add_schedule 
+    @schedule_name = N'Lich_MoiNgay_00h', 
+    @freq_type = 4, @freq_interval = 1, @active_start_time = 000000;
+EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Full_Backup', @schedule_name = N'Lich_MoiNgay_00h';
+EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Full_Backup';
+GO
 
----- 2. TẠO JOB DIFFERENTIAL BACKUP (Chạy mỗi 6 tiếng)
---EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Diff_Backup';
---EXEC dbo.sp_add_jobstep 
---    @job_name = N'NhaXac_Auto_Diff_Backup', 
---    @step_name = N'ThucHienDiff', 
---    @subsystem = N'TSQL',
---    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Diff.bak'' WITH DIFFERENTIAL, INIT, FORMAT, COMPRESSION;';
---EXEC dbo.sp_add_schedule 
---    @schedule_name = N'Lich_Moi6Tieng', 
---    @freq_type = 4, @freq_interval = 1, @freq_subday_type = 8, @freq_subday_interval = 6;
---EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Diff_Backup', @schedule_name = N'Lich_Moi6Tieng';
---EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Diff_Backup';
---GO
+-- 2. TẠO JOB DIFFERENTIAL BACKUP (Chạy mỗi 6 tiếng)
+EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Diff_Backup';
+EXEC dbo.sp_add_jobstep 
+    @job_name = N'NhaXac_Auto_Diff_Backup', 
+    @step_name = N'ThucHienDiff', 
+    @subsystem = N'TSQL',
+    @command = N'BACKUP DATABASE QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Diff.bak'' WITH DIFFERENTIAL, INIT, FORMAT, COMPRESSION;';
+EXEC dbo.sp_add_schedule 
+    @schedule_name = N'Lich_Moi6Tieng', 
+    @freq_type = 4, @freq_interval = 1, @freq_subday_type = 8, @freq_subday_interval = 6;
+EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Diff_Backup', @schedule_name = N'Lich_Moi6Tieng';
+EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Diff_Backup';
+GO
 
----- 3. TẠO JOB LOG BACKUP (Chạy mỗi 1 tiếng)
---EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Log_Backup';
---EXEC dbo.sp_add_jobstep 
---    @job_name = N'NhaXac_Auto_Log_Backup', 
---    @step_name = N'ThucHienLog', 
---    @subsystem = N'TSQL',
---    @command = N'BACKUP LOG QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Log.trn'' WITH INIT, FORMAT, COMPRESSION;';
---EXEC dbo.sp_add_schedule 
---    @schedule_name = N'Lich_Moi1Tieng', 
---    @freq_type = 4, @freq_interval = 1, @freq_subday_type = 8, @freq_subday_interval = 1;
---EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Log_Backup', @schedule_name = N'Lich_Moi1Tieng';
---EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Log_Backup';
---GO
+-- 3. TẠO JOB LOG BACKUP (Chạy mỗi 1 tiếng)
+EXEC dbo.sp_add_job @job_name = N'NhaXac_Auto_Log_Backup';
+EXEC dbo.sp_add_jobstep 
+    @job_name = N'NhaXac_Auto_Log_Backup', 
+    @step_name = N'ThucHienLog', 
+    @subsystem = N'TSQL',
+    @command = N'BACKUP LOG QuanLyNhaXac TO DISK = N''D:\QuanLyNhaXac_Backup\QuanLyNhaXac_Log.trn'' WITH INIT, FORMAT, COMPRESSION;';
+EXEC dbo.sp_add_schedule 
+    @schedule_name = N'Lich_Moi1Tieng', 
+    @freq_type = 4, @freq_interval = 1, @freq_subday_type = 8, @freq_subday_interval = 1;
+EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Log_Backup', @schedule_name = N'Lich_Moi1Tieng';
+EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Log_Backup';
+GO
 
 
 USE msdb;
