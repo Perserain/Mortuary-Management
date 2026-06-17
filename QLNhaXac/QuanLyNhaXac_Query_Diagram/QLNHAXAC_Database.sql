@@ -2458,31 +2458,79 @@ IF OBJECT_ID('SP_TaoRoleMoi', 'P') IS NOT NULL
 GO
 
 CREATE PROCEDURE SP_TaoRoleMoi
-    @TenRole NVARCHAR(128)
+    @TenRole NVARCHAR(128),
+    -- Tham số 7 bảng (7 * 4 = 28 tham số)
+    @TH_Select BIT, @TH_Insert BIT, @TH_Update BIT, @TH_Delete BIT, -- THIHAI
+    @DV_Select BIT, @DV_Insert BIT, @DV_Update BIT, @DV_Delete BIT, -- DICHVU
+    @SD_Select BIT, @SD_Insert BIT, @SD_Update BIT, @SD_Delete BIT, -- SUDUNG
+    @NK_Select BIT, @NK_Insert BIT, @NK_Update BIT, @NK_Delete BIT, -- NGANKEO
+    @HS_Select BIT, @HS_Insert BIT, @HS_Update BIT, @HS_Delete BIT, -- HOSOKHAMBENH
+    @NV_Select BIT, @NV_Insert BIT, @NV_Update BIT, @NV_Delete BIT, -- NHANVIEN
+    @BS_Select BIT, @BS_Insert BIT, @BS_Update BIT, @BS_Delete BIT  -- BACSI
 AS
 BEGIN
     SET NOCOUNT ON
 
+    -- 1. Kiểm tra dữ liệu đầu vào
     IF @TenRole IS NULL OR LTRIM(RTRIM(@TenRole)) = ''
     BEGIN
         RAISERROR(N'Tên nhóm quyền không được để trống!', 16, 1)
         RETURN
     END
 
-    -- Kiểm tra Role đã tồn tại chưa
-    IF EXISTS (
-        SELECT 1 FROM sys.database_principals
-        WHERE name = @TenRole AND type = 'R'
-    )
+    IF EXISTS (SELECT 1 FROM sys.database_principals WHERE name = @TenRole AND type = 'R')
     BEGIN
-        RAISERROR(N'Nhóm quyền "%s" đã tồn tại trong hệ thống!', 16, 1, @TenRole)
+        RAISERROR(N'Nhóm quyền "%s" đã tồn tại!', 16, 1, @TenRole)
         RETURN
     END
 
+    -- 2. Tạo Role
     DECLARE @sql NVARCHAR(MAX) = N'CREATE ROLE [' + @TenRole + N']'
     EXEC sp_executesql @sql
 
-    PRINT N'Đã tạo nhóm quyền: ' + @TenRole
+    -- 3. Cấp quyền dựa trên các tham số BIT
+    DECLARE @GrantSql NVARCHAR(MAX) = N''
+
+    -- Helper cấp quyền (Viết gọn trong 1 chuỗi dynamic SQL)
+    IF @TH_Select = 1 SET @GrantSql += N'GRANT SELECT ON THIHAI TO [' + @TenRole + N']; '
+    IF @TH_Insert = 1 SET @GrantSql += N'GRANT INSERT ON THIHAI TO [' + @TenRole + N']; '
+    IF @TH_Update = 1 SET @GrantSql += N'GRANT UPDATE ON THIHAI TO [' + @TenRole + N']; '
+    IF @TH_Delete = 1 SET @GrantSql += N'GRANT DELETE ON THIHAI TO [' + @TenRole + N']; '
+
+    IF @DV_Select = 1 SET @GrantSql += N'GRANT SELECT ON DICHVU TO [' + @TenRole + N']; '
+    IF @DV_Insert = 1 SET @GrantSql += N'GRANT INSERT ON DICHVU TO [' + @TenRole + N']; '
+    IF @DV_Update = 1 SET @GrantSql += N'GRANT UPDATE ON DICHVU TO [' + @TenRole + N']; '
+    IF @DV_Delete = 1 SET @GrantSql += N'GRANT DELETE ON DICHVU TO [' + @TenRole + N']; '
+
+    IF @SD_Select = 1 SET @GrantSql += N'GRANT SELECT ON SUDUNG TO [' + @TenRole + N']; '
+    IF @SD_Insert = 1 SET @GrantSql += N'GRANT INSERT ON SUDUNG TO [' + @TenRole + N']; '
+    IF @SD_Update = 1 SET @GrantSql += N'GRANT UPDATE ON SUDUNG TO [' + @TenRole + N']; '
+    IF @SD_Delete = 1 SET @GrantSql += N'GRANT DELETE ON SUDUNG TO [' + @TenRole + N']; '
+
+    IF @NK_Select = 1 SET @GrantSql += N'GRANT SELECT ON NGANKEO TO [' + @TenRole + N']; '
+    IF @NK_Insert = 1 SET @GrantSql += N'GRANT INSERT ON NGANKEO TO [' + @TenRole + N']; '
+    IF @NK_Update = 1 SET @GrantSql += N'GRANT UPDATE ON NGANKEO TO [' + @TenRole + N']; '
+    IF @NK_Delete = 1 SET @GrantSql += N'GRANT DELETE ON NGANKEO TO [' + @TenRole + N']; '
+
+    IF @HS_Select = 1 SET @GrantSql += N'GRANT SELECT ON HOSOKHAMBENH TO [' + @TenRole + N']; '
+    IF @HS_Insert = 1 SET @GrantSql += N'GRANT INSERT ON HOSOKHAMBENH TO [' + @TenRole + N']; '
+    IF @HS_Update = 1 SET @GrantSql += N'GRANT UPDATE ON HOSOKHAMBENH TO [' + @TenRole + N']; '
+    IF @HS_Delete = 1 SET @GrantSql += N'GRANT DELETE ON HOSOKHAMBENH TO [' + @TenRole + N']; '
+
+    IF @NV_Select = 1 SET @GrantSql += N'GRANT SELECT ON NHANVIEN TO [' + @TenRole + N']; '
+    IF @NV_Insert = 1 SET @GrantSql += N'GRANT INSERT ON NHANVIEN TO [' + @TenRole + N']; '
+    IF @NV_Update = 1 SET @GrantSql += N'GRANT UPDATE ON NHANVIEN TO [' + @TenRole + N']; '
+    IF @NV_Delete = 1 SET @GrantSql += N'GRANT DELETE ON NHANVIEN TO [' + @TenRole + N']; '
+
+    IF @BS_Select = 1 SET @GrantSql += N'GRANT SELECT ON BACSI TO [' + @TenRole + N']; '
+    IF @BS_Insert = 1 SET @GrantSql += N'GRANT INSERT ON BACSI TO [' + @TenRole + N']; '
+    IF @BS_Update = 1 SET @GrantSql += N'GRANT UPDATE ON BACSI TO [' + @TenRole + N']; '
+    IF @BS_Delete = 1 SET @GrantSql += N'GRANT DELETE ON BACSI TO [' + @TenRole + N']; '
+
+    -- Thực thi cấp quyền
+    EXEC sp_executesql @GrantSql
+
+    PRINT N'Đã tạo nhóm quyền và cấp quyền cho: ' + @TenRole
 END
 GO
 
