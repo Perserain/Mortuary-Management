@@ -122,7 +122,7 @@ CREATE TABLE HOSOKHAMBENH
 (
     MAHS            VARCHAR(15)   NOT NULL,
     THOIGIANKHAM    DATE,
-    KETLUAN         NVARCHAR(50),
+    KETLUAN         NVARCHAR(50) DEFAULT N'ĐANG ĐIỀU TRA',
     MATH            VARCHAR(15),
     MABS            VARCHAR(15),
     MACAUTU         NVARCHAR(10),
@@ -2449,29 +2449,23 @@ GO
 USE QuanLyNhaXac
 GO
 
--- ============================================================
--- FIX 1: Tạo SP_TaoRoleMoi (bị thiếu hoàn toàn)
--- QuanLyNhomQuyenViewModel.cs:139 gọi SP này
--- ============================================================
-IF OBJECT_ID('SP_TaoRoleMoi', 'P') IS NOT NULL
-    DROP PROCEDURE SP_TaoRoleMoi
+-- Xóa SP cũ rồi tạo lại
+DROP PROCEDURE IF EXISTS SP_TaoRoleMoi
 GO
 
 CREATE PROCEDURE SP_TaoRoleMoi
-    @TenRole NVARCHAR(128),
-    -- Tham số 7 bảng (7 * 4 = 28 tham số)
-    @TH_Select BIT, @TH_Insert BIT, @TH_Update BIT, @TH_Delete BIT, -- THIHAI
-    @DV_Select BIT, @DV_Insert BIT, @DV_Update BIT, @DV_Delete BIT, -- DICHVU
-    @SD_Select BIT, @SD_Insert BIT, @SD_Update BIT, @SD_Delete BIT, -- SUDUNG
-    @NK_Select BIT, @NK_Insert BIT, @NK_Update BIT, @NK_Delete BIT, -- NGANKEO
-    @HS_Select BIT, @HS_Insert BIT, @HS_Update BIT, @HS_Delete BIT, -- HOSOKHAMBENH
-    @NV_Select BIT, @NV_Insert BIT, @NV_Update BIT, @NV_Delete BIT, -- NHANVIEN
-    @BS_Select BIT, @BS_Insert BIT, @BS_Update BIT, @BS_Delete BIT  -- BACSI
+    @TenRole  NVARCHAR(128),
+    @TH_Select BIT, @TH_Insert BIT, @TH_Update BIT, @TH_Delete BIT,
+    @DV_Select BIT, @DV_Insert BIT, @DV_Update BIT, @DV_Delete BIT,
+    @SD_Select BIT, @SD_Insert BIT, @SD_Update BIT, @SD_Delete BIT,
+    @NK_Select BIT, @NK_Insert BIT, @NK_Update BIT, @NK_Delete BIT,
+    @HS_Select BIT, @HS_Insert BIT, @HS_Update BIT, @HS_Delete BIT,
+    @NV_Select BIT, @NV_Insert BIT, @NV_Update BIT, @NV_Delete BIT,
+    @BS_Select BIT, @BS_Insert BIT, @BS_Update BIT, @BS_Delete BIT
 AS
 BEGIN
     SET NOCOUNT ON
 
-    -- 1. Kiểm tra dữ liệu đầu vào
     IF @TenRole IS NULL OR LTRIM(RTRIM(@TenRole)) = ''
     BEGIN
         RAISERROR(N'Tên nhóm quyền không được để trống!', 16, 1)
@@ -2484,14 +2478,11 @@ BEGIN
         RETURN
     END
 
-    -- 2. Tạo Role
     DECLARE @sql NVARCHAR(MAX) = N'CREATE ROLE [' + @TenRole + N']'
     EXEC sp_executesql @sql
 
-    -- 3. Cấp quyền dựa trên các tham số BIT
     DECLARE @GrantSql NVARCHAR(MAX) = N''
 
-    -- Helper cấp quyền (Viết gọn trong 1 chuỗi dynamic SQL)
     IF @TH_Select = 1 SET @GrantSql += N'GRANT SELECT ON THIHAI TO [' + @TenRole + N']; '
     IF @TH_Insert = 1 SET @GrantSql += N'GRANT INSERT ON THIHAI TO [' + @TenRole + N']; '
     IF @TH_Update = 1 SET @GrantSql += N'GRANT UPDATE ON THIHAI TO [' + @TenRole + N']; '
@@ -2516,8 +2507,7 @@ BEGIN
     IF @HS_Insert = 1 SET @GrantSql += N'GRANT INSERT ON HOSOKHAMBENH TO [' + @TenRole + N']; '
     IF @HS_Update = 1 SET @GrantSql += N'GRANT UPDATE ON HOSOKHAMBENH TO [' + @TenRole + N']; '
     IF @HS_Delete = 1 SET @GrantSql += N'GRANT DELETE ON HOSOKHAMBENH TO [' + @TenRole + N']; '
-
-    IF @NV_Select = 1 SET @GrantSql += N'GRANT SELECT ON NHANVIEN TO [' + @TenRole + N']; '
+IF @NV_Select = 1 SET @GrantSql += N'GRANT SELECT ON NHANVIEN TO [' + @TenRole + N']; '
     IF @NV_Insert = 1 SET @GrantSql += N'GRANT INSERT ON NHANVIEN TO [' + @TenRole + N']; '
     IF @NV_Update = 1 SET @GrantSql += N'GRANT UPDATE ON NHANVIEN TO [' + @TenRole + N']; '
     IF @NV_Delete = 1 SET @GrantSql += N'GRANT DELETE ON NHANVIEN TO [' + @TenRole + N']; '
@@ -2527,14 +2517,16 @@ BEGIN
     IF @BS_Update = 1 SET @GrantSql += N'GRANT UPDATE ON BACSI TO [' + @TenRole + N']; '
     IF @BS_Delete = 1 SET @GrantSql += N'GRANT DELETE ON BACSI TO [' + @TenRole + N']; '
 
-    -- Thực thi cấp quyền
-    EXEC sp_executesql @GrantSql
+    IF LEN(@GrantSql) > 0
+        EXEC sp_executesql @GrantSql
 
-    PRINT N'Đã tạo nhóm quyền và cấp quyền cho: ' + @TenRole
+    PRINT N'Đã tạo nhóm quyền: ' + @TenRole
 END
 GO
 
--- Cấp quyền cho Admin
+GRANT EXECUTE ON SP_TaoRoleMoi TO [QL_ADMIN]
+GO
+
 GRANT EXECUTE ON SP_TaoRoleMoi TO [QL_ADMIN]
 GO
 
@@ -2730,3 +2722,10 @@ EXEC dbo.sp_add_schedule
 EXEC dbo.sp_attach_schedule @job_name = N'NhaXac_Auto_Log_Backup', @schedule_name = N'Lich_Moi_1_Phut';
 EXEC dbo.sp_add_jobserver @job_name = N'NhaXac_Auto_Log_Backup';
 GO
+
+USE QuanLyNhaXac
+GO
+SELECT PARAMETER_NAME
+FROM INFORMATION_SCHEMA.PARAMETERS
+WHERE SPECIFIC_NAME = 'SP_TaoRoleMoi'
+ORDER BY ORDINAL_POSITION
