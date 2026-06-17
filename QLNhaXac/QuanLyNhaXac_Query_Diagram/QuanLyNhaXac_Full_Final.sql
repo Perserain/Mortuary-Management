@@ -740,7 +740,8 @@ BEGIN
     SELECT @TongTien = ISNULL(SUM(dv.GIATIEN * sd.SOLUONG), 0)
     FROM SUDUNG sd
     JOIN DICHVU dv ON sd.MADV = dv.MADV
-    WHERE sd.MATH = @MATH AND sd.MAHD IS NULL
+    WHERE sd.MATH = @MATH 
+    
     RETURN @TongTien
 END
 GO
@@ -2167,6 +2168,8 @@ GRANT EXECUTE ON SP_DiffBackup                TO [QL_ADMIN]
 GRANT EXECUTE ON SP_LogBackup                 TO [QL_ADMIN]
 GRANT EXECUTE ON SP_KiemTraTinhToanVenBackup  TO [QL_ADMIN]
 GRANT EXECUTE ON SP_LichSuBackup              TO [QL_ADMIN]
+
+GRANT EXECUTE ON OBJECT::dbo.FN_TinhTongTienDichVu TO [QL_ADMIN];
 GO
 
 -- ── 9.3 QL_NHANVIEN ─────────────────────────────────────────
@@ -2214,6 +2217,8 @@ GRANT EXECUTE ON SP_QuetCanhBao            TO [QL_NHANVIEN]
 GRANT EXECUTE ON SP_DSNhanVien             TO [QL_NHANVIEN]
 GRANT EXECUTE ON SP_Dashboard              TO [QL_NHANVIEN]
 GRANT EXECUTE ON SP_KiemTraQuyenHan        TO [QL_NHANVIEN]
+
+GRANT EXECUTE ON OBJECT::dbo.FN_TinhTongTienDichVu TO [QL_NHANVIEN];
 GO
 
 -- ── 9.4 QL_BACSI ────────────────────────────────────────────

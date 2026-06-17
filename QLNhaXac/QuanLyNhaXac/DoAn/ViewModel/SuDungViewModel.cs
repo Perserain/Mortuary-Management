@@ -40,13 +40,16 @@ namespace DoAn.ViewModel
                         TenDV = _selectedSuDung.TenDV,
                         GiaTien = _selectedSuDung.GiaTien,
                         NgaySD = _selectedSuDung.NgaySD,
-                        SoLuong = _selectedSuDung.SoLuong,    // ← MỚI
+                        SoLuong = _selectedSuDung.SoLuong,
                         GhiChu = _selectedSuDung.GhiChu
                     };
+                    // Cập nhật tổng tiền ngay khi chọn dòng
+                    CapNhatTongTienTrucTiep(_selectedSuDung.MaTH);
                 }
                 else
                 {
                     ResetForm();
+                    TongTien = "Tổng tiền: 0 VNĐ"; // Reset lại tiền khi không chọn gì
                 }
             }
         }
@@ -90,7 +93,6 @@ namespace DoAn.ViewModel
 
         private void ResetForm()
         {
-            // ← MỚI: khởi tạo SoLuong = 1
             NewSuDung = new SuDungModel() { NgaySD = DateTime.Now, SoLuong = 1 };
         }
 
@@ -111,7 +113,7 @@ namespace DoAn.ViewModel
                     MaDV = row["MADV"].ToString(),
                     TenDV = row["TENDV"].ToString(),
                     GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
-                    SoLuong = row["SOLUONG"] != DBNull.Value ? Convert.ToInt32(row["SOLUONG"]) : 1,  // ← MỚI
+                    SoLuong = row["SOLUONG"] != DBNull.Value ? Convert.ToInt32(row["SOLUONG"]) : 1,
                     NgaySD = row["NGAYSUDUNG"] != DBNull.Value ? (DateTime?)row["NGAYSUDUNG"] : null,
                     GhiChu = row["GHICHU"] != DBNull.Value ? row["GHICHU"].ToString() : "",
                     MaHD = row["MAHD"] != DBNull.Value ? row["MAHD"].ToString() : null,
@@ -155,6 +157,22 @@ namespace DoAn.ViewModel
             }
             return null;
         }
+
+        private void TinhTongTien()
+        {
+            if (!DBConnect.RequireStaffOrAdmin("Tính tổng tiền dịch vụ")) return;
+
+            string maTH = NewSuDung?.MaTH;
+            if (string.IsNullOrWhiteSpace(maTH))
+            {
+                MessageBox.Show("Vui lòng nhập/chọn Mã Thi Hài để tính tổng tiền.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            CapNhatTongTienTrucTiep(maTH);
+            MessageBox.Show(TongTien, "Thông báo chi phí", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
         private void ThemSuDung()
         {
             if (!DBConnect.RequireStaffOrAdmin("Đăng ký dịch vụ")) return;
@@ -188,8 +206,13 @@ namespace DoAn.ViewModel
                         : "Đã thêm/đăng ký dịch vụ thành công!";
                     MessageBox.Show(msg, "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
+                    string currentMaTH = NewSuDung.MaTH; // LƯU MÃ THI HÀI
+
                     LoadData();
                     ResetForm();
+
+                    NewSuDung.MaTH = currentMaTH;
+                    CapNhatTongTienTrucTiep(currentMaTH);
                 }
             }
             catch (SqlException ex)
@@ -208,6 +231,31 @@ namespace DoAn.ViewModel
             {
                 MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void CapNhatTongTienTrucTiep(string maTH)
+        {
+            if (string.IsNullOrWhiteSpace(maTH))
+            {
+                TongTien = "Tổng tiền: 0 VNĐ";
+                return;
+            }
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
+                {
+                    conn.Open();
+                    // ĐỔI TÊN HÀM Ở ĐÂY: Dùng hàm FN_TinhTongToanBoTienDichVu mới tạo
+                    using (SqlCommand cmd = new SqlCommand("SELECT dbo.FN_TinhTongTienDichVu(@MaTH)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaTH", maTH);
+                        object result = cmd.ExecuteScalar();
+                        decimal total = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                        TongTien = $"Tổng chi phí của thi hài {maTH}: {total:N0} VNĐ";
+                    }
+                }
+            }
+            catch { /* Bỏ qua lỗi ngầm để không làm phiền trải nghiệm UI */ }
         }
 
         private void XoaSuDung()
@@ -229,34 +277,18 @@ namespace DoAn.ViewModel
                         cmd.ExecuteNonQuery();
 
                         MessageBox.Show("Đã hủy dịch vụ thành công!");
+
+                        string currentMaTH = NewSuDung.MaTH; // LƯU MÃ THI HÀI
+
                         LoadData();
                         ResetForm();
+
+                        NewSuDung.MaTH = currentMaTH;
+                        CapNhatTongTienTrucTiep(currentMaTH);
                     }
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi xóa: " + ex.Message); }
             }
-        }
-
-        private void TinhTongTien()
-        {
-            if (!DBConnect.RequireStaffOrAdmin("Tính tổng tiền dịch vụ")) return;
-            string maTH = NewSuDung.MaTH;
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(DBConnect.ConnectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand("SELECT dbo.FN_TinhTongTienDichVu(@MaTH)", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@MaTH", maTH);
-                        object result = cmd.ExecuteScalar();
-                        decimal total = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
-                        TongTien = $"Tổng tiền của thi hài {maTH} là: {total:N0} VNĐ";
-                        MessageBox.Show($"Tổng tiền của thi hài {maTH} là: {total:N0} VNĐ", "Thông báo chi phí");
-                    }
-                }
-            }
-            catch (Exception ex) { MessageBox.Show("Lỗi tính toán: " + ex.Message); }
         }
 
         private void TraCuuLichSuDichVu()
@@ -288,7 +320,7 @@ namespace DoAn.ViewModel
                                 {
                                     TenDV = row["TENDV"].ToString(),
                                     GiaTien = row["GIATIEN"] != DBNull.Value ? Convert.ToDecimal(row["GIATIEN"]) : 0,
-                                    SoLuong = row["SOLUONG"] != DBNull.Value ? Convert.ToInt32(row["SOLUONG"]) : 1,  // ← MỚI
+                                    SoLuong = row["SOLUONG"] != DBNull.Value ? Convert.ToInt32(row["SOLUONG"]) : 1,
                                     NgaySD = row["NGAYSUDUNG"] != DBNull.Value ? (DateTime?)row["NGAYSUDUNG"] : null,
                                     GhiChu = row["GHICHU"] != DBNull.Value ? row["GHICHU"].ToString() : ""
                                 });
@@ -319,14 +351,13 @@ namespace DoAn.ViewModel
                     {
                         var ws = wb.Worksheets.Add("Dịch Vụ Đã Sử Dụng");
 
-                        // ← MỚI: thêm cột Số Lượng và Thành Tiền
                         ws.Cell(1, 1).Value = "Mã TH";
                         ws.Cell(1, 2).Value = "Tên Thi Hài";
                         ws.Cell(1, 3).Value = "Mã DV";
                         ws.Cell(1, 4).Value = "Tên Dịch Vụ";
                         ws.Cell(1, 5).Value = "Đơn Giá";
-                        ws.Cell(1, 6).Value = "Số Lượng";    // ← MỚI
-                        ws.Cell(1, 7).Value = "Thành Tiền";  // ← MỚI
+                        ws.Cell(1, 6).Value = "Số Lượng";
+                        ws.Cell(1, 7).Value = "Thành Tiền";
                         ws.Cell(1, 8).Value = "Ngày Sử Dụng";
                         ws.Cell(1, 9).Value = "Ghi Chú";
 
@@ -344,8 +375,8 @@ namespace DoAn.ViewModel
                             ws.Cell(r, 4).Value = item.TenDV;
                             ws.Cell(r, 5).Value = item.GiaTien;
                             ws.Cell(r, 5).Style.NumberFormat.Format = "#,##0";
-                            ws.Cell(r, 6).Value = item.SoLuong;        // ← MỚI
-                            ws.Cell(r, 7).Value = item.ThanhTien;      // ← MỚI
+                            ws.Cell(r, 6).Value = item.SoLuong;
+                            ws.Cell(r, 7).Value = item.ThanhTien;
                             ws.Cell(r, 7).Style.NumberFormat.Format = "#,##0";
                             if (item.NgaySD.HasValue)
                                 ws.Cell(r, 8).Value = item.NgaySD.Value.ToString("dd/MM/yyyy");
@@ -379,7 +410,7 @@ namespace DoAn.ViewModel
                     dt.Columns.Add("MADV", typeof(string));
                     dt.Columns.Add("NGAYSD", typeof(DateTime));
                     dt.Columns.Add("GHICHU", typeof(string));
-                    dt.Columns.Add("SOLUONG", typeof(int));    // ← MỚI
+                    dt.Columns.Add("SOLUONG", typeof(int));
 
                     using (var workbook = new XLWorkbook(dlg.FileName))
                     {
@@ -400,7 +431,6 @@ namespace DoAn.ViewModel
 
                             string ghiChu = row.Cell(4).GetString().Trim();
 
-                            // ← MỚI: đọc cột Số Lượng (cột 5), mặc định 1 nếu không có
                             int soLuong = 1;
                             if (!int.TryParse(row.Cell(5).GetString().Trim(), out soLuong) || soLuong < 1)
                                 soLuong = 1;
@@ -428,7 +458,7 @@ namespace DoAn.ViewModel
                             bulkCopy.ColumnMappings.Add("MADV", "MADV");
                             bulkCopy.ColumnMappings.Add("NGAYSD", "NGAYSUDUNG");
                             bulkCopy.ColumnMappings.Add("GHICHU", "GHICHU");
-                            bulkCopy.ColumnMappings.Add("SOLUONG", "SOLUONG");  // ← MỚI
+                            bulkCopy.ColumnMappings.Add("SOLUONG", "SOLUONG");
                             bulkCopy.WriteToServer(dt);
                             MessageBox.Show($"Đã thêm thành công {dt.Rows.Count} lượt sử dụng dịch vụ từ file Excel!", "Thành công");
                             LoadData();
