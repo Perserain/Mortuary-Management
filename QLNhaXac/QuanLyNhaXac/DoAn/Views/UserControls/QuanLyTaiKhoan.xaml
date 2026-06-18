@@ -1,0 +1,595 @@
+﻿<UserControl x:Class="DoAn.Views.UserControls.QuanLyTaiKhoan"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:DoAn.ViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="680" d:DesignWidth="950">
+
+    <UserControl.DataContext>
+        <vm:QuanLyTaiKhoanViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <!-- Style chung cho CheckBox trong bảng -->
+        <Style x:Key="GridCheckBox" TargetType="CheckBox">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment"   Value="Center"/>
+            <Setter Property="Margin" Value="4,0"/>
+        </Style>
+
+        <!-- Style nút chính -->
+        <Style x:Key="BtnPrimary" TargetType="Button">
+            <Setter Property="Height"      Value="34"/>
+            <Setter Property="Padding"     Value="18,0"/>
+            <Setter Property="Background"  Value="#1E293B"/>
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="FontWeight"  Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#334155"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BtnDanger" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+            <Setter Property="Background" Value="#DC2626"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#B91C1C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Header DataGrid -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"  Value="#1E293B"/>
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="FontWeight"  Value="Bold"/>
+            <Setter Property="Padding"     Value="8,6"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+        </Style>
+
+        <!-- Row DataGrid -->
+        <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#DBEAFE"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F5F9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#1E293B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tiêu đề -->
+        <TextBlock Grid.Row="0"
+                   Text="QUẢN LÝ TÀI KHOẢN – PHÂN QUYỀN"
+                   FontSize="24" FontWeight="Bold"
+                   Foreground="#1E293B" Margin="0,0,0,15"/>
+
+        <!-- TabControl chính -->
+        <TabControl Grid.Row="1"
+                    SelectedIndex="{Binding TabIndex}"
+                    Background="White"
+                    BorderBrush="#E2E8F0">
+
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="FontWeight"  Value="SemiBold"/>
+                    <Setter Property="FontSize"    Value="14"/>
+                    <Setter Property="Padding"     Value="20,8"/>
+                    <Setter Property="Background"  Value="#F1F5F9"/>
+                    <Setter Property="Foreground"  Value="#475569"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="Foreground" Value="#1E293B"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- ══════════ TAB NHÂN VIÊN ══════════ -->
+            <TabItem Header="👤  Nhân Viên">
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Cột trái: Danh sách User -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="8"
+                            BorderBrush="#E2E8F0" BorderThickness="1">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                    Padding="12,10" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Danh Sách User"
+                                           FontWeight="Bold" FontSize="13" Foreground="#334155"/>
+                            </Border>
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding DanhSachUser}"
+                                      SelectedItem="{Binding SelectedUser}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      CanUserResizeRows="False"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9"
+                                      HeadersVisibility="Column"
+                                      BorderThickness="0"
+                                      RowHeight="36">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tên User" Binding="{Binding TenUser}" Width="*"/>
+                                    <DataGridTextColumn Header="Login"    Binding="{Binding TenLogin}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Cột phải: Bảng quyền -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Bảng phân quyền theo Table -->
+                        <Border Grid.Row="0" Background="White" CornerRadius="8"
+                                BorderBrush="#E2E8F0" BorderThickness="1">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Header bảng + nhãn user đang chọn -->
+                                <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                        Padding="12,10" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Quyền Trên Bảng Dữ Liệu"
+                                                   FontWeight="Bold" FontSize="13" Foreground="#334155"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text=" — " Foreground="#94A3B8" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SelectedUser.TenUser, FallbackValue='(chưa chọn user)'}"
+                                                   Foreground="#2563EB" FontWeight="SemiBold" FontSize="13"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- DataGrid bảng quyền -->
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding DanhSachBang}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserResizeRows="False"
+                                          GridLinesVisibility="Horizontal"
+                                          HorizontalGridLinesBrush="#F1F5F9"
+                                          BorderThickness="0"
+                                          RowHeight="38">
+
+                                    <DataGrid.Columns>
+                                        <!-- Tên bảng -->
+                                        <DataGridTextColumn Header="Tên Bảng"
+                                                            Binding="{Binding TenBang}"
+                                                            IsReadOnly="True" Width="160">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Margin" Value="8,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- SELECT -->
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel HorizontalAlignment="Center">
+                                                        <CheckBox Content="SELECT"
+                                                                  Foreground="White" FontWeight="Bold"
+                                                                  HorizontalAlignment="Center"
+                                                                  Command="{Binding DataContext.SelectAllCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  CommandParameter="SELECT"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoSelect, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- INSERT -->
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="INSERT"
+                                                              Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="INSERT"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoInsert, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- UPDATE -->
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="UPDATE"
+                                                              Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="UPDATE"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoUpdate, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- DELETE -->
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="DELETE"
+                                                              Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="DELETE"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoDelete, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- WITH GRANT -->
+                                        <DataGridTemplateColumn Header="W.Grant" Width="76">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding WithGrant, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"
+                                                              Foreground="#7C3AED"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <!-- REVOKE -->
+                                        <DataGridTemplateColumn Header="Revoke" Width="70">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Revoke, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"
+                                                              Foreground="#DC2626"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+
+                        <!-- Tùy chọn toàn cục -->
+                        <Border Grid.Row="1" Background="White" CornerRadius="8"
+                                BorderBrush="#E2E8F0" BorderThickness="1"
+                                Margin="0,12,0,0" Padding="16,12">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="6" Color="Black" Opacity="0.05" ShadowDepth="1"/>
+                            </Border.Effect>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Tùy chọn toàn cục:"
+                                           FontWeight="SemiBold" Foreground="#475569"
+                                           VerticalAlignment="Center" Margin="0,0,20,0"/>
+
+                                <CheckBox Content="Grant With Grant Option (áp dụng tất cả)"
+                                          IsChecked="{Binding WithGrantOption}"
+                                          Foreground="#7C3AED" FontWeight="SemiBold"
+                                          VerticalAlignment="Center" Margin="0,0,24,0"/>
+
+                                <CheckBox Content="Cascade (khi Revoke)"
+                                          IsChecked="{Binding CascadeRevoke}"
+                                          Foreground="#DC2626" FontWeight="SemiBold"
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Nút Lưu / Hủy -->
+                        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                                    HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <Button Content="Hủy" Style="{StaticResource BtnDanger}"
+                                    Command="{Binding HuyCommand}" Margin="0,0,10,0"/>
+                            <Button Content="💾  Lưu thay đổi" Style="{StaticResource BtnPrimary}"
+                                    Command="{Binding LuuCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- ══════════ TAB BÁC SĨ (cùng layout, binding chung qua TabIndex) ══════════ -->
+            <TabItem Header="🩺  Bác Sĩ">
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="260"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Cột trái -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="8"
+                            BorderBrush="#E2E8F0" BorderThickness="1">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                    Padding="12,10" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Danh Sách User"
+                                           FontWeight="Bold" FontSize="13" Foreground="#334155"/>
+                            </Border>
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding DanhSachUser}"
+                                      SelectedItem="{Binding SelectedUser}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      CanUserResizeRows="False"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9"
+                                      BorderThickness="0"
+                                      RowHeight="36">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tên User" Binding="{Binding TenUser}" Width="*"/>
+                                    <DataGridTextColumn Header="Login"    Binding="{Binding TenLogin}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Cột phải: Bảng quyền (giống tab Nhân Viên) -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="White" CornerRadius="8"
+                                BorderBrush="#E2E8F0" BorderThickness="1">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.06" ShadowDepth="2"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8,8,0,0"
+                                        Padding="12,10" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Quyền Trên Bảng Dữ Liệu"
+                                                   FontWeight="Bold" FontSize="13" Foreground="#334155"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text=" — " Foreground="#94A3B8" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SelectedUser.TenUser, FallbackValue='(chưa chọn user)'}"
+                                                   Foreground="#2563EB" FontWeight="SemiBold" FontSize="13"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding DanhSachBang}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserResizeRows="False"
+                                          GridLinesVisibility="Horizontal"
+                                          HorizontalGridLinesBrush="#F1F5F9"
+                                          BorderThickness="0"
+                                          RowHeight="38">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tên Bảng" Binding="{Binding TenBang}"
+                                                            IsReadOnly="True" Width="160">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Margin" Value="8,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="SELECT" Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="SELECT"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoSelect, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="INSERT" Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="INSERT"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoInsert, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="UPDATE" Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="UPDATE"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoUpdate, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Width="80">
+                                            <DataGridTemplateColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="DELETE" Foreground="White" FontWeight="Bold"
+                                                              HorizontalAlignment="Center"
+                                                              Command="{Binding DataContext.SelectAllCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="DELETE"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.HeaderTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding CoDelete, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="W.Grant" Width="76">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding WithGrant, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}" Foreground="#7C3AED"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Revoke" Width="70">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Revoke, UpdateSourceTrigger=PropertyChanged}"
+                                                              Style="{StaticResource GridCheckBox}" Foreground="#DC2626"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1" Background="White" CornerRadius="8"
+                                BorderBrush="#E2E8F0" BorderThickness="1"
+                                Margin="0,12,0,0" Padding="16,12">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="6" Color="Black" Opacity="0.05" ShadowDepth="1"/>
+                            </Border.Effect>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Tùy chọn toàn cục:"
+                                           FontWeight="SemiBold" Foreground="#475569"
+                                           VerticalAlignment="Center" Margin="0,0,20,0"/>
+                                <CheckBox Content="Grant With Grant Option"
+                                          IsChecked="{Binding WithGrantOption}"
+                                          Foreground="#7C3AED" FontWeight="SemiBold"
+                                          VerticalAlignment="Center" Margin="0,0,24,0"/>
+                                <CheckBox Content="Cascade (khi Revoke)"
+                                          IsChecked="{Binding CascadeRevoke}"
+                                          Foreground="#DC2626" FontWeight="SemiBold"
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                                    HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <Button Content="Hủy" Style="{StaticResource BtnDanger}"
+                                    Command="{Binding HuyCommand}" Margin="0,0,10,0"/>
+                            <Button Content="💾  Lưu thay đổi" Style="{StaticResource BtnPrimary}"
+                                    Command="{Binding LuuCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

@@ -1,0 +1,188 @@
+﻿<UserControl x:Class="DoAn.Views.UserControls.ThiHai"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:DoAn.ViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="850">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="QUẢN LÝ THI HÀI" FontSize="26" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
+
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,15"
+                Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Mã Thi Hài:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <TextBox Text="{Binding NewThiHai.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+         IsReadOnly="True" Background="#E2E8F0" Foreground="#475569" 
+         Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                <TextBlock Text="Họ Tên:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <TextBox Text="{Binding NewThiHai.HoTenTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Ngày Sinh:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <DatePicker SelectedDate="{Binding NewThiHai.NgaySinh, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Ngày Mất:" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <DatePicker SelectedDate="{Binding NewThiHai.NgayMat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Giới Tính:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
+                <ComboBox Text="{Binding NewThiHai.GioiTinh, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0">
+                    <ComboBoxItem Content="Nam"/>
+                    <ComboBoxItem Content="Nữ"/>
+                    <ComboBoxItem Content="Chưa rõ"/>
+                </ComboBox>
+                <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="80"/>
+                            <Setter Property="Height" Value="32"/>
+                            <Setter Property="Margin" Value="10,0,0,0"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                    <Button Content="🚪 BÀN GIAO" Command="{Binding BanGiaoCommand}" Background="#DC2626" Width="100"
+                            Visibility="{Binding CanEditThiHai, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+
+                <!-- S3-02: Trường pháp y -->
+                <TextBlock Text="Nơi Tìm Thấy:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,15,10,0"/>
+                <TextBox Text="{Binding NewThiHai.NoiTimThay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         Grid.Row="3" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,15,0,0"
+                         ToolTip="Địa điểm phát hiện thi hài (nếu có)"/>
+                <TextBlock Text="Cơ Quan Nhận:" Grid.Row="3" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,15,10,0"/>
+                <TextBox Text="{Binding NewThiHai.CoCuaNhan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                         Grid.Row="3" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,15,0,0"
+                         ToolTip="Cơ quan hoặc đơn vị bàn giao thi hài"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" 
+                      Background="White" RowBackground="White" 
+                      AlternatingRowBackground="#F8FAFC" BorderThickness="0" 
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                      IsReadOnly="True"
+                      ItemsSource="{Binding DanhSachThiHai}" SelectedItem="{Binding SelectedThiHai}">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F1F5F9"/>
+                        <Setter Property="Foreground" Value="#475569"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="10,10"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding XemChiTietCommand}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã Thi Hài" Binding="{Binding MaTH}" Width="100"/>
+                    <DataGridTextColumn Header="Họ Tên" Binding="{Binding HoTenTH}" Width="*"/>
+                    <DataGridTextColumn Header="Ngày Sinh" Binding="{Binding NgaySinh, StringFormat=dd/MM/yyyy}" Width="110"/>
+                    <DataGridTextColumn Header="Ngày Mất" Binding="{Binding NgayMat, StringFormat=dd/MM/yyyy}" Width="110"/>
+                    <DataGridTextColumn Header="Giới Tính" Binding="{Binding GioiTinh}" Width="80"/>
+                    <DataGridTextColumn Header="Trạng Thái" Binding="{Binding NhomTuoi}" Width="130" FontWeight="SemiBold" Foreground="#3B82F6"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="0,15,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Height" Value="35"/>
+                    <Setter Property="Padding" Value="15,0"/>
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding CountThiHai}" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" Foreground="#64748B" Margin="0,0,10,0"/>
+                <DatePicker SelectedDate="{Binding NgayTimKiem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,10,0"/>
+                <Button Content="TÌM THEO NGÀY" Command="{Binding TimTheoNgayCommand}" Background="#0EA5E9"/>
+                <Button Content="TẢI LẠI" Command="{Binding TaiLaiDanhSachCommand}" Background="#64748B"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="TÌM THI HÀI SÓT" Command="{Binding TimSotCommand}" Background="#F97316"/>
+                <Button Content="THANH LÝ QUÁ HẠN" Command="{Binding ThanhLyCommand}" Background="#DC2626"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"
+                        ToolTip="⚠️ Xóa tất cả thi hài đã lưu quá 15 ngày (chỉ Admin — KHÔNG THỂ HOÀN TÁC)"/>
+                <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
+                <Button Content="XUẤT EXCEL" Command="{Binding XuatExcelCommand}" Background="#3B82F6"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
