@@ -32,8 +32,34 @@ END
 GO
 
 CREATE DATABASE QuanLyNhaXac
+--1. FILE DỮ LIỆU CHÍNH
+ON PRIMARY
+(
+    NAME = 'QuanLyNhaXac_Main',
+    FILENAME = 'C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QLNX_Main\QuanLyNhaXac_Main.mdf',
+    SIZE = 10MB,          -- Kích thước ban đầu
+    MAXSIZE = 30MB,      -- Kích thước tối đa
+    FILEGROWTH = 5MB      -- Tốc độ tăng trưởng
+),
+--2. FILE DỮ LIỆU PHỤ
+FILEGROUP SecondaryGroup
+(
+    NAME = 'QuanLyNhaXac_Sub',
+    FILENAME = 'C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QLNX_Sub\QuanLyNhaXac_Sub.ndf',
+    SIZE = 10MB,          -- Kích thước ban đầu
+    MAXSIZE = 30MB,      -- Kích thước tối đa
+    FILEGROWTH = 5MB      -- Tốc độ tăng trưởng
+)
+-- 3. File nhật ký (.ldf) - Log file
+LOG ON
+(
+    NAME = 'QuanLyNhaXac_Log',
+    FILENAME = 'C:\Users\admin\OneDrive\Desktop\Mortuary-Management\QLNhaXac\QLNX_Log\QuanLyNhaXac_Log.ldf',
+    SIZE = 5MB,
+    MAXSIZE = 20MB,
+    FILEGROWTH = 1MB
+)
 GO
-
 ALTER DATABASE QuanLyNhaXac SET RECOVERY FULL
 GO
 
