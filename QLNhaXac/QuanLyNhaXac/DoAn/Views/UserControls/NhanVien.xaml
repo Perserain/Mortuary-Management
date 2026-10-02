@@ -1,0 +1,236 @@
+<UserControl x:Class="DoAn.Views.UserControls.NhanVien"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="650" d:DesignWidth="850">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <!-- Tiêu đề -->
+            <RowDefinition Height="Auto"/>
+            <!-- Form nhập liệu -->
+            <RowDefinition Height="Auto"/>
+            <!-- Thanh tìm kiếm -->
+            <RowDefinition Height="Auto"/>
+            <!-- DataGrid -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===== ROW 0: TIÊU ĐỀ ===== -->
+        <TextBlock Grid.Row="0"
+                   Text="🧑‍💼  QUẢN LÝ NHÂN VIÊN"
+                   FontSize="24" FontWeight="Bold" Foreground="#1E293B"
+                   Margin="0,0,0,15"/>
+
+        <!-- ===== ROW 1: FORM NHẬP LIỆU ===== -->
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Hàng 1 -->
+                <TextBlock Text="Mã NV:" Grid.Row="0" Grid.Column="0"
+                           VerticalAlignment="Center" FontWeight="SemiBold"
+                           Foreground="#475569" Margin="0,0,10,14"/>
+                <TextBox Text="{Binding NewNhanVien.MANV, UpdateSourceTrigger=PropertyChanged}"
+                         IsReadOnly="True" Background="#F1F5F9"
+                         Grid.Row="0" Grid.Column="1"
+                         Height="32" VerticalContentAlignment="Center"
+                         Padding="8,0" Margin="0,0,0,14"/>
+
+                <TextBlock Text="Họ và Tên:" Grid.Row="0" Grid.Column="3"
+                           VerticalAlignment="Center" FontWeight="SemiBold"
+                           Foreground="#475569" Margin="0,0,10,14"/>
+                <TextBox Text="{Binding NewNhanVien.HOTEN_NV, UpdateSourceTrigger=PropertyChanged}"
+                         Grid.Row="0" Grid.Column="4"
+                         Height="32" VerticalContentAlignment="Center"
+                         Padding="8,0" Margin="0,0,0,14"/>
+
+                <!-- Hàng 2 -->
+                <TextBlock Text="Chức Vụ:" Grid.Row="1" Grid.Column="0"
+                           VerticalAlignment="Center" FontWeight="SemiBold"
+                           Foreground="#475569" Margin="0,0,10,0"/>
+                <ComboBox ItemsSource="{Binding DanhSachChucVu}"
+                          SelectedItem="{Binding NewNhanVien.CHUCVU, UpdateSourceTrigger=PropertyChanged}"
+                          IsEditable="True"
+                          Text="{Binding NewNhanVien.CHUCVU, UpdateSourceTrigger=PropertyChanged}"
+                          Grid.Row="1" Grid.Column="1"
+                          Height="32" VerticalContentAlignment="Center"
+                          Padding="4,0"/>
+
+                <TextBlock Text="Điện Thoại:" Grid.Row="1" Grid.Column="3"
+                           VerticalAlignment="Center" FontWeight="SemiBold"
+                           Foreground="#475569" Margin="0,0,10,0"/>
+
+                <!-- Hàng 2 cột 4: SĐT + nút bên phải -->
+                <Grid Grid.Row="1" Grid.Column="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Text="{Binding NewNhanVien.DIENTHOAI, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="0"
+                             Height="32" VerticalContentAlignment="Center"
+                             Padding="8,0" Margin="0,0,10,0"/>
+
+                    <!-- Nút THÊM / SỬA / XÓA / LÀM MỚI -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Width" Value="72"/>
+                                <Setter Property="Height" Value="32"/>
+                                <Setter Property="Margin" Value="6,0,0,0"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="12"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Resources>
+
+                        <Button Content="THÊM"   Command="{Binding ThemCommand}"   Background="#10B981"/>
+                        <Button Content="SỬA"    Command="{Binding SuaCommand}"    Background="#F59E0B"/>
+                        <Button Content="XÓA"    Command="{Binding XoaCommand}"    Background="#EF4444"/>
+                        <Button Content="MỚI"    Command="{Binding LamMoiCommand}" Background="#64748B"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ===== ROW 2: THANH TÌM KIẾM ===== -->
+        <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="12,8" Margin="0,0,0,10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="6" Color="Black" Opacity="0.04" ShadowDepth="1"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="🔍 Tìm kiếm:"
+                           VerticalAlignment="Center" FontWeight="SemiBold"
+                           Foreground="#475569" Margin="0,0,10,0"/>
+                <TextBox Grid.Column="1"
+                         Text="{Binding TuKhoa, UpdateSourceTrigger=PropertyChanged}"
+                         Height="30" VerticalContentAlignment="Center"
+                         Padding="8,0"
+                         BorderBrush="#CBD5E1" BorderThickness="1">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Style.Resources>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <!-- Số lượng hiển thị -->
+                <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                           Foreground="#94A3B8" FontSize="12" Margin="12,0,0,0">
+                    <Run Text="Hiển thị: "/>
+                    <Run Text="{Binding DanhSachNhanVien.Count, Mode=OneWay}" FontWeight="Bold" Foreground="#475569"/>
+                    <Run Text=" nhân viên"/>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <!-- ===== ROW 3: DATAGRID ===== -->
+        <Border Grid.Row="3" Background="White" CornerRadius="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <DataGrid AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      Background="White"
+                      RowBackground="White"
+                      AlternatingRowBackground="#F8FAFC"
+                      BorderThickness="0"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#E2E8F0"
+                      SelectionMode="Single"
+                      RowHeight="44"
+                      IsReadOnly="True"
+                      ItemsSource="{Binding DanhSachNhanVien}"
+                      SelectedItem="{Binding SelectedNhanVien}">
+
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F1F5F9"/>
+                        <Setter Property="Foreground" Value="#475569"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="12,10"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Padding" Value="12,8"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridCell">
+                                    <Border Padding="{TemplateBinding Padding}"
+                                            Background="{TemplateBinding Background}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#EFF6FF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F1F5F9"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã NV"    Binding="{Binding MANV}"     Width="90"/>
+                    <DataGridTextColumn Header="Họ Tên"   Binding="{Binding HOTEN_NV}" Width="*"/>
+                    <DataGridTextColumn Header="Chức Vụ"  Binding="{Binding CHUCVU}"   Width="200"/>
+                    <DataGridTextColumn Header="Điện Thoại" Binding="{Binding DIENTHOAI}" Width="130"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

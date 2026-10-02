@@ -1,0 +1,332 @@
+﻿<UserControl x:Class="DoAn.Views.UserControls.HoaDon"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:DoAn.ViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="750" d:DesignWidth="1100">
+
+    <UserControl.DataContext>
+        <vm:HoaDonViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <!-- Style nút bấm chung -->
+        <Style x:Key="BtnStyle" TargetType="Button">
+            <Setter Property="Height"      Value="32"/>
+            <Setter Property="Padding"     Value="16,0"/>
+            <Setter Property="Margin"      Value="6,0,0,0"/>
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="FontWeight"  Value="Bold"/>
+            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style tab trạng thái -->
+        <Style x:Key="TabStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="#F1F5F9" CornerRadius="6" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style header DataGrid -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"   Value="#F1F5F9"/>
+            <Setter Property="Foreground"   Value="#475569"/>
+            <Setter Property="FontWeight"   Value="Bold"/>
+            <Setter Property="Padding"      Value="10,10"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush"  Value="#CBD5E1"/>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding"           Value="10,8"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="BorderThickness"   Value="0"/>
+        </Style>
+
+        <!-- Label / TextBox style -->
+        <Style x:Key="LblStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight"        Value="SemiBold"/>
+            <Setter Property="Foreground"        Value="#475569"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin"            Value="0,0,10,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Tiêu đề -->
+            <RowDefinition Height="Auto"/>
+            <!-- Tab + filter -->
+            <RowDefinition Height="*"/>
+            <!-- DataGrid -->
+            <RowDefinition Height="Auto"/>
+            <!-- Panel chi tiết -->
+        </Grid.RowDefinitions>
+
+        <!-- ══════════ TIÊU ĐỀ ══════════ -->
+        <TextBlock Grid.Row="0"
+                   Text="QUẢN LÝ HÓA ĐƠN"
+                   FontSize="26" FontWeight="Bold" Foreground="#1E293B"
+                   Margin="0,0,0,15"/>
+
+        <!-- ══════════ TAB + FILTER ══════════ -->
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="16,12" Margin="0,0,0,12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <StackPanel>
+                <!-- Tab trạng thái -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <RadioButton Content="Tất cả"          Style="{StaticResource TabStyle}"
+                                 IsChecked="True"
+                                 Command="{Binding ChonTabCommand}" 
+                                 CommandParameter="Tất cả"/>
+
+                    <RadioButton Content="Chưa thanh toán" Style="{StaticResource TabStyle}"
+                                 Command="{Binding ChonTabCommand}" 
+                                 CommandParameter="Chưa thanh toán"/>
+
+                    <RadioButton Content="Đã thanh toán"   Style="{StaticResource TabStyle}"
+                                 Command="{Binding ChonTabCommand}" 
+                                 CommandParameter="Đã thanh toán"/>
+                </StackPanel>
+
+                <!-- Filter ngày + tìm kiếm -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Từ ngày:" Style="{StaticResource LblStyle}"/>
+                    <DatePicker SelectedDate="{Binding TuNgay, Mode=TwoWay}" Width="130" Margin="0,0,16,0"/>
+
+                    <TextBlock Text="Đến ngày:" Style="{StaticResource LblStyle}"/>
+                    <DatePicker SelectedDate="{Binding DenNgay, Mode=TwoWay}" Width="130" Margin="0,0,16,0"/>
+
+                    <TextBlock Text="Tìm kiếm:" Style="{StaticResource LblStyle}"/>
+                    <TextBox Text="{Binding TimKiem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Width="220" Height="30" Padding="6,0" VerticalContentAlignment="Center"
+                             BorderBrush="#CBD5E1" BorderThickness="1" Margin="0,0,16,0"/>
+
+                    <Button Content="🔄 Tải lại" Style="{StaticResource BtnStyle}"
+                            Background="#64748B" Command="{Binding TaiLaiCommand}"/>
+
+                    <TextBlock Text="{Binding SoLuong}" VerticalAlignment="Center"
+                               Foreground="#64748B" FontWeight="SemiBold" Margin="24,0,0,0"/>
+                    <TextBlock Text="{Binding TongDoanhThu}" VerticalAlignment="Center"
+                               Foreground="#10B981" FontWeight="Bold" Margin="16,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ══════════ DATAGRID HÓA ĐƠN ══════════ -->
+        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="10" Margin="0,0,0,12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <DataGrid AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      Background="White"
+                      RowBackground="White"
+                      AlternatingRowBackground="#F8FAFC"
+                      BorderThickness="0"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#E2E8F0"
+                      SelectionMode="Single"
+                      ItemsSource="{Binding DSHoaDon}"
+                      SelectedItem="{Binding Selected, Mode=TwoWay}">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Mã HD"      Binding="{Binding MAHD}"      Width="80"/>
+                    <DataGridTextColumn Header="Thi hài"    Binding="{Binding HOTEN_TH}"  Width="*"/>
+                    <DataGridTextColumn Header="Người nhận" Binding="{Binding NGUOI_NHAN}" Width="150"/>
+                    <DataGridTextColumn Header="SĐT"        Binding="{Binding SDT_NGUOI_NHAN}" Width="110"/>
+                    <DataGridTextColumn Header="Ngày lập"   Binding="{Binding NGAYLAP, StringFormat=dd/MM/yyyy}" Width="100"/>
+                    <DataGridTextColumn Header="Tổng tiền"  Binding="{Binding TONGTIEN, StringFormat=N0}" Width="110">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Badge trạng thái -->
+                    <DataGridTemplateColumn Header="Trạng thái" Width="130">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding MauTrangThai}" CornerRadius="10"
+                                        Padding="10,3" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding TRANGTHAITT}" Foreground="White"
+                                               FontWeight="SemiBold" FontSize="12"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="PT thanh toán" Binding="{Binding PHUONGTHUCTT}" Width="120"/>
+                    <DataGridTextColumn Header="Ngày TT"      Binding="{Binding NGAYTHANHTOAN, StringFormat=dd/MM/yyyy}" Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ══════════ PANEL CHI TIẾT ══════════ -->
+        <Border Grid.Row="3" Background="White" CornerRadius="10" Padding="20,16">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="320"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Bên trái: Dịch vụ đã dùng của hóa đơn đang chọn -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Dịch vụ thuộc hóa đơn đang chọn"
+                               FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
+                    <DataGrid AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Background="White"
+                              RowBackground="White"
+                              AlternatingRowBackground="#F8FAFC"
+                              BorderThickness="1" BorderBrush="#E2E8F0"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E2E8F0"
+                              MaxHeight="180"
+                              ItemsSource="{Binding DSDichVuDaDung}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Dịch vụ" Binding="{Binding TenDV}" Width="*"/>
+                            <DataGridTextColumn Header="Ngày dùng" Binding="{Binding NgaySD, StringFormat=dd/MM/yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Giá tiền" Binding="{Binding GiaTien, StringFormat=N0}" Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Ghi chú" Binding="{Binding GhiChu}" Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+
+                <!-- Bên phải: Tạo hóa đơn mới + Thanh toán -->
+                <StackPanel Grid.Column="2">
+
+                    <!-- 1. Tạo hóa đơn mới -->
+                    <TextBlock Text="Tạo hóa đơn mới" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Chọn thi hài (theo mã):" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,8"/>
+                    <ComboBox ItemsSource="{Binding DSThiHai}"
+                              SelectedItem="{Binding SelectedThiHaiMoi, Mode=TwoWay}"
+                              DisplayMemberPath="MaTH"
+                              Height="30" Margin="0,0,0,4"/>
+
+                    <TextBlock Text="{Binding SelectedThiHaiMoi.HoTenTH, StringFormat='Tên: {0}', TargetNullValue='(Vui lòng chọn mã thi hài)'}"
+                               Foreground="#0F766E" FontStyle="Italic" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                    <!-- 2. BẢNG PREVIEW DỊCH VỤ (Thay thế cho cái ComboBox cũ bị lỗi) -->
+                    <TextBlock Text="Danh sách dịch vụ sẽ được tính tiền:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,4"/>
+
+                    <TextBlock Text="* Lưu ý: Nếu lưới trống, vui lòng sang tab 'Dịch Vụ Đã Mua' để đăng ký dịch vụ cho thi hài này trước khi tạo hóa đơn." 
+                               Foreground="#D97706" FontStyle="Italic" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="False"
+                              Background="White" BorderThickness="1" BorderBrush="#D1FAE5"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#E2E8F0" MaxHeight="100"
+                              ItemsSource="{Binding DSDichVuChuaLap}" Margin="0,0,0,8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Dịch vụ" Binding="{Binding TenDV}" Width="*"/>
+                            <DataGridTextColumn Header="Giá tiền" Binding="{Binding GiaTien, StringFormat=N0}" Width="90">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- 3. Các trường thông tin còn lại -->
+                    <TextBlock Text="Ngày lập:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
+                    <DatePicker SelectedDate="{Binding NgayLapMoi, Mode=TwoWay}" Height="30" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Phương thức TT:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
+                    <ComboBox ItemsSource="{Binding DSPhuongThuc}"
+                              SelectedItem="{Binding PhuongThucMoi, Mode=TwoWay}"
+                              Height="30" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Ghi chú:" Style="{StaticResource LblStyle}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding GhiChuMoi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Height="30" Padding="6,0" VerticalContentAlignment="Center"
+                             BorderBrush="#CBD5E1" BorderThickness="1" Margin="0,0,0,8"/>
+
+                    <Button Content="TẠO HÓA ĐƠN" Style="{StaticResource BtnStyle}"
+                            Background="#10B981" HorizontalAlignment="Stretch"
+                            Command="{Binding TaoHoaDonCommand}" Margin="0,0,0,16"/>
+
+                    <!-- 4. Khu vực Thanh toán -->
+                    <Border BorderThickness="1,0,0,0" BorderBrush="#E2E8F0" Padding="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Thanh toán hóa đơn đang chọn" FontWeight="Bold"
+                                       Foreground="#1E293B" Margin="0,0,0,8"/>
+                            <ComboBox ItemsSource="{Binding DSPhuongThuc}"
+                                      SelectedItem="{Binding PhuongThucThanhToan, Mode=TwoWay}"
+                                      Height="30" Margin="0,0,0,8"/>
+                            <Button Content="THANH TOÁN" Style="{StaticResource BtnStyle}"
+                                    Background="#3B82F6" HorizontalAlignment="Stretch"
+                                    Command="{Binding ThanhToanCommand}"/>
+                            <Button Content="🖨️ IN HÓA ĐƠN (Excel)" Style="{StaticResource BtnStyle}"
+                                    Background="#0F766E" HorizontalAlignment="Stretch"
+                                    Margin="0,8,0,0"
+                                    ToolTip="Xuất hóa đơn đang chọn ra file Excel"
+                                    Command="{Binding InHoaDonCommand}"/>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

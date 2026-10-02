@@ -1,0 +1,299 @@
+﻿<UserControl x:Class="DoAn.Views.UserControls.HoSoKB"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DoAn.ViewModel"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="850">
+
+    <Grid Margin="20">
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="HỒ SƠ KHÁM NGHIỆM PHÁP Y" FontSize="26" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
+
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20" Margin="0,0,0,15">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Mã Hồ Sơ:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <TextBox Text="{Binding NewHoSo.MaHS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+         IsReadOnly="True" Background="#E2E8F0" Foreground="#475569" 
+         Grid.Row="0" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15"/>
+                
+                <TextBlock Text="Ngày Khám:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <DatePicker SelectedDate="{Binding NewHoSo.TgKham, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" Height="30" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Bác Sĩ PY:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+                <ComboBox ItemsSource="{Binding DanhSachBacSi}"
+                          SelectedItem="{Binding SelectedBacSi, Mode=TwoWay}"
+                          DisplayMemberPath="HoTenBS"
+                          SelectedValuePath="MaBS"
+                          Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Mã Thi Hài:" Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,15"/>
+
+                <ComboBox ItemsSource="{Binding DanhSachThiHaiGoc}"
+                          SelectedValue="{Binding NewHoSo.MaTH, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedValuePath="MaTH"
+                          IsEditable="True"
+                          TextSearch.TextPath="MaTH"
+                          Grid.Row="1" Grid.Column="4" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding MaTH}" FontWeight="Bold" Foreground="#0EA5E9"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding HoTenTH}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="Kết Luận:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
+                <TextBox Text="{Binding NewHoSo.KetLuan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,0"/>
+                
+                <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="80"/>
+                            <Setter Property="Height" Value="32"/>
+                            <Setter Property="Margin" Value="10,0,0,0"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="THÊM" Command="{Binding ThemCommand}" Background="#10B981"/>
+                    <Button Content="SỬA" Command="{Binding SuaCommand}" Background="#F59E0B"/>
+                    <Button Content="XÓA" Command="{Binding XoaCommand}" Background="#EF4444"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+            <TabControl Background="White" BorderThickness="0">
+                <TabItem Header="Danh sách hồ sơ">
+                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Background="White" 
+                              RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="0"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding DanhSachHoSo}" SelectedItem="{Binding SelectedHoSo}">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F1F5F9"/>
+                                <Setter Property="Foreground" Value="#475569"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Padding" Value="10,10"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding XemChiTietCommand}"/>
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã HS" Binding="{Binding MaHS}" Width="100"/>
+                            <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="120"/>
+                            <DataGridTextColumn Header="Mã Thi Hài" Binding="{Binding MaTH}" Width="100"/>
+                            <DataGridTextColumn Header="Bác Sĩ Thực Hiện" Binding="{Binding MaBS}" Width="130"/>
+                            <DataGridTextColumn Header="Kết Luận Pháp Y" Binding="{Binding KetLuan}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="Tra cứu (Real-time)">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- PHẦN 1: TRA CỨU THEO BÁC SĨ -->
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="🔍 Tìm Bác sĩ (Gõ Tên/Mã):" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
+                            <TextBox Text="{Binding TuKhoaBacSi, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                            <!-- Nút Làm Mới nằm ở góc phải -->
+                            <Button Content="LÀM MỚI TẤT CẢ" Command="{Binding LamMoiTraCuuCommand}" Grid.Column="3" Background="#64748B" Foreground="White" FontWeight="SemiBold" Padding="15,0"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Lưới 1A: Danh sách Bác Sĩ (để chọn) -->
+                            <DataGrid Grid.Column="0" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column"
+                                      IsReadOnly="True" SelectionMode="Single"
+                                      ItemsSource="{Binding DanhSachBacSiLoc}" SelectedItem="{Binding BacSiTraCuuDangChon}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#F1F5F9"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã BS" Binding="{Binding MaBS}" Width="65"/>
+                                    <DataGridTextColumn Header="Tên Bác Sĩ" Binding="{Binding HoTenBS}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Lưới 1B: Kết quả khám của Bác Sĩ -->
+                            <DataGrid Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column" IsReadOnly="True"
+                                      ItemsSource="{Binding DanhSachKhamNghiemTheoBacSi}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#E0F2FE"/>
+                                        <Setter Property="Foreground" Value="#0369A1"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã TH" Binding="{Binding MaTH}" Width="65"/>
+                                    <DataGridTextColumn Header="Tên Thi Hài" Binding="{Binding HoTenTH}" Width="150"/>
+                                    <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="90"/>
+                                    <DataGridTextColumn Header="Kết Luận" Binding="{Binding KetLuan}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
+                        <Separator Grid.Row="2" Background="#CBD5E1" Margin="0,10"/>
+
+                        <!-- PHẦN 2: TRA CỨU THEO THI HÀI -->
+                        <Grid Grid.Row="3" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="🔍 Tìm Thi hài (Gõ Tên/Mã):" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,10,0"/>
+                            <TextBox Text="{Binding TuKhoaThiHai, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Height="30" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        </Grid>
+
+                        <Grid Grid.Row="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Lưới 2A: Danh sách Thi Hài (để chọn) -->
+                            <DataGrid Grid.Column="0" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column"
+                                      IsReadOnly="True" SelectionMode="Single"
+                                      ItemsSource="{Binding DanhSachThiHaiLoc}" SelectedItem="{Binding ThiHaiTraCuuDangChon}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#F1F5F9"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã TH" Binding="{Binding MaTH}" Width="65"/>
+                                    <DataGridTextColumn Header="Tên Thi Hài" Binding="{Binding HoTenTH}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Lưới 2B: Kết quả khám của Thi Hài -->
+                            <DataGrid Grid.Column="2" AutoGenerateColumns="False" CanUserAddRows="False" Background="White" RowBackground="White" AlternatingRowBackground="#F8FAFC" BorderThickness="1" BorderBrush="#E2E8F0" HeadersVisibility="Column" IsReadOnly="True"
+                                      ItemsSource="{Binding DanhSachKhamNghiemTheoTuThi}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#FEF08A"/>
+                                        <Setter Property="Foreground" Value="#A16207"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="10,5"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã HS" Binding="{Binding MaHS}" Width="65"/>
+                                    <DataGridTextColumn Header="Bác Sĩ Khám" Binding="{Binding HoTenBS}" Width="150"/>
+                                    <DataGridTextColumn Header="Ngày Khám" Binding="{Binding TgKham, StringFormat=dd/MM/yyyy}" Width="90"/>
+                                    <DataGridTextColumn Header="Kết Luận" Binding="{Binding KetLuan}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Height" Value="35"/>
+                    <Setter Property="Padding" Value="15,0"/>
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </StackPanel.Resources>
+            <Button Content="NHẬP EXCEL" Command="{Binding NhapTuFileCommand}" Background="#8B5CF6"/>
+            <Button Content="XUẤT EXCEL" Command="{Binding XuatExcelCommand}" Background="#3B82F6"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

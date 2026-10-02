@@ -1,0 +1,185 @@
+﻿<Window x:Class="DoAn.Views.Layouts.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:DoAn.ViewModel"
+        xmlns:views="clr-namespace:DoAn.Views.UserControls"
+    x:Name="wndMain"
+    Title="Phần Mềm Quản Lý Nhà Xác" Height="650" Width="1100" WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AuditLogViewModel}">
+            <views:AuditLog/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NhanVienViewModel}">
+            <views:NhanVien/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CanhBaoViewModel}">
+            <views:CanhBao/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HoaDonViewModel}">
+            <views:HoaDon/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ThanNhanViewModel}">
+            <views:ThanNhan/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BacSiViewModel}">
+            <views:BacSi/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ThiHaiViewModel}">
+            <views:ThiHai/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DichVuViewModel}">
+            <views:DichVu/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:NganKeoViewModel}">
+            <views:NganKeo/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HoSoKBViewModel}">
+            <views:HoSoKB/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SuDungViewModel}">
+            <views:SuDung/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuanLyTaiKhoanViewModel}">
+            <views:QuanLyTaiKhoan/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QuanLyNhomQuyenViewModel}">
+            <views:QuanLyNhomQuyen/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BackupRestoreViewModel}">
+            <views:BackupRestore/>
+        </DataTemplate>
+        <!-- S3-01: Tìm kiếm toàn hệ thống -->
+        <DataTemplate DataType="{x:Type vm:TimKiemViewModel}">
+            <views:TimKiem/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="#1E293B">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,40,0,30">
+                    <TextBlock Text="MORTUARY" Foreground="#10B981" FontSize="26" FontWeight="Black" HorizontalAlignment="Center"/>
+                    <TextBlock Text="MANAGEMENT SYSTEM" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Margin="15,0">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Height" Value="45"/>
+                                <Setter Property="Margin" Value="0,5"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                <Setter Property="Padding" Value="15,0,0,0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#334155"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Resources>
+
+                        <Button Content="Dashboard" Command="{Binding ShowDashboardCommand}"/>
+                        <Button Content="Quản Lý Bác Sĩ" Command="{Binding ShowBacSiCommand}"/>
+                        <Button Content="Hồ Sơ Khám Nghiệm" Command="{Binding ShowHoSoCommand}"/>
+                        <Button Content="Bảng Giá Dịch Vụ" Command="{Binding ShowDichVuCommand}"/>
+                        <Button Content="Quản Lý Thi Hài" Command="{Binding ShowThiHaiCommand}"/>
+                        <Button Content="Thân Nhân" Command="{Binding ShowThanNhanCommand}"/>
+                        <Button Content="Quản Lý Ngăn Kéo" Command="{Binding ShowNganKeoCommand}"/>
+                        <Button Content="Dịch Vụ Đã Mua" Command="{Binding ShowSuDungCommand}"/>
+                        <Button Content="Hóa Đơn" Command="{Binding ShowHoaDonCommand}"/>
+                        <!-- S3-01: Tìm kiếm -->
+                        <Button Content="🔍 Tìm Kiếm" Command="{Binding ShowTimKiemCommand}"/>
+                        <Grid Margin="0,5">
+                            <Button Content="🔔  Cảnh Báo" Command="{Binding ShowCanhBaoCommand}"/>
+                            <Border x:Name="BadgeCB"
+            Background="#EF4444" CornerRadius="10"
+            Width="22" Height="22"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Margin="0,0,8,0"
+            Visibility="{Binding HasCanhBao, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="{Binding SoCanhBao}"
+                   Foreground="White" FontSize="11" FontWeight="Bold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Chỉ Admin mới thấy menu phân quyền -->
+                        <Button Content="🧑‍💼  Nhân Viên"
+                            Command="{Binding ShowNhanVienCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
+                        <Border Height="1" Background="#334155" Margin="10,10,10,10" 
+                Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
+                        <Button Content="Quản Lý Tài Khoản"
+                            Command="{Binding ShowQuanLyTaiKhoanCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Quản Lý Nhóm Quyền"
+                            Command="{Binding ShowQuanLyNhomQuyenCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Audit Log"
+                            Command="{Binding ShowAuditLogCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Backup &amp; Restore"
+                            Command="{Binding ShowBackupRestoreCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+                
+
+                <StackPanel Grid.Row="2" Margin="15,0,15,30">
+                    <Button Content="Đăng Xuất" 
+                            Command="{Binding LogOutCommand}" 
+                            CommandParameter="{Binding ElementName=wndMain}"
+                            Height="45" Background="#EF4444" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,5" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Background="#F8FAFC">
+            <ContentControl Content="{Binding CurrentView}"/>
+        </Grid>
+    </Grid>
+</Window>
+ 
